@@ -119,3 +119,98 @@ O projeto propõe o desenvolvimento de uma plataforma voltada à colaboração e
 - **[Usuário] – Avaliar experiência (feedback)**  
   Permite dar feedback sobre uma colaboração concluída ou projeto encerrado.
 
+### 3.2. Considerações de Design
+
+#### Visão Inicial da Arquitetura
+
+- Frontend em React/Node.js.
+- Backend serverless via Firebase Functions.
+- Banco de Dados NoSQL (Firestore).
+- Integrações externas via APIs (LinkedIn, GitHub).
+- Deploy contínuo via Vercel.
+
+#### Padrões de Arquitetura
+
+- MVC no Frontend.
+- Arquitetura orientada a eventos para interações assíncronas.
+
+#### Modelos C4
+
+- **Contexto**: Plataforma conecta startups, investidores e talentos.
+- **Contêineres**: Web App (Next.js), Backend Functions (Firebase), Banco de Dados (Firestore).
+- **Componentes**: Cadastro, Busca, Matchmaking, Integração APIs.
+- **Código**: Componentes React organizados por Domínio (Domain-Driven Design leve).
+
+### 3.3. Stack Tecnológica
+
+#### Linguagens de Programação
+
+- Javascript e Typescript (Frontend e Backend).
+
+#### Frameworks e Bibliotecas
+
+- React.js + Next.js (Frontend)
+- Firebase Functions (Backend)
+- Firestore (Banco de Dados)
+- TailwindCSS (estilização)
+- Axios (requisições HTTP)
+
+#### Ferramentas de Desenvolvimento e Gestão de Projeto
+
+- GitHub (repositório e issues)
+- GitHub Actions (CI/CD)
+- Trello (Kanban de tarefas)
+- SonarCloud (análise de qualidade de código)
+- Github Wiki (documentação)
+
+#### Outras ferramentas
+
+- ESLint + Prettier (padrões de código)
+- Docker para ambiente de desenvolvimento local
+
+### 3.4. Considerações de Segurança
+
+- **Autenticação e Autorização**: Firebase Authentication + OAuth 2.0.
+- **Proteção contra ataques**: uso de HTTPS obrigatório; Firestore Security Rules para controlar acesso a dados.
+- **Monitoramento**: Integração com Datadog para análise de performance e segurança.
+- **Gerenciamento de Erros**: Sentry para capturar e reportar falhas em produção.
+
+---
+
+### 4. Próximos Passos
+
+- Finalizar protótipo de telas (Figma).
+- Desenvolvimento de MVP (Mínimo Produto Viável).
+- Configuração de pipeline CI/CD com GitHub Actions.
+- Publicação inicial da plataforma em ambiente de teste (Firebase Hosting).
+- Realizar testes unitários e testes de integração.
+- Recolher feedbacks e evoluir a aplicação na fase Portfólio II.
+
+**Cronograma geral:**
+
+- **Portfólio I**: Planejamento + MVP inicial.
+- **Portfólio II**: Validação do MVP + Melhorias e Deploy final.
+
+---
+
+### 5. Referências
+
+
+---
+
+### 6. Apêndices (Opcionais)
+
+
+
+---
+
+### 7. Avaliações de Professores
+
+**Considerações Professor/a:**  
+(Área reservada para comentários e assinatura)
+
+**Considerações Professor/a:**  
+(Área reservada para comentários e assinatura)
+
+**Considerações Professor/a:**  
+(Área reservada para comentários e assinatura)
