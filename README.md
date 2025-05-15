@@ -81,3 +81,41 @@ O projeto propõe o desenvolvimento de uma plataforma voltada à colaboração e
 - **RNF07**: O backend deverá estar preparado para escalabilidade horizontal (ex: uso de containers e orquestração com Docker/Kubernetes).
 - **RNF08**: A base de dados deverá ser segura e com backup periódico automatizado.
 - **RNF09**: A aplicação deverá ter integração contínua (CI) e entrega contínua (CD) configuradas para facilitar testes e deploys frequentes.
+
+### Representação dos Requisitos (UML)
+- **(fazer a poha do UML)**
+### Principais Casos de Uso
+
+- **[Usuário] – Cadastrar perfil**  
+  Permite que o usuário crie uma conta e preencha suas informações pessoais, profissionais e interesses.
+
+- **[Usuário] – Editar perfil**  
+  Permite atualizar informações como nome, habilidades, redes sociais e foto.
+
+- **[Usuário] – Criar projeto**  
+  Permite que o usuário crie um novo projeto com título, descrição, objetivos, status atual e tecnologias desejadas.
+
+- **[Usuário] – Editar/Excluir projeto**  
+  Permite modificar ou remover projetos que o usuário criou.
+
+- **[Usuário] – Enviar pedido de match**  
+  Permite demonstrar interesse em participar de um projeto ou convidar alguém para colaborar.
+
+- **[Usuário] – Responder pedido de match**  
+  Aceitar ou recusar convites recebidos.
+
+- **[Sistema] – Mostrar sugestões de projetos e pessoas**  
+  Com base em interesses e histórico de navegação do usuário.
+
+- **[Sistema] – Enviar notificações**  
+  Notificações automáticas sobre matches, atualizações e mensagens.
+
+- **[Admin] – Moderar usuários e projetos**  
+  Acesso a painel administrativo para análise, bloqueio ou remoção de conteúdos ou perfis inadequados.
+
+- **[Usuário] – Visualizar perfil público de projeto/pessoa**  
+  Permite ver informações detalhadas de projetos ou usuários, sem necessidade de login completo.
+
+- **[Usuário] – Avaliar experiência (feedback)**  
+  Permite dar feedback sobre uma colaboração concluída ou projeto encerrado.
+
