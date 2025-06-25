@@ -85,6 +85,7 @@ O projeto propõe o desenvolvimento de uma plataforma voltada à colaboração e
 ### Representação dos Requisitos (UML)
 
 ![Figura 1 - Representação dos Requisitos (UML)](imagensREADME/representacao_requisitos_uml.png)
+
 **Figura 1 - Representação dos Requisitos (UML)**
 
 #### Principais Casos de Uso
