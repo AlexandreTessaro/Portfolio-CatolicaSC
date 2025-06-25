@@ -1,14 +1,14 @@
 # Web Aplicação de Divulgação e Colaboração de Startups
 
-**Alexandre Tessaro Vieira**  
-Engenharia de Software  
-01/01/2025
+**Autor**: Alexandre Tessaro Vieira  
+**Curso**: Engenharia de Software  
+**Data**: 01/01/2025
 
 ---
 
 ## Resumo
 
-Este documento descreve o desenvolvimento de uma aplicação cujo objetivo é conectar ideias a pessoas para a criação de startups. A aplicação permitirá a divulgação de ideias de projeto e facilitará a formação de equipes, criando uma ponte entre ideias e pessoas. Pretende-se utilizar tecnologias modernas como React, Node.js e PostgreSQL, obedecendo às práticas de desenvolvimento ágil, integração e entrega contínuas (CI/CD) e princípios de Clean Code. O projeto visa fomentar um ecossistema de inovação, incentivando a colaboração e a estruturação de times.
+Este documento descreve o desenvolvimento de uma aplicação no qual tem como objetivo conectar ideias a pessoas para a criação de startups. Primordialmente, a aplicação permitirá a divulgação de ideias de projeto e facilitará a formação de equipes, criando assim uma ponte entre ideias e pessoas. Pretende-se usar tecnologias novas como React, Node.js e PostgreSQL, obedecendo práticas de desenvolvimento ágil, integração e entrega contínuas (CI/CD) e princípios de Clean Code. O projeto visa fomentar um ecossistema de inovação, incentivando a colaboração e a estruturação de times.
 
 ---
 
@@ -16,11 +16,11 @@ Este documento descreve o desenvolvimento de uma aplicação cujo objetivo é co
 
 ### Contexto
 
-O ambiente de inovação e startups é cada vez mais dinâmico e competitivo. No ambiente corporativo, a busca por bons parceiros é essencial para o desenvolvimento e a consolidação de novas empresas. No entanto, ainda não existe nenhuma plataforma dedicada exclusivamente a promover a conexão entre pessoas e ideias.
+O ambiente de inovação e startups é cada vez mais dinâmico e competitivo. No ambiente corporativo, a busca por bons parceiros é essencial para o desenvolvimento e a consolidação de novas empresas. No entanto, ainda não existe nenhuma plataforma dedicada exclusivamente em promover a conexão entre pessoas e ideias.
 
 ### Justificativa
 
-Facilitar a conexão entre projetos e pessoas é fundamental para fomentar a inovação tecnológica. Portanto, criar uma plataforma que centralize essas conexões gera um ecossistema empreendedor para projetos que talvez jamais fossem viabilizados.
+Facilitar a conexão entre projetos e pessoas é fundamental para fomentar a inovação tecnológica. Portanto criar uma plataforma que centralize essas conexões gera um ecossistema empreendedor para projetos que talvez jamais fossem viabilizados. 
 
 ### Objetivos
 
@@ -47,7 +47,7 @@ O projeto propõe o desenvolvimento de uma plataforma voltada à colaboração e
 
 ### Limitações
 
-- Questões jurídicas, como elaboração de contratos ou acordos legais, não serão tratadas nesta versão do projeto.
+- Questões jurídicas, como elaboração de contratos ou acordos legais, não serão tratados nessa versão do projeto.
 - A aplicação será focada exclusivamente em ambiente web responsivo; não está prevista a criação de um aplicativo mobile nativo neste estágio.
 - Funcionalidades relacionadas a integrações financeiras, como sistemas de pagamento, não estarão disponíveis na primeira versão.
 
@@ -59,158 +59,184 @@ O projeto propõe o desenvolvimento de uma plataforma voltada à colaboração e
 
 #### Requisitos Funcionais (RF)
 
-- **RF01**: Permitir cadastro, login e autenticação de usuários e projetos.
-- **RF02**: Permitir a criação, edição e exclusão de projetos por seus criadores.
-- **RF03**: Disponibilizar sistema de busca com filtros avançados para localizar projetos, usuários e oportunidades.
-- **RF04**: Implementar sistema de “match” entre criadores de ideias e usuários interessados com base em interesses, habilidades e objetivos.
-- **RF05**: Integrar perfis de usuários com APIs externas, como LinkedIn e GitHub.
-- **RF06**: Permitir que usuários solicitem participação em projetos e que os criadores possam aceitar ou recusar candidaturas.
-- **RF07**: Oferecer área de perfil público para usuários e projetos, com informações detalhadas, histórico e status.
-- **RF08**: Notificar os usuários sobre interações relevantes (convites, matches, atualizações de projeto, etc.).
-- **RF09**: Disponibilizar painel de administração para moderar conteúdos e gerenciar usuários.
-- **RF10**: Suportar comentários ou seções de feedback nos projetos.
+- RF01: Permitir cadastro, login e autenticação de usuários e projetos.
+- RF02: Permitir a criação, edição e exclusão de projetos por seus criadores.
+- RF03: Disponibilizar sistema de busca com filtros avançados para localizar projetos, usuários e oportunidades.
+- RF04: Implementar sistema de “match” entre criadores de ideias e usuários interessados com base em interesses, habilidades e objetivos.
+- RF05: Integrar perfis de usuários com APIs externas, como LinkedIn e GitHub.
+- RF06: Permitir que usuários solicitem participação em projetos e que os criadores possam aceitar ou recusar candidaturas.
+- RF07: Oferecer área de perfil público para usuários e projetos, com informações detalhadas, histórico e status.
+- RF08: Notificar os usuários sobre interações relevantes (convites, matches, atualizações de projeto, etc.).
+- RF09: Disponibilizar painel de administração para moderar conteúdos e gerenciar usuários.
+- RF10: Suportar comentários ou seções de feedback nos projetos.
 
 #### Requisitos Não Funcionais (RNF)
 
-- **RNF01**: A aplicação deverá ser responsiva, adaptando-se a diferentes tamanhos de tela (desktop, tablet, mobile).
-- **RNF02**: Todas as ações críticas (criação, exclusão, alterações de dados) devem ser auditáveis e rastreáveis.
-- **RNF03**: O sistema deverá suportar ao menos 1000 usuários simultâneos na fase inicial.
-- **RNF04**: A autenticação deverá ser segura, utilizando padrões como OAuth 2.0 ou Firebase Authentication.
-- **RNF05**: O código deverá seguir princípios de Clean Code e SOLID, com cobertura de testes automatizados (TDD).
-- **RNF06**: O sistema deverá ter tempo de resposta inferior a 2 segundos para as principais interações do usuário.
-- **RNF07**: O backend deverá estar preparado para escalabilidade horizontal (ex: uso de containers e orquestração com Docker/Kubernetes).
-- **RNF08**: A base de dados deverá ser segura e com backup periódico automatizado.
-- **RNF09**: A aplicação deverá ter integração contínua (CI) e entrega contínua (CD) configuradas para facilitar testes e deploys frequentes.
+- RNF01: A aplicação deverá ser responsiva, adaptando-se a diferentes tamanhos de tela (desktop, tablet, mobile).
+- RNF02: Todas as ações críticas (criação, exclusão, alterações de dados) devem ser auditáveis e rastreáveis.
+- RNF03: O sistema deverá suportar ao menos 1000 usuários simultâneos na fase inicial.
+- RNF04: A autenticação deverá ser segura, utilizando padrões como Oauth 2.0 ou Firebase Authentication.
+- RNF05: O código deverá seguir princípios de Clean Code e SOLID, com cobertura de testes automatizados (TDD).
+- RNF06: O sistema deverá ter tempo de resposta inferior a 2 segundos para as principais interações do usuário.
+- RNF07: O backend deverá estar preparado para escalabilidade horizontal (ex: uso de containers e orquestração com Docker/Kubernetes).
+- RNF08: A base de dados deverá ser segura e com backup periódico automatizado.
+- RNF09: A aplicação deverá ter integração contínua (CI) e entrega contínua (CD) configuradas para facilitar testes e deploys frequentes.
 
 ### Representação dos Requisitos (UML)
-- **(fazer a poha do UML)**
-### Principais Casos de Uso
 
-- **[Usuário] – Cadastrar perfil**  
+**Figura 1 - Representação dos Requisitos (UML)**
+![Figura 1 - Representação dos Requisitos (UML)](imagensREADME/representacao_requisitos_uml.png)
+
+#### Principais Casos de Uso
+
+- [Usuário] – Cadastrar perfil  
   Permite que o usuário crie uma conta e preencha suas informações pessoais, profissionais e interesses.
-
-- **[Usuário] – Editar perfil**  
+- [Usuário] – Editar perfil  
   Permite atualizar informações como nome, habilidades, redes sociais e foto.
-
-- **[Usuário] – Criar projeto**  
+- [Usuário] – Criar projeto  
   Permite que o usuário crie um novo projeto com título, descrição, objetivos, status atual e tecnologias desejadas.
-
-- **[Usuário] – Editar/Excluir projeto**  
+- [Usuário] – Editar/Excluir projeto  
   Permite modificar ou remover projetos que o usuário criou.
-
-- **[Usuário] – Enviar pedido de match**  
+- [Usuário] – Enviar pedido de match  
   Permite demonstrar interesse em participar de um projeto ou convidar alguém para colaborar.
-
-- **[Usuário] – Responder pedido de match**  
+- [Usuário] – Responder pedido de match  
   Aceitar ou recusar convites recebidos.
-
-- **[Sistema] – Mostrar sugestões de projetos e pessoas**  
+- [Sistema] – Mostrar sugestões de projetos e pessoas  
   Com base em interesses e histórico de navegação do usuário.
-
-- **[Sistema] – Enviar notificações**  
+- [Sistema] – Enviar notificações  
   Notificações automáticas sobre matches, atualizações e mensagens.
-
-- **[Admin] – Moderar usuários e projetos**  
+- [Admin] – Moderar usuários e projetos  
   Acesso a painel administrativo para análise, bloqueio ou remoção de conteúdos ou perfis inadequados.
-
-- **[Usuário] – Visualizar perfil público de projeto/pessoa**  
+- [Usuário] – Visualizar perfil público de projeto/pessoa  
   Permite ver informações detalhadas de projetos ou usuários, sem necessidade de login completo.
-
-- **[Usuário] – Avaliar experiência (feedback)**  
+- [Usuário] – Avaliar experiência (feedback)  
   Permite dar feedback sobre uma colaboração concluída ou projeto encerrado.
 
-### 3.2. Considerações de Design
+---
 
-#### Visão Inicial da Arquitetura
+### 3.2 Considerações de Design
 
-- Frontend em React/Node.js.
-- Backend serverless via Firebase Functions.
-- Banco de Dados NoSQL (Firestore).
-- Integrações externas via APIs (LinkedIn, GitHub).
-- Deploy contínuo via Vercel.
+**Discussão sobre as escolhas de design:**
 
-#### Padrões de Arquitetura
+- **Front-end: React**  
+  Biblioteca madura, consolidada, com UI moderna e escalável.
+  
+- **Back-end: Node.js + Express**  
+  Simples, eficiente e ideal para aplicações com comunicação em tempo real.
 
-- MVC no Frontend.
-- Arquitetura orientada a eventos para interações assíncronas.
+- **API: REST**  
+  Alternativa robusta e integrável. GraphQL foi considerado, mas REST atende melhor neste estágio.
 
-#### Modelos C4
+- **Segurança:**  
+  - Autenticação com JWT ou OAuth 2.0  
+  - Uso de refresh tokens  
+  - Armazenamento seguro de senhas (bcrypt)  
+  - Tratamento de entradas conforme OWASP  
 
-- **Contexto**: Plataforma conecta startups, investidores e talentos.
-- **Contêineres**: Web App (Next.js), Backend Functions (Firebase), Banco de Dados (Firestore).
-- **Componentes**: Cadastro, Busca, Matchmaking, Integração APIs.
-- **Código**: Componentes React organizados por Domínio (Domain-Driven Design leve).
+**Versão Inicial da Arquitetura:**
 
-### 3.3. Stack Tecnológica
+- **Front-end (React):** SPA que se comunica com o back-end via API.  
+- **API (Node/Express):** CRUD, autenticação, matchmaking, mensagens.  
+- **Banco de Dados (Postgres):** Armazena usuários, projetos, interesses, mensagens, etc.  
+- **Docker:** Containerização para portabilidade e deploy.  
+- **CI/CD (GitHub Actions):** Automação de testes e deploy.
 
-#### Linguagens de Programação
+**Padrão de Arquitetura:**
 
-- Javascript e Typescript (Frontend e Backend).
+- Clean Architecture (Presentation, Application, Domain, Infrastructure)  
+- Princípios SOLID  
+- Repository Pattern  
+- Controller – Service – Repository  
+- DTOs (Data Transfer Objects)
 
-#### Frameworks e Bibliotecas
+**Modelos C4:**
 
-- React.js + Next.js (Frontend)
-- Firebase Functions (Backend)
-- Firestore (Banco de Dados)
-- TailwindCSS (estilização)
-- Axios (requisições HTTP)
-
-#### Ferramentas de Desenvolvimento e Gestão de Projeto
-
-- GitHub (repositório e issues)
-- GitHub Actions (CI/CD)
-- Trello (Kanban de tarefas)
-- SonarCloud (análise de qualidade de código)
-- Github Wiki (documentação)
-
-#### Outras ferramentas
-
-- ESLint + Prettier (padrões de código)
-- Docker para ambiente de desenvolvimento local
-
-### 3.4. Considerações de Segurança
-
-- **Autenticação e Autorização**: Firebase Authentication + OAuth 2.0.
-- **Proteção contra ataques**: uso de HTTPS obrigatório; Firestore Security Rules para controlar acesso a dados.
-- **Monitoramento**: Integração com Datadog para análise de performance e segurança.
-- **Gerenciamento de Erros**: Sentry para capturar e reportar falhas em produção.
+- **C4 Nível 1 (Contexto):** Relação entre usuários, plataforma, banco de dados, GitHub e agentes externos.
+- **C4 Nível 2 (Contêiner):** Frontend, backend, banco de dados e Docker.
+- **C4 Nível 3 (Componente):** Estrutura da API com controllers, services, repositories.
+- **C4 Nível 4 (Código):** Detalhes do módulo de autenticação, matchmaking, etc.
 
 ---
 
-### 4. Próximos Passos
+### 3.3 Arquitetura Visual – Diagramas C4
 
-- Finalizar protótipo de telas (Figma).
-- Desenvolvimento de MVP (Mínimo Produto Viável).
-- Configuração de pipeline CI/CD com GitHub Actions.
-- Publicação inicial da plataforma em ambiente de teste (Firebase Hosting).
-- Realizar testes unitários e testes de integração.
-- Recolher feedbacks e evoluir a aplicação na fase Portfólio II.
+Para representar graficamente a arquitetura do sistema, foram utilizados os modelos C4.
 
-**Cronograma geral:**
+#### 3.3.1 Diagrama de Contexto (C1)
 
-- **Portfólio I**: Planejamento + MVP inicial.
-- **Portfólio II**: Validação do MVP + Melhorias e Deploy final.
+Mostra como o sistema interage com usuários e sistemas externos.  
+**Figura 2 - Diagrama de Contexto (C1)**
+![Figura 2 - Diagrama de Contexto (C1)](imagensREADME/diagrama_contexto.png)
+
+#### 3.3.2 Diagrama de Contêineres (C2)
+
+Apresenta os principais contêineres da arquitetura.  
+**Figura 3 - Diagrama de Contêineres (C2)**
+![Figura 3 - Diagrama de Contêineres (C2)](imagensREADME/diagrama_conteineres.png)
+
+#### 3.3.3 Diagrama de Componentes (C3)
+
+Detalha os componentes da API.  
+**Figura 4 - Diagrama de Componentes (C3)**
+![Figura 4 - Diagrama de Componentes (C3)](imagensREADME/diagrama_componentes.png)
+
+#### 3.3.4 Diagrama de Código (C4)
+
+Explora detalhes internos de um componente específico.  
+**Figura 5 - Diagrama de Código (C4)**
+![Figura 5 - Diagrama de Código (C4)](imagensREADME/diagrama_codigo.png)
 
 ---
 
-### 5. Referências
+## 4. Próximos Passos
 
+- Criar o Figma com protótipos das telas (low e high-fidelity)
+- Organizar o desenvolvimento no Trello ou Jira
+- Preparar ambiente com Docker Compose
+- Implementar autenticação (JWT)
+- Implementar o CRUD de usuários e projetos
+- Implementar sistema de match e envio de mensagens
+- Criar painel de moderação
+- Implementar testes automatizados (TDD)
+- Deploy em nuvem (Docker + Heroku)
+- Revisão final e otimizações
 
 ---
 
-### 6. Apêndices (Opcionais)
+## 5. Referências
 
-
+- Clean Code – Martin, Robert C.  
+- Princípios SOLID – Fundamentos da engenharia de software orientados a objetos  
+- Docker Compose Documentation  
+- JWT – Introduction to JWT and secure authentication  
+- React Documentation  
+- Node.js + Express Documentation  
+- PostgreSQL Documentation
 
 ---
 
-### 7. Avaliações de Professores
+## 6. Apêndices
 
-**Considerações Professor/a:**  
-(Área reservada para comentários e assinatura)
+- **Modelo Entidade-Relacionamento (ER):**  
+  Diagrama com estrutura e relacionamentos das entidades.
 
-**Considerações Professor/a:**  
-(Área reservada para comentários e assinatura)
+- **Casos de Uso Detalhados:**  
+  Descrição dos fluxos principais e alternativos entre usuários e sistema.
 
-**Considerações Professor/a:**  
-(Área reservada para comentários e assinatura)
+- **Wireframes das telas:**  
+  Protótipos desenvolvidos com Figma para ilustrar a navegação.
+
+- **Mapeamento de Requisitos com Funcionalidades:**  
+  Tabela relacionando RFs com componentes que os implementam.
+
+- **Checklist dos Testes:**  
+  Lista de testes manuais e automatizados com critérios de aceitação.
+
+- **Plano de Deploy:**  
+  Descrição do processo de publicação da aplicação com Docker, Heroku e GitHub Actions.
+
+---
+
+## 7. Avaliações de Professores
+
+> *(Espaço reservado para pareceres ou observações dos docentes)*
