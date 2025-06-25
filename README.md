@@ -166,26 +166,34 @@ Para representar graficamente a arquitetura do sistema, foram utilizados os mode
 #### 3.3.1 Diagrama de Contexto (C1)
 
 Mostra como o sistema interage com usuários e sistemas externos.  
-**Figura 2 - Diagrama de Contexto (C1)**
+
 ![Figura 2 - Diagrama de Contexto (C1)](imagensREADME/diagrama_contexto.png)
+
+**Figura 2 - Diagrama de Contexto (C1)**
 
 #### 3.3.2 Diagrama de Contêineres (C2)
 
 Apresenta os principais contêineres da arquitetura.  
-**Figura 3 - Diagrama de Contêineres (C2)**
+
 ![Figura 3 - Diagrama de Contêineres (C2)](imagensREADME/diagrama_conteineres.png)
+
+**Figura 3 - Diagrama de Contêineres (C2)**
 
 #### 3.3.3 Diagrama de Componentes (C3)
 
 Detalha os componentes da API.  
-**Figura 4 - Diagrama de Componentes (C3)**
+
 ![Figura 4 - Diagrama de Componentes (C3)](imagensREADME/diagrama_componentes.png)
+
+**Figura 4 - Diagrama de Componentes (C3)**
 
 #### 3.3.4 Diagrama de Código (C4)
 
 Explora detalhes internos de um componente específico.  
-**Figura 5 - Diagrama de Código (C4)**
+
 ![Figura 5 - Diagrama de Código (C4)](imagensREADME/diagrama_codigo.png)
+
+**Figura 5 - Diagrama de Código (C4)**
 
 ---
 
