@@ -1,16 +1,57 @@
-import pool from '../src/config/database.js';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const createTables = async () => {
-  const client = await pool.connect();
-  
+const { Pool } = pg;
+
+async function createTables() {
+  // Primeiro, conectar ao postgres para criar o banco se não existir
+  const postgresPool = new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    user: process.env.DB_USER || 'user',
+    password: process.env.DB_PASSWORD || 'password',
+    database: 'postgres', // Conectar ao banco padrão primeiro
+  });
+
   try {
-    console.log('🔄 Iniciando migração do banco de dados...');
+    // Verificar se o banco existe
+    const dbExists = await postgresPool.query(
+      "SELECT 1 FROM pg_database WHERE datname = $1",
+      [process.env.DB_NAME || 'mydb']
+    );
+
+    if (dbExists.rows.length === 0) {
+      console.log(`📝 Criando banco de dados '${process.env.DB_NAME || 'mydb'}'...`);
+      await postgresPool.query(
+        `CREATE DATABASE "${process.env.DB_NAME || 'mydb'}"`
+      );
+      console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' criado com sucesso!`);
+    } else {
+      console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' já existe.`);
+    }
+  } catch (error) {
+    console.error('❌ Erro ao verificar/criar banco:', error.message);
+    throw error;
+  } finally {
+    await postgresPool.end();
+  }
+
+  // Agora conectar ao banco específico para criar as tabelas
+  const pool = new Pool({
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 5432,
+    user: process.env.DB_USER || 'user',
+    password: process.env.DB_PASSWORD || 'password',
+    database: process.env.DB_NAME || 'mydb',
+  });
+
+  try {
+    console.log('🔧 Criando tabelas...');
 
     // Criar tabela de usuários
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -29,7 +70,7 @@ const createTables = async () => {
     console.log('✅ Tabela users criada/verificada');
 
     // Criar tabela de projetos
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS projects (
         id SERIAL PRIMARY KEY,
         title VARCHAR(100) NOT NULL,
@@ -49,7 +90,7 @@ const createTables = async () => {
     console.log('✅ Tabela projects criada/verificada');
 
     // Criar tabela de solicitações de colaboração
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS collaboration_requests (
         id SERIAL PRIMARY KEY,
         project_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
@@ -64,7 +105,7 @@ const createTables = async () => {
     console.log('✅ Tabela collaboration_requests criada/verificada');
 
     // Criar tabela de mensagens
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS messages (
         id SERIAL PRIMARY KEY,
         sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -78,7 +119,7 @@ const createTables = async () => {
     console.log('✅ Tabela messages criada/verificada');
 
     // Criar tabela de notificações
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -93,7 +134,7 @@ const createTables = async () => {
     console.log('✅ Tabela notifications criada/verificada');
 
     // Criar tabela de logs de auditoria
-    await client.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS audit_logs (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -109,7 +150,7 @@ const createTables = async () => {
     console.log('✅ Tabela audit_logs criada/verificada');
 
     // Criar índices para melhor performance
-    await client.query(`
+    await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_users_skills ON users USING GIN(skills);
       CREATE INDEX IF NOT EXISTS idx_projects_creator_id ON projects(creator_id);
@@ -133,7 +174,6 @@ const createTables = async () => {
     console.error('❌ Erro durante a migração:', error);
     throw error;
   } finally {
-    client.release();
     await pool.end();
   }
 };
