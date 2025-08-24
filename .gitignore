@@ -1,0 +1,70 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Build outputs
+dist/
+build/
+.tmp/
+.cache/
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+.env.production
+.env.development
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test coverage
+coverage/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Docker
+docker-compose.override.yml
+.docker/
+docker-data/
+volumes/
+tmp/
+
+# PostgreSQL volumes (local development)
+pg_data/
+postgres-data/
+db-data/
+
+# Redis data
+redis-data/
+
+# Cypress output
+cypress/videos/
+cypress/screenshots/
+
+# Build artifacts (React)
+frontend/node_modules/
+frontend/build/
+
+# Build artifacts (Backend)
+backend/node_modules/
+backend/dist/
+
+# Misc
+Thumbs.db
