@@ -18,7 +18,8 @@ import redisClient from './src/config/redis.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
+let serverInstance = null;
 
 // Middleware de segurança
 app.use(helmet());
@@ -105,19 +106,60 @@ async function initializeConnections() {
     await pool.query('SELECT NOW()');
     console.log('✅ Conectado ao banco de dados PostgreSQL');
     
-    // Testar conexão com Redis
-    await redisClient.connect();
-    console.log('✅ Conectado ao Redis');
+    // Testar conexão com Redis (opcional)
+    const hasRedisUrl = Boolean(process.env.REDIS_URL);
+    if (hasRedisUrl) {
+      try {
+        await redisClient.connect();
+        console.log('✅ Conectado ao Redis');
+      } catch (redisError) {
+        console.warn('⚠️ Não foi possível conectar ao Redis. Continuando sem cache.', redisError?.message || redisError);
+      }
+    } else {
+      console.log('ℹ️ REDIS_URL não definido. Pulando conexão com Redis.');
+    }
     
-    // Iniciar servidor
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-    });
+    // Iniciar servidor com fallback de porta se estiver em uso
+    await startServerWithFallback(PORT);
   } catch (error) {
     console.error('❌ Erro ao inicializar conexões:', error);
     process.exit(1);
   }
+}
+
+// Tenta iniciar o servidor; se a porta estiver em uso, tenta as próximas portas
+function startServer(port) {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, () => {
+      const actualPort = server.address().port;
+      console.log(`🚀 Servidor rodando em http://localhost:${actualPort}`);
+      console.log(`📊 Health check: http://localhost:${actualPort}/health`);
+      resolve(server);
+    });
+    server.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+async function startServerWithFallback(initialPort, maxAttempts = 5) {
+  let attempt = 0;
+  let portToTry = initialPort;
+  while (attempt < maxAttempts) {
+    try {
+      serverInstance = await startServer(portToTry);
+      return;
+    } catch (err) {
+      if (err && err.code === 'EADDRINUSE') {
+        console.warn(`⚠️ Porta ${portToTry} em uso. Tentando ${portToTry + 1}...`);
+        portToTry += 1;
+        attempt += 1;
+      } else {
+        throw err;
+      }
+    }
+  }
+  throw new Error(`Não foi possível iniciar o servidor após ${maxAttempts} tentativas.`);
 }
 
 // Inicializar aplicação
@@ -129,7 +171,12 @@ process.on('SIGTERM', async () => {
   
   try {
     await pool.end();
-    await redisClient.quit();
+    if (serverInstance) {
+      await new Promise((resolve) => serverInstance.close(() => resolve()));
+    }
+    if (redisClient?.isOpen) {
+      await redisClient.quit();
+    }
     console.log('✅ Conexões encerradas com sucesso');
     process.exit(0);
   } catch (error) {
@@ -143,7 +190,12 @@ process.on('SIGINT', async () => {
   
   try {
     await pool.end();
-    await redisClient.quit();
+    if (serverInstance) {
+      await new Promise((resolve) => serverInstance.close(() => resolve()));
+    }
+    if (redisClient?.isOpen) {
+      await redisClient.quit();
+    }
     console.log('✅ Conexões encerradas com sucesso');
     process.exit(0);
   } catch (error) {

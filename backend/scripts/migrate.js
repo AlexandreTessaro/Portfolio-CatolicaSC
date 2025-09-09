@@ -6,49 +6,69 @@ dotenv.config();
 const { Pool } = pg;
 
 async function createTables() {
-  // Primeiro, conectar ao postgres para criar o banco se não existir
-  const postgresPool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    user: process.env.DB_USER || 'user',
-    password: process.env.DB_PASSWORD || 'password',
-    database: 'postgres', // Conectar ao banco padrão primeiro
-  });
+  const useDatabaseUrl = Boolean(process.env.DATABASE_URL);
 
-  try {
-    // Verificar se o banco existe
-    const dbExists = await postgresPool.query(
-      "SELECT 1 FROM pg_database WHERE datname = $1",
-      [process.env.DB_NAME || 'mydb']
-    );
+  // Quando usando Supabase (DATABASE_URL), não criar banco – conectar direto com SSL
+  if (!useDatabaseUrl) {
+    // Primeiro, conectar ao postgres para criar o banco se não existir
+    const postgresPool = new Pool({
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      user: process.env.DB_USER || 'user',
+      password: process.env.DB_PASSWORD || 'password',
+      database: 'postgres', // Conectar ao banco padrão primeiro
+    });
 
-    if (dbExists.rows.length === 0) {
-      console.log(`📝 Criando banco de dados '${process.env.DB_NAME || 'mydb'}'...`);
-      await postgresPool.query(
-        `CREATE DATABASE "${process.env.DB_NAME || 'mydb'}"`
+    try {
+      // Verificar se o banco existe
+      const dbExists = await postgresPool.query(
+        "SELECT 1 FROM pg_database WHERE datname = $1",
+        [process.env.DB_NAME || 'mydb']
       );
-      console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' criado com sucesso!`);
-    } else {
-      console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' já existe.`);
+
+      if (dbExists.rows.length === 0) {
+        console.log(`📝 Criando banco de dados '${process.env.DB_NAME || 'mydb'}'...`);
+        await postgresPool.query(
+          `CREATE DATABASE "${process.env.DB_NAME || 'mydb'}"`
+        );
+        console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' criado com sucesso!`);
+      } else {
+        console.log(`✅ Banco de dados '${process.env.DB_NAME || 'mydb'}' já existe.`);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao verificar/criar banco:', error.message);
+      throw error;
+    } finally {
+      await postgresPool.end();
     }
-  } catch (error) {
-    console.error('❌ Erro ao verificar/criar banco:', error.message);
-    throw error;
-  } finally {
-    await postgresPool.end();
+  } else {
+    console.log('ℹ️ DATABASE_URL detectado. Pulando criação de banco (Supabase).');
   }
 
   // Agora conectar ao banco específico para criar as tabelas
-  const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    user: process.env.DB_USER || 'user',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'mydb',
-  });
+  const pool = new Pool(
+    useDatabaseUrl
+      ? {
+          connectionString: process.env.DATABASE_URL,
+          ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        }
+      : {
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT || 5432,
+          user: process.env.DB_USER || 'user',
+          password: process.env.DB_PASSWORD || 'password',
+          database: process.env.DB_NAME || 'mydb',
+        }
+  );
 
   try {
     console.log('🔧 Criando tabelas...');
+    // Log da conexão ativa
+    console.log('ℹ️ Conectando com', useDatabaseUrl ? 'DATABASE_URL (provável Supabase)' : `${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+
+    // Garantir schema public e search_path
+    await pool.query('CREATE SCHEMA IF NOT EXISTS public');
+    await pool.query("SET search_path TO public");
 
     // Criar tabela de usuários
     await pool.query(`
@@ -178,17 +198,15 @@ async function createTables() {
   }
 };
 
-// Executar migração se o arquivo for executado diretamente
-if (import.meta.url === `file://${process.argv[1]}`) {
-  createTables()
-    .then(() => {
-      console.log('✅ Migração executada com sucesso');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('❌ Falha na migração:', error);
-      process.exit(1);
-    });
-}
+// Executar migração sempre que este script for chamado diretamente via Node
+createTables()
+  .then(() => {
+    console.log('✅ Migração executada com sucesso');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('❌ Falha na migração:', error);
+    process.exit(1);
+  });
 
 export default createTables;

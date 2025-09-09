@@ -2,7 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ProjectsList from './pages/ProjectsList';
+import ProjectDetails from './pages/ProjectDetails';
+import CreateProject from './pages/CreateProject';
+import EditProject from './pages/EditProject';
 
 function App() {
   return (
@@ -11,6 +18,20 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/projects" element={<ProjectsList />} />
+            <Route path="/projects/create" element={
+              <ProtectedRoute>
+                <CreateProject />
+              </ProtectedRoute>
+            } />
+            <Route path="/projects/:projectId" element={<ProjectDetails />} />
+            <Route path="/projects/:projectId/edit" element={
+              <ProtectedRoute>
+                <EditProject />
+              </ProtectedRoute>
+            } />
             {/* Outras rotas serão adicionadas aqui */}
           </Routes>
         </Layout>

@@ -4,6 +4,17 @@ import { body, validationResult } from 'express-validator';
 export class UserController {
   constructor() {
     this.userService = new UserService();
+
+    // Garantir 'this' correto nos handlers
+    this.register = this.register.bind(this);
+    this.login = this.login.bind(this);
+    this.refreshToken = this.refreshToken.bind(this);
+    this.logout = this.logout.bind(this);
+    this.getProfile = this.getProfile.bind(this);
+    this.getPublicProfile = this.getPublicProfile.bind(this);
+    this.updateProfile = this.updateProfile.bind(this);
+    this.searchUsers = this.searchUsers.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
   }
 
   // Validações para registro

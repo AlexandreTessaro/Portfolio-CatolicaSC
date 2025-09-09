@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { UserRepository } from '../repositories/UserRepository.js';
-import { generateAccessToken, generateRefreshToken } from '../config/jwt.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../config/jwt.js';
+import { User } from '../domain/User.js';
 
 export class UserService {
   constructor() {
