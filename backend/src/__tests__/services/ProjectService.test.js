@@ -1,6 +1,6 @@
-import { ProjectService } from '../../services/ProjectService.js';
-import { ProjectRepository } from '../../repositories/ProjectRepository.js';
-import { UserRepository } from '../../repositories/UserRepository.js';
+const { ProjectService } = require('../../services/ProjectService.js');
+const { ProjectRepository } = require('../../repositories/ProjectRepository.js');
+const { UserRepository } = require('../../repositories/UserRepository.js');
 
 // Mock das dependências
 jest.mock('../../repositories/ProjectRepository.js');

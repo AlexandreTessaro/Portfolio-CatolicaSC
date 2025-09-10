@@ -1,7 +1,7 @@
-import { UserService } from '../../services/UserService.js';
-import { UserRepository } from '../../repositories/UserRepository.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+const { UserService } = require('../../services/UserService.js');
+const { UserRepository } = require('../../repositories/UserRepository.js');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Mock das dependências
 jest.mock('../../repositories/UserRepository.js');

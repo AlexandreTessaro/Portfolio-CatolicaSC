@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 
 // Carregar variáveis de ambiente de teste
 dotenv.config({ path: '.env.test' });
