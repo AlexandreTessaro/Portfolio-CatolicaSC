@@ -73,7 +73,7 @@ describe('AuthStore', () => {
 
     // Act
     act(() => {
-      result.current.login(mockUser, mockTokens);
+      result.current.login({ user: mockUser }, mockTokens);
     });
 
     // Assert
@@ -91,7 +91,7 @@ describe('AuthStore', () => {
     // Primeiro faz login
     act(() => {
       result.current.login(
-        { id: 1, name: 'John Doe' },
+        { user: { id: 1, name: 'John Doe' } },
         { accessToken: 'token', refreshToken: 'refresh' }
       );
     });
@@ -116,7 +116,7 @@ describe('AuthStore', () => {
     
     // Primeiro faz login
     act(() => {
-      result.current.login(mockUser, { accessToken: 'token', refreshToken: 'refresh' });
+      result.current.login({ user: mockUser }, { accessToken: 'token', refreshToken: 'refresh' });
     });
 
     // Act
