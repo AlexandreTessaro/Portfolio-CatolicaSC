@@ -41,5 +41,17 @@ export default {
     jest: 'readonly',
     require: 'readonly',
     module: 'readonly',
+    exports: 'readonly',
   },
+  overrides: [
+    {
+      files: ['*.config.js', '*.config.mjs'],
+      env: {
+        node: true,
+      },
+      parserOptions: {
+        sourceType: 'script',
+      },
+    },
+  ],
 };
