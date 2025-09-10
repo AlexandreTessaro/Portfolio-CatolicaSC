@@ -134,7 +134,7 @@ export class Project {
     return {
       id: this.id,
       title: this.title,
-      description: this.description ? this.description.substring(0, 150) + '...' : '',
+      description: this.description ? `${this.description.substring(0, 150)}...` : '',
       technologies: Array.isArray(this.technologies) ? this.technologies.slice(0, 5) : [],
       status: this.status,
       category: this.category,

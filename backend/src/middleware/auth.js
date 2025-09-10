@@ -16,13 +16,13 @@ export const authenticateToken = (req, res, next) => {
       const decoded = verifyAccessToken(token);
       req.user = decoded;
       next();
-    } catch (error) {
+    } catch (_error) { // eslint-disable-line no-unused-vars
       return res.status(403).json({
         success: false,
         message: 'Token inválido ou expirado'
       });
     }
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars
     return res.status(500).json({
       success: false,
       message: 'Erro na autenticação'
@@ -39,7 +39,7 @@ export const optionalAuth = (req, res, next) => {
       try {
         const decoded = verifyAccessToken(token);
         req.user = decoded;
-      } catch (error) {
+      } catch (_error) { // eslint-disable-line no-unused-vars
         // Token inválido, mas não é obrigatório
         req.user = null;
       }
@@ -48,7 +48,7 @@ export const optionalAuth = (req, res, next) => {
     }
 
     next();
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars
     req.user = null;
     next();
   }
@@ -71,7 +71,7 @@ export const requireAdmin = (req, res, next) => {
     }
 
     next();
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars
     return res.status(500).json({
       success: false,
       message: 'Erro na verificação de permissões'

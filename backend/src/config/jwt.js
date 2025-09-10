@@ -17,7 +17,7 @@ export const generateRefreshToken = (payload) => {
 export const verifyAccessToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars
     throw new Error('Token inválido ou expirado');
   }
 };
@@ -25,7 +25,7 @@ export const verifyAccessToken = (token) => {
 export const verifyRefreshToken = (token) => {
   try {
     return jwt.verify(token, JWT_REFRESH_SECRET);
-  } catch (error) {
+  } catch (_error) { // eslint-disable-line no-unused-vars
     throw new Error('Refresh token inválido ou expirado');
   }
 };

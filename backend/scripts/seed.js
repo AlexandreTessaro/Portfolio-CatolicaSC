@@ -12,7 +12,7 @@ const seedDatabase = async () => {
 
     // Criar usuário administrador
     const adminPassword = await bcrypt.hash('admin123', 12);
-    const adminResult = await client.query(`
+    await client.query(`
       INSERT INTO users (email, password, name, bio, skills, is_admin, is_verified)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       ON CONFLICT (email) DO UPDATE SET
@@ -33,7 +33,6 @@ const seedDatabase = async () => {
       true
     ]);
     
-    const adminId = adminResult.rows[0].id;
     console.log('✅ Usuário administrador criado/atualizado');
 
     // Criar usuários de exemplo

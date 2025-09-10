@@ -66,10 +66,10 @@ export class UserController {
         message: 'Usuário registrado com sucesso',
         data: result
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(400).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -105,10 +105,10 @@ export class UserController {
           accessToken: result.accessToken
         }
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(401).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -132,10 +132,10 @@ export class UserController {
         message: 'Token renovado com sucesso',
         data: result
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(401).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -150,7 +150,7 @@ export class UserController {
         success: true,
         message: 'Logout realizado com sucesso'
       });
-    } catch (error) {
+    } catch (_error) { // eslint-disable-line no-unused-vars
       res.status(500).json({
         success: false,
         message: 'Erro ao fazer logout'
@@ -168,10 +168,10 @@ export class UserController {
         success: true,
         data: profile
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(404).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -186,10 +186,10 @@ export class UserController {
         success: true,
         data: profile
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(404).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -214,10 +214,10 @@ export class UserController {
         message: 'Perfil atualizado com sucesso',
         data: updatedProfile
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(400).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -243,10 +243,10 @@ export class UserController {
           count: users.length
         }
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(500).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }
@@ -261,10 +261,10 @@ export class UserController {
         success: true,
         message: result.message
       });
-    } catch (error) {
+    } catch (_error) {
       res.status(400).json({
         success: false,
-        message: error.message
+        message: _error.message
       });
     }
   }

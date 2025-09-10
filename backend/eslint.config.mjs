@@ -1,14 +1,35 @@
 import js from '@eslint/js';
 import globals from 'globals';
-import pluginReact from 'eslint-plugin-react';
-import { defineConfig } from 'eslint/config';
 
-export default defineConfig([
+export default [
   {
-    files: ['**/*.{js,mjs,cjs,jsx}'],
-    plugins: { js },
-    extends: ['js/recommended'],
-    languageOptions: { globals: globals.browser },
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        global: 'readonly',
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
+      ecmaVersion: 2022,
+      sourceType: 'module',
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'prefer-template': 'error',
+    },
   },
-  pluginReact.configs.flat.recommended,
-]);
+];
