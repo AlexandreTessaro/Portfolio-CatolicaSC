@@ -7,7 +7,7 @@ import { useAuthStore } from '../stores/authStore';
 const CreateProject = () => {
   const navigate = useNavigate();
   const { setError, clearError, getError, setLoading, getIsLoading } = useAuthStore();
-  const { register, handleSubmit, watch, setValue } = useForm();
+  const { register, handleSubmit } = useForm();
   
   const [objectives, setObjectives] = useState(['']);
   const [technologies, setTechnologies] = useState(['']);

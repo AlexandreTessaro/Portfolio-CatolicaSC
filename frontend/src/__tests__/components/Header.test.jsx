@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 import Header from '../../components/Layout/Header';
+
+import { useAuthStore } from '../../stores/authStore';
 
 // Mock do Zustand store
 vi.mock('../../stores/authStore', () => ({
@@ -39,8 +41,7 @@ describe('Header Component', () => {
       logout: vi.fn(),
     });
 
-    const { useAuthStore } = require('../../stores/authStore');
-    useAuthStore.mockImplementation(mockUseAuthStore);
+    vi.mocked(useAuthStore).mockImplementation(mockUseAuthStore);
 
     // Act
     renderWithRouter(<Header />);
@@ -67,8 +68,7 @@ describe('Header Component', () => {
       logout: vi.fn(),
     });
 
-    const { useAuthStore } = require('../../stores/authStore');
-    useAuthStore.mockImplementation(mockUseAuthStore);
+    vi.mocked(useAuthStore).mockImplementation(mockUseAuthStore);
 
     // Act
     renderWithRouter(<Header />);
@@ -88,8 +88,7 @@ describe('Header Component', () => {
       logout: vi.fn(),
     });
 
-    const { useAuthStore } = require('../../stores/authStore');
-    useAuthStore.mockImplementation(mockUseAuthStore);
+    vi.mocked(useAuthStore).mockImplementation(mockUseAuthStore);
 
     // Act
     renderWithRouter(<Header />);

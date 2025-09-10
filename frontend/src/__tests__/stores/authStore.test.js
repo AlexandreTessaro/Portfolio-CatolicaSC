@@ -1,4 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
+import { vi, describe, beforeEach, it, expect } from 'vitest';
 import { useAuthStore } from '../../stores/authStore';
 
 // Mock do localStorage
@@ -8,7 +9,7 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-global.localStorage = localStorageMock;
+globalThis.localStorage = localStorageMock;
 
 describe('AuthStore', () => {
   beforeEach(() => {

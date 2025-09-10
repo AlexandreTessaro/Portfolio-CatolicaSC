@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);
         }
-      } catch (refreshError) {
+      } catch (_refreshError) { // eslint-disable-line no-unused-vars
         // Se falhar ao renovar, fazer logout
         const authStore = useAuthStore.getState();
         authStore.logout();
