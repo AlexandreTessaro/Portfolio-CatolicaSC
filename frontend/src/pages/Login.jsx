@@ -15,9 +15,10 @@ const Login = () => {
     try {
       const resp = await userService.login({ email: data.email, password: data.password });
       const { user, accessToken, refreshToken } = resp.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      
+      // Usar apenas o authStore, não localStorage diretamente
       login({ user }, { accessToken, refreshToken });
+      
       navigate('/');
     } catch (e) {
       setError(e?.response?.data?.message || 'Falha no login');

@@ -4,6 +4,18 @@ import { body, validationResult } from 'express-validator';
 export class ProjectController {
   constructor() {
     this.projectService = new ProjectService();
+    
+    // Bind methods to preserve 'this' context
+    this.createProject = this.createProject.bind(this);
+    this.getProject = this.getProject.bind(this);
+    this.updateProject = this.updateProject.bind(this);
+    this.deleteProject = this.deleteProject.bind(this);
+    this.searchProjects = this.searchProjects.bind(this);
+    this.searchProjectsByText = this.searchProjectsByText.bind(this);
+    this.getUserProjects = this.getUserProjects.bind(this);
+    this.addTeamMember = this.addTeamMember.bind(this);
+    this.removeTeamMember = this.removeTeamMember.bind(this);
+    this.getRecommendedProjects = this.getRecommendedProjects.bind(this);
   }
 
   // Validações para criação de projeto

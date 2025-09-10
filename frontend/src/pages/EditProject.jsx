@@ -14,7 +14,7 @@ const EditProject = () => {
   const [objectives, setObjectives] = useState(['']);
   const [technologies, setTechnologies] = useState(['']);
   const [images, setImages] = useState(['']);
-  const [loading, setLoading] = useState(true);
+  const [isLoadingProject, setIsLoadingProject] = useState(true);
 
   useEffect(() => {
     loadProject();
@@ -22,7 +22,7 @@ const EditProject = () => {
 
   const loadProject = async () => {
     try {
-      setLoading(true);
+      setIsLoadingProject(true);
       const response = await projectService.getProject(projectId);
       const projectData = response.data;
       
@@ -48,7 +48,7 @@ const EditProject = () => {
     } catch (err) {
       setError(err?.response?.data?.message || 'Erro ao carregar projeto');
     } finally {
-      setLoading(false);
+      setIsLoadingProject(false);
     }
   };
 
@@ -121,7 +121,7 @@ const EditProject = () => {
     setImages(newImages);
   };
 
-  if (loading) {
+  if (isLoadingProject) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

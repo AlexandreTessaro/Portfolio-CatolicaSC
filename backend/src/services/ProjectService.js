@@ -1,5 +1,6 @@
 import { ProjectRepository } from '../repositories/ProjectRepository.js';
 import { UserRepository } from '../repositories/UserRepository.js';
+import { Project } from '../domain/Project.js';
 
 export class ProjectService {
   constructor() {

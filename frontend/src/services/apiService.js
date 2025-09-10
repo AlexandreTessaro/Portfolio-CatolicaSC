@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_ENDPOINTS, API_CONFIG } from '../config/api.js';
+import { useAuthStore } from '../stores/authStore.js';
 
 // Criar instância do axios com configurações padrão
 const apiClient = axios.create(API_CONFIG);
@@ -7,7 +8,8 @@ const apiClient = axios.create(API_CONFIG);
 // Interceptor para adicionar token de autenticação
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const authStore = useAuthStore.getState();
+    const token = authStore.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,22 +30,24 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const authStore = useAuthStore.getState();
+        const refreshToken = authStore.getRefreshToken();
+        
         if (refreshToken) {
           const response = await axios.post(API_ENDPOINTS.USERS.REFRESH_TOKEN, {
             refreshToken
           });
 
           const { accessToken } = response.data.data;
-          localStorage.setItem('accessToken', accessToken);
+          authStore.setTokens(accessToken, refreshToken);
 
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
-        // Se falhar ao renovar, redirecionar para login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // Se falhar ao renovar, fazer logout
+        const authStore = useAuthStore.getState();
+        authStore.logout();
         window.location.href = '/login';
       }
     }
@@ -66,8 +70,8 @@ export const userService = {
 
   async logout() {
     const response = await apiClient.post(API_ENDPOINTS.USERS.LOGOUT);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    const authStore = useAuthStore.getState();
+    authStore.logout();
     return response.data;
   },
 

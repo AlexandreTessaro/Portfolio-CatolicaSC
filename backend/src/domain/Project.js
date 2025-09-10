@@ -117,14 +117,14 @@ export class Project {
       id: this.id,
       title: this.title,
       description: this.description,
-      objectives: this.objectives,
-      technologies: this.technologies,
+      objectives: Array.isArray(this.objectives) ? this.objectives : [],
+      technologies: Array.isArray(this.technologies) ? this.technologies : [],
       status: this.status,
       category: this.category,
       creatorId: this.creatorId,
-      teamMembers: this.teamMembers,
-      collaborators: this.collaborators,
-      images: this.images,
+      teamMembers: Array.isArray(this.teamMembers) ? this.teamMembers : [],
+      collaborators: Array.isArray(this.collaborators) ? this.collaborators : [],
+      images: Array.isArray(this.images) ? this.images : [],
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     };
@@ -134,8 +134,8 @@ export class Project {
     return {
       id: this.id,
       title: this.title,
-      description: this.description.substring(0, 150) + '...',
-      technologies: this.technologies.slice(0, 5),
+      description: this.description ? this.description.substring(0, 150) + '...' : '',
+      technologies: Array.isArray(this.technologies) ? this.technologies.slice(0, 5) : [],
       status: this.status,
       category: this.category,
       createdAt: this.createdAt

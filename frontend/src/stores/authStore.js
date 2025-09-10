@@ -59,7 +59,7 @@ export const useAuthStore = create(
       // Getters
       getUser: () => get().user,
       getAccessToken: () => get().accessToken,
-      getRefreshToken: () => get().getRefreshToken,
+      getRefreshToken: () => get().refreshToken,
       getIsAuthenticated: () => get().isAuthenticated,
       getIsLoading: () => get().isLoading,
       getError: () => get().error,
