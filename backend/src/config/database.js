@@ -38,42 +38,26 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use individual parameters in production, connection string in development
+// Use Supavisor connection string for production (IPv4 compatible)
 const dbConfig = useIndividualParams
   ? (() => {
-      console.log('🔧 Configurando conexão com variáveis individuais...');
-      console.log('🏠 Host:', process.env.DB_HOST);
+      console.log('🔧 Configurando conexão com Supavisor (IPv4)...');
+      
+      // Use Supavisor connection string for IPv4 compatibility
+      const supavisorUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@aws-0-us-west-1.pooler.supabase.com:6543/${process.env.DB_NAME}`;
+      
+      console.log('🔗 Supavisor URL configurada');
       console.log('👤 User:', process.env.DB_USER);
       console.log('🗄️ Database:', process.env.DB_NAME);
-      console.log('🔌 Port:', process.env.DB_PORT);
       
       return {
-        // Use individual environment variables (best for production)
-        user: process.env.DB_USER,
-        host: process.env.DB_HOST,
-        database: process.env.DB_NAME,
-        password: process.env.DB_PASSWORD,
-        port: parseInt(process.env.DB_PORT) || 5432,
-        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        connectionString: supavisorUrl,
+        ssl: { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 30000, // Increased timeout
+        connectionTimeoutMillis: 30000,
         keepAlive: true,
         keepAliveInitialDelayMillis: 0,
-        family: 4, // Force IPv4
-        // Additional IPv4 forcing options
-        lookup: (hostname, options, callback) => {
-          console.log('🔍 DNS lookup for:', hostname);
-          const dns = require('dns');
-          dns.lookup(hostname, { family: 4 }, (err, address) => {
-            if (err) {
-              console.error('❌ DNS lookup error:', err);
-              return callback(err);
-            }
-            console.log('✅ Resolved to IPv4:', address);
-            callback(null, address, 4);
-          });
-        }
       };
     })()
   : useDatabaseUrl
