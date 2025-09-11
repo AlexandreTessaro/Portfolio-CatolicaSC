@@ -5,6 +5,7 @@ export default {
     node: true,
     jest: true,
   },
+  ignorePatterns: ['dist/', 'node_modules/', '*.min.js'],
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
