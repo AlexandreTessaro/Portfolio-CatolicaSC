@@ -4,6 +4,9 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite",
+  "env": {
+    "VITE_API_URL": "https://your-railway-app-url.up.railway.app/api"
+  },
   "routes": [
     {
       "src": "/(.*)",
