@@ -165,6 +165,9 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
+        cache-dependency-path: |
+          backend/package-lock.json
+          frontend/package-lock.json
     
     - name: Install Backend Dependencies
       working-directory: ./backend
@@ -176,10 +179,6 @@ jobs:
     
     - name: Build Frontend
       working-directory: ./frontend
-      run: npm run build
-    
-    - name: Build Backend
-      working-directory: ./backend
       run: npm run build
     
     - name: Deploy to Staging
