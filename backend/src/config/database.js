@@ -17,7 +17,7 @@ function parseDatabaseUrl(url) {
     const urlObj = new URL(url);
     
     // Force IPv4 by resolving hostname to IPv4 address
-    let hostname = urlObj.hostname;
+    const hostname = urlObj.hostname;
     
     // For Supabase, use the direct IPv4 address if available
     if (hostname.includes('supabase.co')) {
@@ -64,17 +64,26 @@ const dbConfig = useIndividualParams
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     }
-  : {
-      // Fallback to parsed URL or defaults
-      user: process.env.DB_USER || 'user',
-      host: process.env.DB_HOST || 'localhost',
-      database: process.env.DB_NAME || 'mydb',
-      password: process.env.DB_PASSWORD || 'password',
-      port: process.env.DB_PORT || 5432,
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    };
+  : (() => {
+      // Try to parse DATABASE_URL first, then fallback to defaults
+      const parsed = parseDatabaseUrl(process.env.DATABASE_URL);
+      return parsed ? {
+        ...parsed,
+        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+      } : {
+        user: process.env.DB_USER || 'user',
+        host: process.env.DB_HOST || 'localhost',
+        database: process.env.DB_NAME || 'mydb',
+        password: process.env.DB_PASSWORD || 'password',
+        port: process.env.DB_PORT || 5432,
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+      };
+    })();
 
 const pool = new Pool(dbConfig);
 
