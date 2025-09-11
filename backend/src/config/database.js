@@ -40,21 +40,42 @@ function parseDatabaseUrl(url) {
 
 // Use individual parameters in production, connection string in development
 const dbConfig = useIndividualParams
-  ? {
-      // Use individual environment variables (best for production)
-      user: process.env.DB_USER,
-      host: process.env.DB_HOST,
-      database: process.env.DB_NAME,
-      password: process.env.DB_PASSWORD,
-      port: parseInt(process.env.DB_PORT) || 5432,
-      ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 0,
-      family: 4, // Force IPv4
-    }
+  ? (() => {
+      console.log('🔧 Configurando conexão com variáveis individuais...');
+      console.log('🏠 Host:', process.env.DB_HOST);
+      console.log('👤 User:', process.env.DB_USER);
+      console.log('🗄️ Database:', process.env.DB_NAME);
+      console.log('🔌 Port:', process.env.DB_PORT);
+      
+      return {
+        // Use individual environment variables (best for production)
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: parseInt(process.env.DB_PORT) || 5432,
+        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 30000, // Increased timeout
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 0,
+        family: 4, // Force IPv4
+        // Additional IPv4 forcing options
+        lookup: (hostname, options, callback) => {
+          console.log('🔍 DNS lookup for:', hostname);
+          const dns = require('dns');
+          dns.lookup(hostname, { family: 4 }, (err, address) => {
+            if (err) {
+              console.error('❌ DNS lookup error:', err);
+              return callback(err);
+            }
+            console.log('✅ Resolved to IPv4:', address);
+            callback(null, address, 4);
+          });
+        }
+      };
+    })()
   : useDatabaseUrl
   ? {
       // Use connection string (development)

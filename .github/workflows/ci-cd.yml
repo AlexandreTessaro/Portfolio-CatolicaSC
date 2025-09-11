@@ -193,8 +193,8 @@ jobs:
     - name: Deploy Backend to Render
       run: |
         echo "🚀 Deploying backend to Render..."
-        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-        echo "✅ Backend deployment triggered on Render"
+        echo "ℹ️ Render will auto-deploy from GitHub push"
+        echo "✅ Backend deployment will be triggered automatically"
     
     - name: Notify Deployment
       run: |
