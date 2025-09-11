@@ -44,7 +44,8 @@ const dbConfig = useIndividualParams
       console.log('🔧 Configurando conexão com Supavisor (IPv4)...');
       
       // Use Supavisor connection string for IPv4 compatibility
-      const supavisorUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@aws-0-us-west-1.pooler.supabase.com:6543/${process.env.DB_NAME}`;
+      // Use the correct Supavisor URL for your specific project
+      const supavisorUrl = `postgresql://postgres.kdqmxqftmwmtyxmrauhy:${process.env.DB_PASSWORD}@aws-0-us-west-1.pooler.supabase.com:6543/postgres`;
       
       console.log('🔗 Supavisor URL configurada');
       console.log('👤 User:', process.env.DB_USER);

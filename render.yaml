@@ -7,7 +7,7 @@ services:
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
-        value: postgresql://postgres:SU3kafmNVoPLCRST@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+        value: postgresql://postgres.kdqmxqftmwmtyxmrauhy:SU3kafmNVoPLCRST@aws-0-us-west-1.pooler.supabase.com:6543/postgres
       - key: DB_USER
         value: postgres
       - key: DB_PASSWORD

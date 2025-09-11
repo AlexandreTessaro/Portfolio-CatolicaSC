@@ -188,7 +188,7 @@ jobs:
         cd frontend
         vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
       env:
-        VITE_API_URL: ${{ secrets.SUPABASE_API_URL }}
+        VITE_API_URL: ${{ secrets.VITE_API_URL }}
       
     - name: Deploy Backend to Render
       run: |
