@@ -4,9 +4,9 @@
 O backend está funcionando perfeitamente no Railway!
 
 ### URL da API:
-- **Railway URL**: `https://your-railway-app-url.up.railway.app`
-- **Health Check**: `https://your-railway-app-url.up.railway.app/health`
-- **API Endpoints**: `https://your-railway-app-url.up.railway.app/api`
+- **Railway URL**: `https://portfolio-backend-production-a492.up.railway.app`
+- **Health Check**: `https://portfolio-backend-production-a492.up.railway.app/health`
+- **API Endpoints**: `https://portfolio-backend-production-a492.up.railway.app/api`
 
 ## Frontend (Vercel) 🔧
 
@@ -16,7 +16,7 @@ O backend está funcionando perfeitamente no Railway!
 2. Vá em **Settings** → **Environment Variables**
 3. Adicione:
    ```
-   VITE_API_URL = https://your-railway-app-url.up.railway.app/api
+   VITE_API_URL = https://portfolio-backend-production-a492.up.railway.app/api
    ```
 
 ### 2. Deploy no Vercel:
@@ -31,7 +31,7 @@ O backend está funcionando perfeitamente no Railway!
 ### 3. Testar Integração:
 
 - Frontend: `https://your-vercel-app.vercel.app`
-- API: `https://your-railway-app-url.up.railway.app/api`
+- API: `https://portfolio-backend-production-a492.up.railway.app/api`
 
 ## 🔧 Configuração Atual:
 
