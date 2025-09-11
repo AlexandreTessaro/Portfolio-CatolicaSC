@@ -187,11 +187,14 @@ jobs:
         npm install -g vercel
         cd frontend
         vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+      env:
+        VITE_API_URL: ${{ secrets.SUPABASE_API_URL }}
       
-    - name: Deploy Backend to Supabase
+    - name: Deploy Backend to Render
       run: |
-        echo "🚀 Backend already deployed on Supabase..."
-        echo "✅ Backend is running on your Supabase instance"
+        echo "🚀 Deploying backend to Render..."
+        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+        echo "✅ Backend deployment triggered on Render"
     
     - name: Notify Deployment
       run: |
