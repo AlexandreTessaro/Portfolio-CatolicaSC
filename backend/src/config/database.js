@@ -1,13 +1,7 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
-import dns from 'dns';
 
 dotenv.config();
-
-// Force IPv4 DNS resolution in production
-if (process.env.NODE_ENV === 'production') {
-  dns.setDefaultResultOrder('ipv4first');
-}
 
 const { Pool } = pg;
 
@@ -44,31 +38,27 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use Supabase hostname for production connections with IPv4 forcing
+// Use Supavisor connection for production (IPv4 compatible)
 const dbConfig = useIndividualParams
   ? (() => {
-      console.log('🔧 Configurando conexão com Supabase...');
+      console.log('🔧 Configurando conexão com Supavisor (Supabase Pooler)...');
       
-      // Force IPv4 by using individual connection parameters instead of connection string
-      console.log('🔗 Configuração Supabase com IPv4 forçado');
+      // Use Supavisor connection string for IPv4 compatibility
+      const supavisorUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+      
+      console.log('🔗 URL Supavisor configurada');
       console.log('🏠 Host:', process.env.DB_HOST);
       console.log('👤 User:', process.env.DB_USER);
       console.log('🗄️ Database:', process.env.DB_NAME);
       
       return {
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT) || 5432,
-        database: process.env.DB_NAME,
+        connectionString: supavisorUrl,
         ssl: { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 30000,
         keepAlive: true,
         keepAliveInitialDelayMillis: 0,
-        // Force IPv4 resolution
-        family: 4,
       };
     })()
   : useDatabaseUrl
