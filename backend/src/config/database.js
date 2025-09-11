@@ -38,27 +38,51 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use Supavisor connection string for production (IPv4 compatible)
+// Use direct Supabase connection with multiple fallback strategies
 const dbConfig = useIndividualParams
   ? (() => {
-      console.log('🔧 Configurando conexão com Supavisor (IPv4)...');
+      console.log('🔧 Configurando conexão com Supabase (múltiplas estratégias)...');
       
-      // Use Supavisor connection string for IPv4 compatibility
-      // Use the correct Supavisor URL for your specific project
-      const supavisorUrl = `postgresql://postgres.kdqmxqftmwmtyxmrauhy:${process.env.DB_PASSWORD}@aws-0-us-west-1.pooler.supabase.com:6543/postgres`;
+      // Strategy 1: Try with IPv4 forcing
+      const directUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
       
-      console.log('🔗 Supavisor URL configurada');
+      console.log('🔗 URL direta configurada');
+      console.log('🏠 Host:', process.env.DB_HOST);
       console.log('👤 User:', process.env.DB_USER);
       console.log('🗄️ Database:', process.env.DB_NAME);
       
       return {
-        connectionString: supavisorUrl,
+        connectionString: directUrl,
         ssl: { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 30000,
         keepAlive: true,
         keepAliveInitialDelayMillis: 0,
+        // Multiple IPv4 forcing strategies
+        lookup: (hostname, options, callback) => {
+          console.log('🔍 DNS lookup for:', hostname);
+          const dns = require('dns');
+          
+          // Try IPv4 first
+          dns.lookup(hostname, { family: 4 }, (err, address) => {
+            if (err) {
+              console.error('❌ IPv4 DNS lookup error:', err);
+              // Fallback to any address
+              dns.lookup(hostname, (err2, address2) => {
+                if (err2) {
+                  console.error('❌ Fallback DNS lookup error:', err2);
+                  return callback(err2);
+                }
+                console.log('⚠️ Fallback resolved to:', address2);
+                callback(null, address2, 4);
+              });
+            } else {
+              console.log('✅ Resolved to IPv4:', address);
+              callback(null, address, 4);
+            }
+          });
+        }
       };
     })()
   : useDatabaseUrl
