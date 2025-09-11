@@ -103,6 +103,10 @@ app.use('*', (req, res) => {
 async function initializeConnections() {
   try {
     // Testar conexão com PostgreSQL
+    console.log('🔄 Tentando conectar ao banco de dados...');
+    console.log('📍 DATABASE_URL:', process.env.DATABASE_URL ? 'Configurado' : 'Não configurado');
+    console.log('🔒 SSL:', process.env.DB_SSL || 'true');
+    
     await pool.query('SELECT NOW()');
     console.log('✅ Conectado ao banco de dados PostgreSQL');
     

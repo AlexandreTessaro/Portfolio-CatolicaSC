@@ -16,7 +16,7 @@ const pool = new Pool(
         ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
+        connectionTimeoutMillis: 10000, // Increased timeout for external connections
       }
     : {
         user: process.env.DB_USER || 'user',
