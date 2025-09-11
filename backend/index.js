@@ -106,6 +106,8 @@ async function initializeConnections() {
     console.log('🔄 Tentando conectar ao banco de dados...');
     console.log('📍 DATABASE_URL:', process.env.DATABASE_URL ? 'Configurado' : 'Não configurado');
     console.log('🔒 SSL:', process.env.DB_SSL || 'true');
+    console.log('🌍 NODE_ENV:', process.env.NODE_ENV || 'development');
+    console.log('🔧 Modo de conexão:', process.env.NODE_ENV === 'production' ? 'Parâmetros individuais' : 'Connection String');
     
     await pool.query('SELECT NOW()');
     console.log('✅ Conectado ao banco de dados PostgreSQL');
