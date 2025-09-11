@@ -181,19 +181,15 @@ jobs:
       working-directory: ./frontend
       run: npm run build
     
-    - name: Deploy Backend to Railway
+    - name: Deploy Backend to Render
       run: |
-        echo "🚀 Deploying backend to Railway..."
-        npm install -g @railway/cli
-        railway login --token ${{ secrets.RAILWAY_TOKEN }}
-        cd backend
-        railway up --service backend
+        echo "🚀 Deploying backend to Render..."
+        curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
       
-    - name: Deploy Frontend to Railway
+    - name: Deploy Frontend to Render
       run: |
-        echo "🚀 Deploying frontend to Railway..."
-        cd frontend
-        railway up --service frontend
+        echo "🚀 Deploying frontend to Render..."
+        curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
     
     - name: Notify Deployment
       run: |
