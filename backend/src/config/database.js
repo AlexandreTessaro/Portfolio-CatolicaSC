@@ -5,9 +5,9 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// In production, use individual environment variables to avoid IPv6 issues
-const useIndividualParams = process.env.NODE_ENV === 'production' && process.env.DB_HOST;
-const useDatabaseUrl = Boolean(process.env.DATABASE_URL) && !useIndividualParams;
+// Prioritize DATABASE_URL since individual env vars are not being updated by Render
+const useDatabaseUrl = Boolean(process.env.DATABASE_URL);
+const useIndividualParams = process.env.NODE_ENV === 'production' && process.env.DB_HOST && !useDatabaseUrl;
 
 // Parse DATABASE_URL for production environments to avoid IPv6 issues
 function parseDatabaseUrl(url) {
@@ -38,8 +38,24 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use Supavisor connection for production (IPv4 compatible)
-const dbConfig = useIndividualParams
+// Use DATABASE_URL first (Supavisor connection for IPv4 compatibility)
+const dbConfig = useDatabaseUrl
+  ? (() => {
+      console.log('🔧 Configurando conexão com DATABASE_URL (Supavisor)...');
+      console.log('🔗 URL Supavisor configurada');
+      console.log('📍 DATABASE_URL:', process.env.DATABASE_URL ? 'Configurado' : 'Não configurado');
+      
+      return {
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 30000,
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 0,
+      };
+    })()
+  : useIndividualParams
   ? (() => {
       console.log('🔧 Configurando conexão com Supavisor (Supabase Pooler)...');
       
@@ -61,15 +77,6 @@ const dbConfig = useIndividualParams
         keepAliveInitialDelayMillis: 0,
       };
     })()
-  : useDatabaseUrl
-  ? {
-      // Use connection string (development)
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
-      max: 20,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000,
-    }
   : (() => {
       // Try to parse DATABASE_URL first, then fallback to defaults
       const parsed = parseDatabaseUrl(process.env.DATABASE_URL);
