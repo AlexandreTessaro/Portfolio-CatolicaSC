@@ -181,11 +181,19 @@ jobs:
       working-directory: ./frontend
       run: npm run build
     
-    - name: Deploy to Staging
+    - name: Deploy Backend to Railway
       run: |
-        echo "🚀 Deploying to staging environment..."
-        # Aqui você pode adicionar os comandos de deploy
-        # Por exemplo, para Railway, Render, ou VPS
+        echo "🚀 Deploying backend to Railway..."
+        npm install -g @railway/cli
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        cd backend
+        railway up --service backend
+      
+    - name: Deploy Frontend to Railway
+      run: |
+        echo "🚀 Deploying frontend to Railway..."
+        cd frontend
+        railway up --service frontend
     
     - name: Notify Deployment
       run: |
