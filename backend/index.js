@@ -114,8 +114,24 @@ async function initializeConnections() {
     
     console.log('🔧 Modo de conexão:', useIndividual ? 'Variáveis individuais' : useConnectionString ? 'Connection String' : 'Fallback');
     
-    await pool.query('SELECT NOW()');
-    console.log('✅ Conectado ao banco de dados PostgreSQL');
+    // Test database connection with retry logic
+    let retries = 3;
+    let connected = false;
+    
+    while (retries > 0 && !connected) {
+      try {
+        await pool.query('SELECT NOW()');
+        console.log('✅ Conectado ao banco de dados PostgreSQL');
+        connected = true;
+      } catch (dbError) {
+        retries--;
+        console.warn(`⚠️ Tentativa de conexão falhou. Tentativas restantes: ${retries}`);
+        if (retries === 0) {
+          throw dbError;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+      }
+    }
     
     // Testar conexão com Redis (opcional)
     const hasRedisUrl = Boolean(process.env.REDIS_URL);
@@ -134,6 +150,7 @@ async function initializeConnections() {
     await startServerWithFallback(PORT);
   } catch (error) {
     console.error('❌ Erro ao inicializar conexões:', error);
+    console.error('❌ Detalhes do erro:', error.message);
     process.exit(1);
   }
 }

@@ -38,21 +38,21 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use direct IP connection to bypass IPv6 issues
+// Use Supabase hostname for production connections
 const dbConfig = useIndividualParams
   ? (() => {
-      console.log('🔧 Configurando conexão com IP direto (IPv4)...');
+      console.log('🔧 Configurando conexão com Supabase...');
       
-      // Use direct IPv4 address to bypass DNS resolution issues
-      const directIpUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@34.102.136.180:5432/${process.env.DB_NAME}`;
+      // Use Supabase hostname instead of hardcoded IP
+      const supabaseUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
       
-      console.log('🔗 URL com IP direto configurada');
-      console.log('🏠 IP:', '34.102.136.180');
+      console.log('🔗 URL Supabase configurada');
+      console.log('🏠 Host:', process.env.DB_HOST);
       console.log('👤 User:', process.env.DB_USER);
       console.log('🗄️ Database:', process.env.DB_NAME);
       
       return {
-        connectionString: directIpUrl,
+        connectionString: supabaseUrl,
         ssl: { rejectUnauthorized: false },
         max: 20,
         idleTimeoutMillis: 30000,
@@ -94,12 +94,23 @@ const dbConfig = useIndividualParams
 const pool = new Pool(dbConfig);
 
 // Teste de conexão
-pool.on('connect', () => {
+pool.on('connect', (client) => {
   console.log('✅ Conectado ao banco de dados PostgreSQL');
 });
 
-pool.on('error', (err) => {
+pool.on('error', (err, client) => {
   console.error('❌ Erro na conexão com o banco:', err);
+  // Don't exit the process on connection errors, let the app handle it
 });
+
+// Test connection on startup
+pool.connect()
+  .then(client => {
+    console.log('✅ Pool de conexões inicializado com sucesso');
+    client.release();
+  })
+  .catch(err => {
+    console.error('❌ Erro ao inicializar pool de conexões:', err);
+  });
 
 export default pool;
