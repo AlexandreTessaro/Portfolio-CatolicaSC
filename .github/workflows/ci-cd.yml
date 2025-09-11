@@ -183,10 +183,10 @@ jobs:
     
     - name: Deploy Frontend to Vercel
       run: |
-        echo "🚀 Frontend ready for Vercel deployment..."
-        echo "📁 Build files created in frontend/dist/"
-        echo "🌐 Manual deploy: Connect your GitHub repo to Vercel"
-        echo "✅ Vercel will auto-deploy on next push"
+        echo "🚀 Deploying frontend to Vercel..."
+        npm install -g vercel
+        cd frontend
+        vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
       
     - name: Deploy Backend to Supabase
       run: |
