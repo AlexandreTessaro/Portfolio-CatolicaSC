@@ -12,6 +12,8 @@ import CreateProject from './pages/CreateProject';
 import EditProject from './pages/EditProject';
 
 function App() {
+  console.log('🎨 App component renderizando...');
+  
   return (
     <Router>
       <div className="App">
