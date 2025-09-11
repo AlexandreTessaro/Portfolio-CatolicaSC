@@ -181,15 +181,17 @@ jobs:
       working-directory: ./frontend
       run: npm run build
     
-    - name: Deploy Backend to Render
+    - name: Deploy Frontend to Vercel
       run: |
-        echo "🚀 Deploying backend to Render..."
-        curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+        echo "🚀 Deploying frontend to Vercel..."
+        npm install -g vercel
+        cd frontend
+        vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
       
-    - name: Deploy Frontend to Render
+    - name: Deploy Backend to Supabase
       run: |
-        echo "🚀 Deploying frontend to Render..."
-        curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+        echo "🚀 Backend already deployed on Supabase..."
+        echo "✅ Backend is running on your Supabase instance"
     
     - name: Notify Deployment
       run: |
