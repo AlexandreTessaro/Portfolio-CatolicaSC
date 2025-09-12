@@ -5,30 +5,22 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Prioritize DATABASE_URL since individual env vars are not being updated by Render
+// Configuração de ambiente
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
 const useDatabaseUrl = Boolean(process.env.DATABASE_URL);
-const useIndividualParams = process.env.NODE_ENV === 'production' && process.env.DB_HOST && !useDatabaseUrl;
 
-// Parse DATABASE_URL for production environments to avoid IPv6 issues
+// Parse DATABASE_URL para ambientes de produção
 function parseDatabaseUrl(url) {
   if (!url) return null;
   
   try {
     const urlObj = new URL(url);
     
-    // Force IPv4 by resolving hostname to IPv4 address
-    const hostname = urlObj.hostname;
-    
-    // For Supabase, use the direct IPv4 address if available
-    if (hostname.includes('supabase.co')) {
-      // Try to resolve to IPv4 - for now, we'll use a workaround
-      console.log('🔧 Usando hostname Supabase:', hostname);
-    }
-    
     return {
       user: urlObj.username,
       password: urlObj.password,
-      host: hostname,
+      host: urlObj.hostname,
       port: parseInt(urlObj.port) || 5432,
       database: urlObj.pathname.slice(1),
     };
@@ -38,38 +30,14 @@ function parseDatabaseUrl(url) {
   }
 }
 
-// Use DATABASE_URL first (Supavisor connection for IPv4 compatibility)
+// Configuração do banco de dados baseada no ambiente
 const dbConfig = useDatabaseUrl
   ? (() => {
-      console.log('🔧 Configurando conexão com DATABASE_URL (Supavisor)...');
-      console.log('🔗 URL Supavisor configurada');
-      console.log('📍 DATABASE_URL:', process.env.DATABASE_URL ? 'Configurado' : 'Não configurado');
+      console.log('🔧 Configurando conexão com DATABASE_URL (Produção)...');
       
       return {
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 30000,
-        keepAlive: true,
-        keepAliveInitialDelayMillis: 0,
-      };
-    })()
-  : useIndividualParams
-  ? (() => {
-      console.log('🔧 Configurando conexão com Supavisor (Supabase Pooler)...');
-      
-      // Use Supavisor connection string for IPv4 compatibility
-      const supavisorUrl = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-      
-      console.log('🔗 URL Supavisor configurada');
-      console.log('🏠 Host:', process.env.DB_HOST);
-      console.log('👤 User:', process.env.DB_USER);
-      console.log('🗄️ Database:', process.env.DB_NAME);
-      
-      return {
-        connectionString: supavisorUrl,
-        ssl: { rejectUnauthorized: false },
+        ssl: isProduction ? { rejectUnauthorized: false } : false,
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 30000,
@@ -78,20 +46,16 @@ const dbConfig = useDatabaseUrl
       };
     })()
   : (() => {
-      // Try to parse DATABASE_URL first, then fallback to defaults
-      const parsed = parseDatabaseUrl(process.env.DATABASE_URL);
-      return parsed ? {
-        ...parsed,
-        ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
-      } : {
+      // Configuração para desenvolvimento local (Docker Compose)
+      console.log('🔧 Configurando conexão local PostgreSQL...');
+      
+      return {
         user: process.env.DB_USER || 'user',
         host: process.env.DB_HOST || 'localhost',
         database: process.env.DB_NAME || 'mydb',
         password: process.env.DB_PASSWORD || 'password',
-        port: process.env.DB_PORT || 5432,
+        port: parseInt(process.env.DB_PORT) || 5432,
+        ssl: false, // SSL desabilitado para desenvolvimento local
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 2000,
@@ -100,24 +64,28 @@ const dbConfig = useDatabaseUrl
 
 const pool = new Pool(dbConfig);
 
-// Teste de conexão
+// Logs de conexão
 pool.on('connect', (_client) => {
   console.log('✅ Conectado ao banco de dados PostgreSQL');
 });
 
 pool.on('error', (err, _client) => {
   console.error('❌ Erro na conexão com o banco:', err);
-  // Don't exit the process on connection errors, let the app handle it
 });
 
-// Test connection on startup
+// Teste de conexão na inicialização
 pool.connect()
   .then(client => {
-    console.log('✅ Pool de conexões inicializado com sucesso');
+    console.log('✅ Pool de conexões PostgreSQL inicializado com sucesso');
+    console.log(`📍 Ambiente: ${isProduction ? 'Produção' : 'Desenvolvimento'}`);
+    console.log(`🔗 Tipo de conexão: ${useDatabaseUrl ? 'DATABASE_URL' : 'Parâmetros individuais'}`);
     client.release();
   })
   .catch(err => {
     console.error('❌ Erro ao inicializar pool de conexões:', err);
+    if (isDevelopment) {
+      console.log('💡 Dica: Certifique-se de que o PostgreSQL está rodando via Docker Compose');
+    }
   });
 
 export default pool;

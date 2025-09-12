@@ -7,8 +7,12 @@ const { Pool } = pg;
 
 async function createTables() {
   const useDatabaseUrl = Boolean(process.env.DATABASE_URL);
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // Quando usando Supabase (DATABASE_URL), não criar banco – conectar direto com SSL
+  console.log(`🔧 Iniciando migração - Ambiente: ${isProduction ? 'Produção' : 'Desenvolvimento'}`);
+  console.log(`🔗 Tipo de conexão: ${useDatabaseUrl ? 'DATABASE_URL' : 'Parâmetros individuais'}`);
+
+  // Quando usando DATABASE_URL (produção), não criar banco – conectar direto
   if (!useDatabaseUrl) {
     // Primeiro, conectar ao postgres para criar o banco se não existir
     const postgresPool = new Pool({
@@ -42,7 +46,7 @@ async function createTables() {
       await postgresPool.end();
     }
   } else {
-    console.log('ℹ️ DATABASE_URL detectado. Pulando criação de banco (Supabase).');
+    console.log('ℹ️ DATABASE_URL detectado. Pulando criação de banco (Produção).');
   }
 
   // Agora conectar ao banco específico para criar as tabelas
@@ -50,21 +54,22 @@ async function createTables() {
     useDatabaseUrl
       ? {
           connectionString: process.env.DATABASE_URL,
-          ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+          ssl: isProduction ? { rejectUnauthorized: false } : false,
         }
       : {
           host: process.env.DB_HOST || 'localhost',
-          port: process.env.DB_PORT || 5432,
+          port: parseInt(process.env.DB_PORT) || 5432,
           user: process.env.DB_USER || 'user',
           password: process.env.DB_PASSWORD || 'password',
           database: process.env.DB_NAME || 'mydb',
+          ssl: false, // SSL desabilitado para desenvolvimento local
         }
   );
 
   try {
     console.log('🔧 Criando tabelas...');
     // Log da conexão ativa
-    console.log('ℹ️ Conectando com', useDatabaseUrl ? 'DATABASE_URL (provável Supabase)' : `${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    console.log('ℹ️ Conectando com', useDatabaseUrl ? 'DATABASE_URL (Produção)' : `${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'mydb'}`);
 
     // Garantir schema public e search_path
     await pool.query('CREATE SCHEMA IF NOT EXISTS public');

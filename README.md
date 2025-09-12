@@ -66,7 +66,9 @@ docker-compose up -d --build
 
 ## 🗄️ Banco de Dados
 
-### Migração e Seed
+### Configuração Local (Desenvolvimento)
+
+O projeto usa **PostgreSQL local** via Docker Compose para desenvolvimento:
 
 ```bash
 # Executar migração
@@ -75,6 +77,30 @@ docker-compose exec backend npm run db:migrate
 # Executar seed (dados de exemplo)
 docker-compose exec backend npm run db:seed
 ```
+
+### Configuração de Produção
+
+Para produção, você pode usar qualquer provedor de PostgreSQL:
+
+- **AWS RDS PostgreSQL**
+- **Google Cloud SQL**
+- **DigitalOcean Managed Database**
+- **Railway PostgreSQL**
+- **Render PostgreSQL**
+
+Configure a variável `DATABASE_URL` no seu ambiente de produção:
+
+```bash
+DATABASE_URL=postgresql://username:password@host:5432/database_name
+```
+
+### Migração do Supabase
+
+Se você estava usando Supabase anteriormente, a migração é simples:
+
+1. **Desenvolvimento**: Use PostgreSQL local (Docker Compose)
+2. **Produção**: Configure `DATABASE_URL` com seu novo provedor PostgreSQL
+3. **Dados**: Execute as migrações normalmente
 
 ### Credenciais de Acesso
 

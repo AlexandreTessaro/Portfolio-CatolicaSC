@@ -135,7 +135,9 @@ async function initializeConnections() {
     
     // Testar conexão com Redis (opcional)
     const hasRedisUrl = Boolean(process.env.REDIS_URL);
-    if (hasRedisUrl) {
+    const redisEnabled = process.env.REDIS_ENABLED !== 'false';
+    
+    if (hasRedisUrl && redisEnabled) {
       try {
         await redisClient.connect();
         console.log('✅ Conectado ao Redis');
@@ -143,7 +145,7 @@ async function initializeConnections() {
         console.warn('⚠️ Não foi possível conectar ao Redis. Continuando sem cache.', redisError?.message || redisError);
       }
     } else {
-      console.log('ℹ️ REDIS_URL não definido. Pulando conexão com Redis.');
+      console.log('ℹ️ Redis desabilitado ou não configurado. Usando modo mock.');
     }
     
     // Iniciar servidor com fallback de porta se estiver em uso
