@@ -101,9 +101,20 @@ export class UserService {
 
   async updateProfile(userId, updates) {
     try {
-      // Validar dados de atualização
-      const user = new User({ ...updates });
-      const validationErrors = user.validate();
+      // Validar dados de atualização específicos
+      const validationErrors = [];
+      
+      if (updates.name && updates.name.trim().length < 2) {
+        validationErrors.push('Nome deve ter pelo menos 2 caracteres');
+      }
+      
+      if (updates.bio && updates.bio.length > 500) {
+        validationErrors.push('Bio deve ter no máximo 500 caracteres');
+      }
+      
+      if (updates.skills && updates.skills.length > 20) {
+        validationErrors.push('Máximo de 20 habilidades permitidas');
+      }
       
       if (validationErrors.length > 0) {
         throw new Error(`Erro de validação: ${validationErrors.join(', ')}`);

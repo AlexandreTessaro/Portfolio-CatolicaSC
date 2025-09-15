@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
 export const API_CONFIG = {
   baseURL: API_BASE_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

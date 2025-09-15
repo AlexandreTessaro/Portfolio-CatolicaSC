@@ -10,6 +10,7 @@ import ProjectsList from './pages/ProjectsList';
 import ProjectDetails from './pages/ProjectDetails';
 import CreateProject from './pages/CreateProject';
 import EditProject from './pages/EditProject';
+import Profile from './pages/Profile';
 
 function App() {
   console.log('🎨 App component renderizando...');
@@ -32,6 +33,11 @@ function App() {
             <Route path="/projects/:projectId/edit" element={
               <ProtectedRoute>
                 <EditProject />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             } />
             {/* Outras rotas serão adicionadas aqui */}

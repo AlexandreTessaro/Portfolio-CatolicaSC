@@ -110,15 +110,30 @@ export class UserRepository {
   async update(id, updates) {
     const client = await pool.connect();
     try {
-      const allowedFields = ['name', 'bio', 'skills', 'social_links', 'profile_image'];
       const setFields = [];
       const values = [];
       let paramCount = 1;
       
-      allowedFields.forEach(field => {
-        if (updates[field] !== undefined) {
-          setFields.push(`${field} = $${paramCount}`);
-          values.push(updates[field]);
+      // Mapear campos do frontend para campos do banco
+      const fieldMapping = {
+        name: 'name',
+        bio: 'bio',
+        skills: 'skills',
+        socialLinks: 'social_links',
+        profileImage: 'profile_image'
+      };
+      
+      Object.entries(updates).forEach(([key, value]) => {
+        if (fieldMapping[key] && value !== undefined) {
+          setFields.push(`${fieldMapping[key]} = $${paramCount}`);
+          
+          // Converter arrays e objetos para JSON
+          if (key === 'skills' || key === 'socialLinks') {
+            values.push(JSON.stringify(value));
+          } else {
+            values.push(value);
+          }
+          
           paramCount++;
         }
       });
