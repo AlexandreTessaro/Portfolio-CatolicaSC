@@ -32,7 +32,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Criar conta</h1>
         {getError() && (
           <div className="mb-4 text-sm text-red-600">{getError()}</div>
@@ -55,7 +55,7 @@ const Register = () => {
           </button>
         </form>
         <p className="text-sm text-gray-600 mt-4">
-          Já tem conta? <Link to="/login" className="text-blue-600 hover:underline">Entrar</Link>
+          Já tem conta? <Link to="/login" className="text-primary-600 hover:underline">Entrar</Link>
         </p>
       </div>
     </div>

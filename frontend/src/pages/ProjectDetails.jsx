@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { projectService, userService } from '../services/apiService';
+import { projectService, userService, matchService } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
+import RequestParticipationModal from '../components/RequestParticipationModal';
+import toast from 'react-hot-toast';
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -11,12 +13,17 @@ const ProjectDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [joining, setJoining] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [canRequestParticipation, setCanRequestParticipation] = useState({ canRequest: false });
 
   const { user, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     loadProject();
-  }, [projectId]);
+    if (isAuthenticated && projectId) {
+      checkCanRequestParticipation();
+    }
+  }, [projectId, isAuthenticated]);
 
   const loadProject = async () => {
     try {
@@ -42,22 +49,34 @@ const ProjectDetails = () => {
     }
   };
 
+  const checkCanRequestParticipation = async () => {
+    if (!isAuthenticated || !projectId) return;
+    
+    try {
+      const response = await matchService.canRequestParticipation(projectId);
+      setCanRequestParticipation(response.data);
+    } catch (error) {
+      console.error('Erro ao verificar permissão:', error);
+      setCanRequestParticipation({ canRequest: false });
+    }
+  };
+
   const handleJoinProject = async () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
 
-    try {
-      setJoining(true);
-      // TODO: Implement join project functionality
-      // await projectService.joinProject(projectId);
-      alert('Funcionalidade de participar do projeto será implementada em breve!');
-    } catch (err) {
-      alert('Erro ao participar do projeto: ' + (err?.response?.data?.message || 'Erro desconhecido'));
-    } finally {
-      setJoining(false);
+    if (canRequestParticipation.canRequest) {
+      setShowRequestModal(true);
+    } else {
+      toast.error(canRequestParticipation.reason || 'Não é possível solicitar participação neste projeto');
     }
+  };
+
+  const handleRequestSuccess = () => {
+    checkCanRequestParticipation();
+    toast.success('Solicitação enviada com sucesso!');
   };
 
   const handleEditProject = () => {
@@ -190,10 +209,12 @@ const ProjectDetails = () => {
               ) : (
                 <button
                   onClick={handleJoinProject}
-                  disabled={joining}
-                  className="btn-primary"
+                  disabled={joining || !canRequestParticipation.canRequest}
+                  className={`btn-primary ${!canRequestParticipation.canRequest ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {joining ? 'Participando...' : 'Participar do Projeto'}
+                  {joining ? 'Participando...' : 
+                   canRequestParticipation.canRequest ? 'Solicitar Participação' : 
+                   'Não Disponível'}
                 </button>
               )}
             </div>
@@ -307,6 +328,14 @@ const ProjectDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Request Participation Modal */}
+      <RequestParticipationModal
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        project={project}
+        onSuccess={handleRequestSuccess}
+      />
     </div>
   );
 };

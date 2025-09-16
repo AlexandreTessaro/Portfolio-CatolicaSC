@@ -11,6 +11,9 @@ import ProjectDetails from './pages/ProjectDetails';
 import CreateProject from './pages/CreateProject';
 import EditProject from './pages/EditProject';
 import Profile from './pages/Profile';
+import UsersList from './pages/UsersList';
+import PublicProfile from './pages/PublicProfile';
+import MatchesPage from './pages/MatchesPage';
 
 function App() {
   console.log('🎨 App component renderizando...');
@@ -40,7 +43,14 @@ function App() {
                 <Profile />
               </ProtectedRoute>
             } />
-            {/* Outras rotas serão adicionadas aqui */}
+                     <Route path="/users" element={<UsersList />} />
+                     <Route path="/users/:userId" element={<PublicProfile />} />
+                     <Route path="/matches" element={
+                       <ProtectedRoute>
+                         <MatchesPage />
+                       </ProtectedRoute>
+                     } />
+                     {/* Outras rotas serão adicionadas aqui */}
           </Routes>
         </Layout>
         <Toaster

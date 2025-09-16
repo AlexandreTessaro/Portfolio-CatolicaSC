@@ -14,6 +14,7 @@ export class UserController {
     this.getPublicProfile = this.getPublicProfile.bind(this);
     this.updateProfile = this.updateProfile.bind(this);
     this.searchUsers = this.searchUsers.bind(this);
+    this.getRecommendedUsers = this.getRecommendedUsers.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
   }
 
@@ -225,14 +226,28 @@ export class UserController {
   // Buscar usuários
   async searchUsers(req, res) {
     try {
-      const { skills, limit = 20, offset = 0 } = req.query;
+      const { skills, search, sortBy, limit = 20, offset = 0 } = req.query;
       const filters = {};
       
-      if (skills) {
-        filters.skills = skills.split(',').map(skill => skill.trim());
+      // Filtro por nome (busca)
+      if (search && search.trim()) {
+        filters.name = search.trim();
+      }
+      
+      // Filtro por habilidades
+      if (skills && skills.trim()) {
+        filters.skills = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
       }
 
-      const users = await this.userService.searchUsers(filters, parseInt(limit), parseInt(offset));
+      // Ordenação
+      if (sortBy) {
+        filters.sortBy = sortBy;
+      }
+
+      // Obter ID do usuário atual se autenticado
+      const excludeUserId = req.user ? req.user.userId : null;
+
+      const users = await this.userService.searchUsers(filters, parseInt(limit), parseInt(offset), excludeUserId);
       
       res.status(200).json({
         success: true,
@@ -247,6 +262,29 @@ export class UserController {
       res.status(500).json({
         success: false,
         message: _error.message
+      });
+    }
+  }
+
+  // Obter usuários recomendados
+  async getRecommendedUsers(req, res) {
+    try {
+      const { limit = 4 } = req.query;
+      
+      // Obter ID do usuário atual se autenticado
+      const excludeUserId = req.user ? req.user.userId : null;
+      
+      const users = await this.userService.getRecommendedUsers(parseInt(limit), excludeUserId);
+      
+      res.status(200).json({
+        success: true,
+        data: users,
+        count: users.length
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
       });
     }
   }

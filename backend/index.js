@@ -9,6 +9,7 @@ import 'express-async-errors';
 // Importar rotas
 import userRoutes from './src/routes/userRoutes.js';
 import projectRoutes from './src/routes/projectRoutes.js';
+import matchRoutes from './src/routes/matchRoutes.js';
 
 // Importar configurações
 import pool from './src/config/database.js';
@@ -55,6 +56,7 @@ app.use((req, res, next) => {
 // Rotas da API
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/matches', matchRoutes);
 
 // Rota de health check
 app.get('/health', (req, res) => {
@@ -75,6 +77,7 @@ app.get('/', (req, res) => {
     endpoints: {
       users: '/api/users',
       projects: '/api/projects',
+      matches: '/api/matches',
       health: '/health'
     }
   });
@@ -83,6 +86,8 @@ app.get('/', (req, res) => {
 // Middleware de tratamento de erros
 app.use((err, req, res, _next) => {
   console.error('Erro não tratado:', err);
+  console.error('Erro detalhado:', err.message);
+  console.error('Stack:', err.stack);
   
   res.status(err.status || 500).json({
     success: false,

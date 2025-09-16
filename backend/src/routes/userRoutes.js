@@ -16,6 +16,7 @@ router.get('/profile', authenticateToken, userController.getProfile);
 router.put('/profile', authenticateToken, userController.validateUpdateProfile(), userController.updateProfile);
 router.get('/public/:userId', userController.getPublicProfile);
 router.get('/search', userController.searchUsers);
+router.get('/recommended', userController.getRecommendedUsers);
 
 // Rotas administrativas
 router.delete('/:userId', authenticateToken, requireAdmin, userController.deleteUser);

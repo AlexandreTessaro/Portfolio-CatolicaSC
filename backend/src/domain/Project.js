@@ -142,3 +142,5 @@ export class Project {
     };
   }
 }
+
+export default Project;

@@ -52,7 +52,7 @@ const Profile = () => {
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: value 
       }));
     }
   };
@@ -83,19 +83,25 @@ const Profile = () => {
         return;
       }
 
-      // Validar tamanho (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('A imagem deve ter no máximo 5MB.');
+      // Validar tamanho (máximo 2MB para base64)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('A imagem deve ter no máximo 2MB.');
         return;
       }
 
       // Converter para base64 para preview
       const reader = new FileReader();
       reader.onload = (event) => {
+        const base64String = event.target.result;
+        console.log('📸 Imagem convertida para base64:', base64String.substring(0, 100) + '...');
         setFormData(prev => ({
           ...prev,
-          profileImage: event.target.result
+          profileImage: base64String
         }));
+        toast.success('Imagem carregada com sucesso!');
+      };
+      reader.onerror = () => {
+        toast.error('Erro ao carregar a imagem.');
       };
       reader.readAsDataURL(file);
     }
@@ -106,13 +112,13 @@ const Profile = () => {
     setLoading(true);
 
     try {
-      // Preparar dados para envio (remover imagem base64 temporariamente)
+      // Preparar dados para envio (incluindo imagem base64)
       const dataToSend = {
         name: formData.name,
         bio: formData.bio,
         skills: formData.skills,
-        socialLinks: formData.socialLinks
-        // profileImage será implementado depois com upload real
+        socialLinks: formData.socialLinks,
+        profileImage: formData.profileImage // Incluir imagem base64
       };
       
       console.log('🔍 Debug: Dados a enviar:', JSON.stringify(dataToSend, null, 2));

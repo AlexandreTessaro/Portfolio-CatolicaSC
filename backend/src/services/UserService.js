@@ -116,6 +116,20 @@ export class UserService {
         validationErrors.push('Máximo de 20 habilidades permitidas');
       }
       
+      // Validar imagem base64
+      if (updates.profileImage) {
+        if (!updates.profileImage.startsWith('data:image/')) {
+          validationErrors.push('Formato de imagem inválido');
+        } else {
+          // Verificar tamanho da string base64 (aproximadamente 1.33x o tamanho original)
+          const base64Size = updates.profileImage.length;
+          const maxBase64Size = 3 * 1024 * 1024; // 3MB em base64 ≈ 2MB original
+          if (base64Size > maxBase64Size) {
+            validationErrors.push('Imagem muito grande (máximo 2MB)');
+          }
+        }
+      }
+      
       if (validationErrors.length > 0) {
         throw new Error(`Erro de validação: ${validationErrors.join(', ')}`);
       }
@@ -158,19 +172,27 @@ export class UserService {
     }
   }
 
-  async searchUsers(filters = {}, limit = 20, offset = 0) {
+  async searchUsers(filters = {}, limit = 20, offset = 0, excludeUserId = null) {
     try {
-      let users = [];
-      
-      if (filters.skills && filters.skills.length > 0) {
-        users = await this.userRepository.findBySkills(filters.skills, limit);
-      } else {
-        users = await this.userRepository.findAll(limit, offset);
+      // Adicionar exclusão do usuário atual se fornecido
+      if (excludeUserId) {
+        filters.excludeUserId = excludeUserId;
       }
-
+      
+      const users = await this.userRepository.searchUsers(filters, limit, offset);
       return users.map(user => user.toPublicProfile());
     } catch (error) {
       throw new Error(`Erro ao buscar usuários: ${error.message}`);
+    }
+  }
+
+  async getRecommendedUsers(limit = 4, excludeUserId = null) {
+    try {
+      // Buscar usuários mais recentes com habilidades, excluindo o usuário atual
+      const users = await this.userRepository.findRecommendedUsers(limit, excludeUserId);
+      return users.map(user => user.toPublicProfile());
+    } catch (error) {
+      throw new Error(`Erro ao buscar usuários recomendados: ${error.message}`);
     }
   }
 

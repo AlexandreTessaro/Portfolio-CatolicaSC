@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     UPDATE_PROFILE: `${API_BASE_URL}/users/profile`,
     PUBLIC_PROFILE: (userId) => `${API_BASE_URL}/users/public/${userId}`,
     SEARCH: `${API_BASE_URL}/users/search`,
+    RECOMMENDED: `${API_BASE_URL}/users/recommended`,
   },
 
   // Projetos
@@ -25,6 +26,20 @@ export const API_ENDPOINTS = {
     RECOMMENDED: `${API_BASE_URL}/projects/recommended`,
     ADD_TEAM_MEMBER: (projectId) => `${API_BASE_URL}/projects/${projectId}/team`,
     REMOVE_TEAM_MEMBER: (projectId, memberId) => `${API_BASE_URL}/projects/${projectId}/team/${memberId}`,
+  },
+
+  // Matchmaking
+  MATCHES: {
+    CREATE: `${API_BASE_URL}/matches`,
+    RECEIVED: `${API_BASE_URL}/matches/received`,
+    SENT: `${API_BASE_URL}/matches/sent`,
+    GET: (matchId) => `${API_BASE_URL}/matches/${matchId}`,
+    ACCEPT: (matchId) => `${API_BASE_URL}/matches/${matchId}/accept`,
+    REJECT: (matchId) => `${API_BASE_URL}/matches/${matchId}/reject`,
+    BLOCK: (matchId) => `${API_BASE_URL}/matches/${matchId}/block`,
+    CANCEL: (matchId) => `${API_BASE_URL}/matches/${matchId}`,
+    STATS: `${API_BASE_URL}/matches/stats`,
+    CAN_REQUEST: (projectId) => `${API_BASE_URL}/matches/can-request/${projectId}`,
   },
 
   // Health check

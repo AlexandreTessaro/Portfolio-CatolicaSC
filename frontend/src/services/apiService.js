@@ -100,6 +100,11 @@ export const userService = {
     
     const response = await apiClient.get(`${API_ENDPOINTS.USERS.SEARCH}?${params}`);
     return response.data;
+  },
+
+  async getRecommendedUsers(limit = 4) {
+    const response = await apiClient.get(`${API_ENDPOINTS.USERS.RECOMMENDED}?limit=${limit}`);
+    return response.data;
   }
 };
 
@@ -163,6 +168,64 @@ export const projectService = {
   }
 };
 
+// Serviços de matchmaking
+export const matchService = {
+  async createMatch(projectId, message) {
+    const response = await apiClient.post(API_ENDPOINTS.MATCHES.CREATE, {
+      projectId,
+      message
+    });
+    return response.data;
+  },
+
+  async getReceivedMatches(status = null) {
+    const params = status ? `?status=${status}` : '';
+    const response = await apiClient.get(`${API_ENDPOINTS.MATCHES.RECEIVED}${params}`);
+    return response.data;
+  },
+
+  async getSentMatches(status = null) {
+    const params = status ? `?status=${status}` : '';
+    const response = await apiClient.get(`${API_ENDPOINTS.MATCHES.SENT}${params}`);
+    return response.data;
+  },
+
+  async acceptMatch(matchId) {
+    const response = await apiClient.patch(API_ENDPOINTS.MATCHES.ACCEPT(matchId));
+    return response.data;
+  },
+
+  async rejectMatch(matchId) {
+    const response = await apiClient.patch(API_ENDPOINTS.MATCHES.REJECT(matchId));
+    return response.data;
+  },
+
+  async blockMatch(matchId) {
+    const response = await apiClient.patch(API_ENDPOINTS.MATCHES.BLOCK(matchId));
+    return response.data;
+  },
+
+  async cancelMatch(matchId) {
+    const response = await apiClient.delete(API_ENDPOINTS.MATCHES.CANCEL(matchId));
+    return response.data;
+  },
+
+  async getMatchById(matchId) {
+    const response = await apiClient.get(API_ENDPOINTS.MATCHES.GET(matchId));
+    return response.data;
+  },
+
+  async getMatchStats() {
+    const response = await apiClient.get(API_ENDPOINTS.MATCHES.STATS);
+    return response.data;
+  },
+
+  async canRequestParticipation(projectId) {
+    const response = await apiClient.get(API_ENDPOINTS.MATCHES.CAN_REQUEST(projectId));
+    return response.data;
+  }
+};
+
 // Serviço de health check
 export const healthService = {
   async checkHealth() {
@@ -174,5 +237,6 @@ export const healthService = {
 export default {
   userService,
   projectService,
+  matchService,
   healthService
 };

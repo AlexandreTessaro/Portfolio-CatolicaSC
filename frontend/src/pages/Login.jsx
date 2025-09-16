@@ -29,7 +29,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Entrar</h1>
         {getError() && (
           <div className="mb-4 text-sm text-red-600">{getError()}</div>
@@ -48,7 +48,7 @@ const Login = () => {
           </button>
         </form>
         <p className="text-sm text-gray-600 mt-4">
-          Não tem conta? <Link to="/register" className="text-blue-600 hover:underline">Cadastre-se</Link>
+          Não tem conta? <Link to="/register" className="text-primary-600 hover:underline">Cadastre-se</Link>
         </p>
       </div>
     </div>

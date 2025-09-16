@@ -1,5 +1,5 @@
 import pool from '../config/database.js';
-import { User } from '../domain/User.js';
+import User from '../domain/User.js';
 
 export class UserRepository {
   async create(userData) {
@@ -255,4 +255,144 @@ export class UserRepository {
       client.release();
     }
   }
+
+  async findByName(name, limit = 20, offset = 0) {
+    const client = await pool.connect();
+    try {
+      const query = `
+        SELECT * FROM users 
+        WHERE LOWER(name) LIKE LOWER($1)
+        ORDER BY created_at DESC 
+        LIMIT $2 OFFSET $3
+      `;
+      
+      const result = await client.query(query, [`%${name}%`, limit, offset]);
+      
+      return result.rows.map(user => new User({
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        bio: user.bio,
+        skills: user.skills,
+        socialLinks: user.social_links,
+        profileImage: user.profile_image,
+        isAdmin: user.is_admin,
+        isVerified: user.is_verified,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at
+      }));
+    } finally {
+      client.release();
+    }
+  }
+
+  async searchUsers(filters = {}, limit = 20, offset = 0) {
+    const client = await pool.connect();
+    try {
+      let query = `SELECT * FROM users WHERE 1=1`;
+      const params = [];
+      let paramCount = 0;
+
+      // Excluir usuário atual se fornecido
+      if (filters.excludeUserId) {
+        paramCount++;
+        query += ` AND id != $${paramCount}`;
+        params.push(filters.excludeUserId);
+      }
+
+      // Filtro por nome
+      if (filters.name && filters.name.trim()) {
+        paramCount++;
+        query += ` AND LOWER(name) LIKE LOWER($${paramCount})`;
+        params.push(`%${filters.name.trim()}%`);
+      }
+
+      // Filtro por habilidades
+      if (filters.skills && filters.skills.length > 0) {
+        paramCount++;
+        query += ` AND skills @> $${paramCount}::jsonb`;
+        params.push(JSON.stringify(filters.skills));
+      }
+
+      // Ordenação
+      if (filters.sortBy === 'name') {
+        query += ` ORDER BY name ASC`;
+      } else if (filters.sortBy === 'oldest') {
+        query += ` ORDER BY created_at ASC`;
+      } else {
+        query += ` ORDER BY created_at DESC`; // newest (padrão)
+      }
+
+      // Paginação
+      paramCount++;
+      query += ` LIMIT $${paramCount}`;
+      params.push(limit);
+      
+      paramCount++;
+      query += ` OFFSET $${paramCount}`;
+      params.push(offset);
+
+      const result = await client.query(query, params);
+      
+      return result.rows.map(user => new User({
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        bio: user.bio,
+        skills: user.skills,
+        socialLinks: user.social_links,
+        profileImage: user.profile_image,
+        isAdmin: user.is_admin,
+        isVerified: user.is_verified,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at
+      }));
+    } finally {
+      client.release();
+    }
+  }
+
+  async findRecommendedUsers(limit = 4, excludeUserId = null) {
+    const client = await pool.connect();
+    try {
+      let query = `
+        SELECT * FROM users 
+        WHERE skills IS NOT NULL 
+        AND jsonb_array_length(skills) > 0
+      `;
+      
+      const params = [];
+      
+      if (excludeUserId) {
+        query += ` AND id != $1`;
+        params.push(excludeUserId);
+      }
+      
+      query += ` ORDER BY created_at DESC LIMIT $${params.length + 1}`;
+      params.push(limit);
+      
+      const result = await client.query(query, params);
+      
+      return result.rows.map(user => new User({
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        bio: user.bio,
+        skills: user.skills,
+        socialLinks: user.social_links,
+        profileImage: user.profile_image,
+        isAdmin: user.is_admin,
+        isVerified: user.is_verified,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at
+      }));
+    } finally {
+      client.release();
+    }
+  }
 }
+
+export default UserRepository;

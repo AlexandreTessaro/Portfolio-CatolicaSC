@@ -1,5 +1,5 @@
 import pool from '../config/database.js';
-import { Project } from '../domain/Project.js';
+import Project from '../domain/Project.js';
 
 export class ProjectRepository {
   async create(projectData) {
@@ -272,3 +272,5 @@ export class ProjectRepository {
     }
   }
 }
+
+export default ProjectRepository;
