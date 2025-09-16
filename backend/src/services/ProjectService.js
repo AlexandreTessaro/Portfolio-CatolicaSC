@@ -43,13 +43,34 @@ export class ProjectService {
         throw new Error('Projeto não encontrado');
       }
 
-      // Se o usuário é o criador ou membro da equipe, retornar visão completa
-      if (userId && (project.creatorId === userId || project.teamMembers.includes(userId))) {
-        return project.toPublicView();
+      // Popular dados dos membros da equipe
+      const populatedTeamMembers = [];
+      if (project.teamMembers && project.teamMembers.length > 0) {
+        for (const memberId of project.teamMembers) {
+          try {
+            const member = await this.userRepository.findById(memberId);
+            if (member) {
+              populatedTeamMembers.push({
+                id: member.id,
+                name: member.name,
+                profileImage: member.profileImage,
+                bio: member.bio,
+                skills: member.skills
+              });
+            }
+          } catch (error) {
+            console.warn(`Erro ao carregar dados do membro ${memberId}:`, error.message);
+          }
+        }
       }
 
-      // Caso contrário, retornar visão pública
-      return project.toPublicView();
+      // Criar projeto com membros populados
+      const projectWithMembers = {
+        ...project.toPublicView(),
+        teamMembers: populatedTeamMembers
+      };
+
+      return projectWithMembers;
     } catch (error) {
       throw new Error(`Erro ao buscar projeto: ${error.message}`);
     }
@@ -114,7 +135,17 @@ export class ProjectService {
   async searchProjects(filters = {}, limit = 20, offset = 0) {
     try {
       const projects = await this.projectRepository.findAll(limit, offset, filters);
-      return projects.map(project => project.toSummary());
+      
+      // Para cada projeto, adicionar contagem de membros da equipe
+      const projectsWithMemberCount = projects.map(project => {
+        const summary = project.toSummary();
+        return {
+          ...summary,
+          teamMembers: project.teamMembers ? project.teamMembers.length : 0
+        };
+      });
+      
+      return projectsWithMemberCount;
     } catch (error) {
       throw new Error(`Erro ao buscar projetos: ${error.message}`);
     }

@@ -34,10 +34,19 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // limite de 100 requisições por IP
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 100 em produção, 1000 em desenvolvimento
   message: {
     success: false,
     message: 'Muitas requisições deste IP, tente novamente mais tarde'
+  },
+  standardHeaders: true, // Retorna rate limit info nos headers `RateLimit-*`
+  legacyHeaders: false, // Desabilita headers `X-RateLimit-*`
+  skip: (req) => {
+    // Pular rate limiting para localhost em desenvolvimento
+    if (process.env.NODE_ENV !== 'production' && req.ip === '::1') {
+      return true;
+    }
+    return false;
   }
 });
 app.use('/api/', limiter);
@@ -51,6 +60,185 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
+});
+
+
+
+// Test endpoint for debugging authentication
+app.get('/api/test-auth-debug', async (req, res) => {
+  try {
+    console.log('🔍 Test auth debug endpoint chamado');
+    
+    // Apply authentication middleware first
+    const { authenticateToken } = await import('./src/middleware/auth.js');
+    
+    authenticateToken(req, res, () => {
+      console.log('✅ Middleware de autenticação passou');
+      console.log('📋 req.user:', req.user);
+      res.json({
+        success: true,
+        message: 'Test auth debug funcionando',
+        user: req.user
+      });
+    });
+  } catch (error) {
+    console.error('❌ Erro no test auth debug endpoint:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro no test auth debug endpoint',
+      error: error.message
+    });
+  }
+});
+
+// Test endpoint for debugging route
+app.get('/api/test-route-debug', async (req, res) => {
+  try {
+    console.log('🔍 Test route debug endpoint chamado');
+    
+    // Simular exatamente o que a rota faz
+    const matchController = (await import('./src/controllers/MatchController.js')).default;
+    const { authenticateToken } = await import('./src/middleware/auth.js');
+    
+    // Simular req com autenticação válida (pular middleware)
+    const mockReq = {
+      params: { projectId: '2' },
+      user: { id: 2 }
+    };
+    
+    const mockRes = {
+      json: (data) => {
+        console.log('✅ Resposta da rota:', data);
+        res.json({
+          success: true,
+          message: 'Test route debug funcionando',
+          routeResponse: data
+        });
+      },
+      status: (code) => ({
+        json: (data) => {
+          console.log(`❌ Erro ${code} da rota:`, data);
+          res.status(code).json({
+            success: false,
+            message: 'Erro na rota',
+            routeError: data,
+            statusCode: code
+          });
+        }
+      })
+    };
+    
+    // Pular middleware de autenticação e chamar diretamente o controller
+    await matchController.canRequestParticipation(mockReq, mockRes);
+    
+  } catch (error) {
+    console.error('❌ Erro no test route debug endpoint:', error);
+    console.error('❌ Stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro no test route debug endpoint',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// Test endpoint for debugging MatchController
+app.get('/api/test-controller-debug', async (req, res) => {
+  try {
+    console.log('🔍 Test controller debug endpoint chamado');
+    
+    // Importar MatchController diretamente
+    const matchController = (await import('./src/controllers/MatchController.js')).default;
+    
+    // Simular req e res
+    const mockReq = {
+      params: { projectId: '2' },
+      user: { id: 2 }
+    };
+    
+    const mockRes = {
+      json: (data) => {
+        console.log('✅ Resposta do controller:', data);
+        res.json({
+          success: true,
+          message: 'Test controller debug funcionando',
+          controllerResponse: data
+        });
+      },
+      status: (code) => ({
+        json: (data) => {
+          console.log(`❌ Erro ${code} do controller:`, data);
+          res.status(code).json({
+            success: false,
+            message: 'Erro no controller',
+            controllerError: data,
+            statusCode: code
+          });
+        }
+      })
+    };
+    
+    await matchController.canRequestParticipation(mockReq, mockRes);
+    
+  } catch (error) {
+    console.error('❌ Erro no test controller debug endpoint:', error);
+    console.error('❌ Stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro no test controller debug endpoint',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// Test endpoint for debugging match functionality
+app.get('/api/test-match-debug', async (req, res) => {
+  try {
+    console.log('🔍 Test match debug endpoint chamado');
+    
+    // Simular o que o canRequestParticipation faz
+    const projectId = '2';
+    const userId = 2;
+    
+    console.log('📋 Parâmetros:', { projectId, userId });
+    
+    // Importar MatchService diretamente
+    const MatchService = (await import('./src/services/MatchService.js')).default;
+    const database = (await import('./src/config/database.js')).default;
+    
+    const matchService = new MatchService(database);
+    const result = await matchService.canRequestParticipation(userId, projectId);
+    
+    console.log('✅ Resultado:', result);
+    
+    res.json({
+      success: true,
+      message: 'Test match debug funcionando',
+      data: result
+    });
+  } catch (error) {
+    console.error('❌ Erro no test match debug endpoint:', error);
+    console.error('❌ Stack:', error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Erro no test match debug endpoint',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// Test endpoint for debugging
+app.get('/api/test-match', async (req, res) => {
+  try {
+    console.log('🔍 Test endpoint chamado');
+    res.json({ success: true, message: 'Test endpoint funcionando' });
+  } catch (error) {
+    console.error('❌ Erro no test endpoint:', error);
+    res.status(500).json({ success: false, message: 'Erro no test endpoint' });
+  }
 });
 
 // Rotas da API

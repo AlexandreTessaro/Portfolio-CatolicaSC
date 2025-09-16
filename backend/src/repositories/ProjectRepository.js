@@ -38,7 +38,7 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
@@ -69,7 +69,7 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
@@ -101,7 +101,7 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
@@ -163,7 +163,7 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
@@ -229,7 +229,7 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
@@ -261,12 +261,115 @@ export class ProjectRepository {
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: project.team_members || [],
+        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
         collaborators: project.collaborators || [],
         images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
         createdAt: project.created_at,
         updatedAt: project.updated_at
       }));
+    } finally {
+      client.release();
+    }
+  }
+
+  // Adicionar membro à equipe do projeto
+  async addTeamMember(projectId, userId) {
+    const client = await pool.connect();
+    try {
+      // Buscar o projeto atual
+      const project = await this.findById(projectId);
+      if (!project) {
+        throw new Error('Projeto não encontrado');
+      }
+
+      // Verificar se o usuário já é membro da equipe
+      const currentTeamMembers = project.teamMembers || [];
+      if (currentTeamMembers.includes(userId)) {
+        throw new Error('Usuário já é membro da equipe');
+      }
+
+      // Adicionar o usuário à equipe
+      const updatedTeamMembers = [...currentTeamMembers, userId];
+      
+      const query = `
+        UPDATE projects 
+        SET team_members = $1, updated_at = $2
+        WHERE id = $3
+        RETURNING *
+      `;
+      
+      const result = await client.query(query, [
+        JSON.stringify(updatedTeamMembers),
+        new Date(),
+        projectId
+      ]);
+      
+      const updatedProject = result.rows[0];
+      
+      return new Project({
+        id: updatedProject.id,
+        title: updatedProject.title,
+        description: updatedProject.description,
+        objectives: typeof updatedProject.objectives === 'string' ? JSON.parse(updatedProject.objectives) : updatedProject.objectives,
+        technologies: typeof updatedProject.technologies === 'string' ? JSON.parse(updatedProject.technologies) : updatedProject.technologies,
+        status: updatedProject.status,
+        category: updatedProject.category,
+        creatorId: updatedProject.creator_id,
+        teamMembers: updatedTeamMembers,
+        collaborators: typeof updatedProject.collaborators === 'string' ? JSON.parse(updatedProject.collaborators) : updatedProject.collaborators,
+        images: typeof updatedProject.images === 'string' ? JSON.parse(updatedProject.images) : updatedProject.images,
+        createdAt: updatedProject.created_at,
+        updatedAt: updatedProject.updated_at
+      });
+    } finally {
+      client.release();
+    }
+  }
+
+  // Remover membro da equipe do projeto
+  async removeTeamMember(projectId, userId) {
+    const client = await pool.connect();
+    try {
+      // Buscar o projeto atual
+      const project = await this.findById(projectId);
+      if (!project) {
+        throw new Error('Projeto não encontrado');
+      }
+
+      // Remover o usuário da equipe
+      const currentTeamMembers = project.teamMembers || [];
+      const updatedTeamMembers = currentTeamMembers.filter(id => id !== userId);
+      
+      const query = `
+        UPDATE projects 
+        SET team_members = $1, updated_at = $2
+        WHERE id = $3
+        RETURNING *
+      `;
+      
+      const result = await client.query(query, [
+        JSON.stringify(updatedTeamMembers),
+        new Date(),
+        projectId
+      ]);
+      
+      const updatedProject = result.rows[0];
+      
+      return new Project({
+        id: updatedProject.id,
+        title: updatedProject.title,
+        description: updatedProject.description,
+        objectives: typeof updatedProject.objectives === 'string' ? JSON.parse(updatedProject.objectives) : updatedProject.objectives,
+        technologies: typeof updatedProject.technologies === 'string' ? JSON.parse(updatedProject.technologies) : updatedProject.technologies,
+        status: updatedProject.status,
+        category: updatedProject.category,
+        creatorId: updatedProject.creator_id,
+        teamMembers: updatedTeamMembers,
+        collaborators: typeof updatedProject.collaborators === 'string' ? JSON.parse(updatedProject.collaborators) : updatedProject.collaborators,
+        images: typeof updatedProject.images === 'string' ? JSON.parse(updatedProject.images) : updatedProject.images,
+        createdAt: updatedProject.created_at,
+        updatedAt: updatedProject.updated_at
+      });
     } finally {
       client.release();
     }

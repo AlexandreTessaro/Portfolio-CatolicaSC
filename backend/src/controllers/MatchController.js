@@ -8,7 +8,9 @@ class MatchController {
 
   get matchService() {
     if (!this._matchService) {
+      console.log('🔧 Inicializando MatchService...');
       this._matchService = new MatchService(database);
+      console.log('✅ MatchService inicializado');
     }
     return this._matchService;
   }
@@ -17,8 +19,8 @@ class MatchController {
   async createMatch(req, res) {
     try {
       const { projectId, message } = req.body;
-      const userId = req.user.id;
-
+      const userId = req.user?.userId;
+      
       // Validações básicas
       if (!projectId || !message) {
         return res.status(400).json({
@@ -27,7 +29,16 @@ class MatchController {
         });
       }
 
-      const match = await this.matchService.createMatch(userId, projectId, message);
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+      }
+
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const match = await matchService.createMatch(userId, projectId, message);
 
       res.status(201).json({
         success: true,
@@ -46,10 +57,12 @@ class MatchController {
   // Buscar matches recebidos (para criadores de projeto)
   getReceivedMatches = async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const { status } = req.query || {};
 
-      const matches = await this.matchService.getReceivedMatches(userId, status);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const matches = await matchService.getReceivedMatches(userId, status);
 
       res.json({
         success: true,
@@ -67,10 +80,12 @@ class MatchController {
   // Buscar matches enviados (para usuários que solicitaram)
   getSentMatches = async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const { status } = req.query || {};
 
-      const matches = await this.matchService.getSentMatches(userId, status);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const matches = await matchService.getSentMatches(userId, status);
 
       res.json({
         success: true,
@@ -89,9 +104,11 @@ class MatchController {
   async acceptMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
-      const match = await this.matchService.acceptMatch(matchId, userId);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const match = await matchService.acceptMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -111,9 +128,11 @@ class MatchController {
   async rejectMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
-      const match = await this.matchService.rejectMatch(matchId, userId);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const match = await matchService.rejectMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -133,9 +152,11 @@ class MatchController {
   async blockMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
-      const match = await this.matchService.blockMatch(matchId, userId);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const match = await matchService.blockMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -155,9 +176,11 @@ class MatchController {
   async cancelMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.id;
+      const userId = req.user.userId;
 
-      const deleted = await this.matchService.cancelMatch(matchId, userId);
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const deleted = await matchService.cancelMatch(matchId, userId);
 
       if (deleted) {
         res.json({
@@ -183,7 +206,11 @@ class MatchController {
   async getMatchById(req, res) {
     try {
       const { matchId } = req.params;
-      const match = await this.matchService.getMatchById(matchId);
+      const userId = req.user.userId;
+
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const match = await matchService.getMatchById(matchId, userId);
 
       if (!match) {
         return res.status(404).json({
@@ -208,8 +235,11 @@ class MatchController {
   // Obter estatísticas de matches
   getMatchStats = async (req, res) => {
     try {
-      const userId = req.user.id;
-      const stats = await this.matchService.getMatchStats(userId);
+      const userId = req.user.userId;
+      
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const stats = await matchService.getMatchStats(userId);
 
       res.json({
         success: true,
@@ -230,9 +260,11 @@ class MatchController {
   async canRequestParticipation(req, res) {
     try {
       const { projectId } = req.params;
-      const userId = req.user.id;
-
-      const result = await this.matchService.canRequestParticipation(userId, projectId);
+      const userId = req.user.userId;
+      
+      // Inicializar MatchService diretamente
+      const matchService = new MatchService(database);
+      const result = await matchService.canRequestParticipation(userId, projectId);
 
       res.json({
         success: true,

@@ -47,7 +47,7 @@ describe('Header Component', () => {
     renderWithRouter(<Header />);
 
     // Assert
-    expect(screen.getByText('StartupCollab')).toBeInTheDocument();
+    expect(screen.getByText('Collabra')).toBeInTheDocument();
     expect(screen.getByText('Início')).toBeInTheDocument();
     expect(screen.getByText('Projetos')).toBeInTheDocument();
     expect(screen.getByText('Usuários')).toBeInTheDocument();

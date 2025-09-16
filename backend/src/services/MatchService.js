@@ -13,19 +13,23 @@ class MatchService {
   // Criar uma nova solicitação de match
   async createMatch(userId, projectId, message) {
     try {
+      // Converter userId para número se necessário
+      const numericUserId = parseInt(userId);
+      const numericProjectId = parseInt(projectId);
+      
       // Validar se o projeto existe
-      const project = await this.projectRepository.findById(projectId);
+      const project = await this.projectRepository.findById(numericProjectId);
       if (!project) {
         throw new Error('Projeto não encontrado');
       }
 
       // Validar se o usuário não é o criador do projeto
-      if (project.creatorId === userId) {
+      if (project.creatorId === numericUserId) {
         throw new Error('Você não pode solicitar participação no seu próprio projeto');
       }
 
       // Validar se já existe uma solicitação
-      const existingMatch = await this.matchRepository.existsByUserAndProject(userId, projectId);
+      const existingMatch = await this.matchRepository.existsByUserAndProject(numericUserId, numericProjectId);
       if (existingMatch) {
         throw new Error('Você já enviou uma solicitação para este projeto');
       }
@@ -37,8 +41,8 @@ class MatchService {
 
       // Criar o match
       const matchData = {
-        projectId,
-        userId,
+        projectId: numericProjectId,
+        userId: numericUserId,
         status: 'pending',
         message,
         createdAt: new Date(),
@@ -104,8 +108,21 @@ class MatchService {
         throw new Error('Este match não pode ser aceito');
       }
 
-      // Atualizar status
+      // Atualizar status do match
       const updatedMatch = await this.matchRepository.updateStatus(matchId, 'accepted');
+      
+      // Adicionar o usuário à equipe do projeto
+      try {
+        await this.projectRepository.addTeamMember(match.projectId, match.userId);
+        console.log(`✅ Usuário ${match.userId} adicionado à equipe do projeto ${match.projectId}`);
+      } catch (teamError) {
+        console.error('⚠️ Erro ao adicionar usuário à equipe:', teamError.message);
+        // Não falhar o processo se já for membro da equipe
+        if (!teamError.message.includes('já é membro da equipe')) {
+          throw teamError;
+        }
+      }
+
       return updatedMatch;
     } catch (error) {
       throw new Error(`Erro ao aceitar match: ${error.message}`);
@@ -235,6 +252,7 @@ class MatchService {
     try {
       // Verificar se o projeto existe
       const project = await this.projectRepository.findById(projectId);
+      
       if (!project) {
         return { canRequest: false, reason: 'Projeto não encontrado' };
       }
@@ -246,12 +264,14 @@ class MatchService {
 
       // Verificar se já existe solicitação
       const existingMatch = await this.matchRepository.existsByUserAndProject(userId, projectId);
+      
       if (existingMatch) {
         return { canRequest: false, reason: 'Você já enviou uma solicitação para este projeto' };
       }
 
       return { canRequest: true };
     } catch (error) {
+      console.error('Erro em canRequestParticipation:', error);
       return { canRequest: false, reason: 'Erro interno' };
     }
   }

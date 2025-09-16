@@ -35,8 +35,8 @@ export class UserService {
       });
 
       // Gerar tokens
-      const accessToken = generateAccessToken({ userId: newUser.id, email: newUser.email });
-      const refreshToken = generateRefreshToken({ userId: newUser.id, email: newUser.email });
+      const accessToken = generateAccessToken({ userId: parseInt(newUser.id), email: newUser.email });
+      const refreshToken = generateRefreshToken({ userId: parseInt(newUser.id), email: newUser.email });
 
       return {
         user: newUser.toPublicProfile(),
@@ -63,8 +63,8 @@ export class UserService {
       }
 
       // Gerar tokens
-      const accessToken = generateAccessToken({ userId: user.id, email: user.email });
-      const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+      const accessToken = generateAccessToken({ userId: parseInt(user.id), email: user.email });
+      const refreshToken = generateRefreshToken({ userId: parseInt(user.id), email: user.email });
 
       return {
         user: user.toPublicProfile(),
@@ -88,7 +88,7 @@ export class UserService {
       }
 
       // Gerar novo access token
-      const newAccessToken = generateAccessToken({ userId: user.id, email: user.email });
+      const newAccessToken = generateAccessToken({ userId: parseInt(user.id), email: user.email });
 
       return {
         accessToken: newAccessToken,

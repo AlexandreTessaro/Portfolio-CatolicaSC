@@ -287,15 +287,36 @@ const ProjectDetails = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Equipe</h3>
               {project.teamMembers && project.teamMembers.length > 0 ? (
                 <div className="space-y-3">
-                  {project.teamMembers.map((member, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-600">
-                          {member.name ? member.name.charAt(0).toUpperCase() : '?'}
-                        </span>
+                  {project.teamMembers.map((member) => (
+                    <Link
+                      key={member.id}
+                      to={`/users/${member.id}`}
+                      className="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                    >
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        {member.profileImage ? (
+                          <img
+                            src={member.profileImage}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm font-medium text-gray-600">
+                            {member.name ? member.name.charAt(0).toUpperCase() : '?'}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-sm text-gray-700">{member.name || 'Membro'}</span>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {member.name || 'Membro'}
+                        </p>
+                        {member.bio && (
+                          <p className="text-xs text-gray-500 truncate">
+                            {member.bio}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
                   ))}
                 </div>
               ) : (

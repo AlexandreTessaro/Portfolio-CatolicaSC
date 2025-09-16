@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Layout from './components/Layout/Layout';
+import LayoutLanding from './components/Layout/LayoutLanding';
 import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -21,38 +23,83 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/projects" element={<ProjectsList />} />
-            <Route path="/projects/create" element={
+        <Routes>
+          {/* Landing Page com layout próprio */}
+          <Route path="/" element={
+            <LayoutLanding>
+              <LandingPage />
+            </LayoutLanding>
+          } />
+          
+          {/* Páginas de autenticação com layout próprio */}
+          <Route path="/login" element={
+            <LayoutLanding>
+              <Login />
+            </LayoutLanding>
+          } />
+          <Route path="/register" element={
+            <LayoutLanding>
+              <Register />
+            </LayoutLanding>
+          } />
+          
+          {/* Páginas da aplicação com layout padrão */}
+          <Route path="/dashboard" element={
+            <Layout>
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            </Layout>
+          } />
+          <Route path="/projects" element={
+            <Layout>
+              <ProjectsList />
+            </Layout>
+          } />
+          <Route path="/projects/create" element={
+            <Layout>
               <ProtectedRoute>
                 <CreateProject />
               </ProtectedRoute>
-            } />
-            <Route path="/projects/:projectId" element={<ProjectDetails />} />
-            <Route path="/projects/:projectId/edit" element={
+            </Layout>
+          } />
+          <Route path="/projects/:projectId" element={
+            <Layout>
+              <ProjectDetails />
+            </Layout>
+          } />
+          <Route path="/projects/:projectId/edit" element={
+            <Layout>
               <ProtectedRoute>
                 <EditProject />
               </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
+            </Layout>
+          } />
+          <Route path="/profile" element={
+            <Layout>
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
-            } />
-                     <Route path="/users" element={<UsersList />} />
-                     <Route path="/users/:userId" element={<PublicProfile />} />
-                     <Route path="/matches" element={
-                       <ProtectedRoute>
-                         <MatchesPage />
-                       </ProtectedRoute>
-                     } />
-                     {/* Outras rotas serão adicionadas aqui */}
-          </Routes>
-        </Layout>
+            </Layout>
+          } />
+          <Route path="/users" element={
+            <Layout>
+              <UsersList />
+            </Layout>
+          } />
+          <Route path="/users/:userId" element={
+            <Layout>
+              <PublicProfile />
+            </Layout>
+          } />
+          <Route path="/matches" element={
+            <Layout>
+              <ProtectedRoute>
+                <MatchesPage />
+              </ProtectedRoute>
+            </Layout>
+          } />
+        </Routes>
         <Toaster
           position="top-right"
           toastOptions={{

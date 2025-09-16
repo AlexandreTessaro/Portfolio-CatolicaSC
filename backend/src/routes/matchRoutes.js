@@ -1,11 +1,11 @@
 import express from 'express';
 import matchController from '../controllers/MatchController.js';
-import authMiddleware from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Aplicar middleware de autenticação em todas as rotas
-router.use(authMiddleware);
+router.use(authenticateToken);
 
 // Criar uma nova solicitação de match
 router.post('/', matchController.createMatch);
@@ -22,7 +22,7 @@ router.get('/stats', matchController.getMatchStats);
 // Verificar se pode solicitar participação em um projeto
 router.get('/can-request/:projectId', matchController.canRequestParticipation);
 
-// Buscar match específico por ID
+// Buscar match específico por ID (deve vir por último para não capturar outras rotas)
 router.get('/:matchId', matchController.getMatchById);
 
 // Aceitar um match

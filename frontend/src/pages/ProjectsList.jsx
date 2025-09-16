@@ -246,7 +246,7 @@ const ProjectsList = () => {
                     Ver detalhes →
                   </Link>
                   <div className="text-xs text-gray-500">
-                    {project.teamMembers?.length || 0} membros
+                    {project.teamMembers || 0} membros
                   </div>
                 </div>
               </div>
