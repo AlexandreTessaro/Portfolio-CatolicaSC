@@ -167,32 +167,37 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Usuário não encontrado</h2>
-          <p className="text-gray-600">Faça login para acessar seu perfil.</p>
+          <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Usuário não encontrado</h2>
+          <p className="text-gray-300">Faça login para acessar seu perfil.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-600">
                   {formData.profileImage ? (
                     <img 
                       src={formData.profileImage} 
                       alt="Profile" 
-                      className="w-20 h-20 rounded-full object-cover"
+                      className="w-24 h-24 rounded-full object-cover"
                     />
                   ) : (
-                    <span className="text-white text-2xl font-bold">
+                    <span className="text-white text-3xl font-bold">
                       {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
                     </span>
                   )}
@@ -200,7 +205,7 @@ const Profile = () => {
                 {isEditing && (
                   <button
                     onClick={() => document.getElementById('profileImageInput').click()}
-                    className="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-colors"
+                    className="absolute -bottom-1 -right-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-3 shadow-lg transition-all duration-300 transform hover:scale-110"
                     title="Alterar foto"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,12 +223,12 @@ const Profile = () => {
                 />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-white mb-2">
                   {formData.name || 'Usuário'}
                 </h1>
-                <p className="text-gray-600">{user.email}</p>
+                <p className="text-gray-300 text-lg">{user.email}</p>
                 {user.isVerified && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-300 mt-2 border border-green-500/30">
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -232,28 +237,45 @@ const Profile = () => {
                 )}
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"
                 >
-                  Editar Perfil
+                  <span className="relative z-10">Editar Perfil</span>
+                  <svg className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
                 </button>
               ) : (
-                <div className="flex space-x-2">
+                <div className="flex space-x-3">
                   <button
                     onClick={handleCancel}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    className="px-6 py-3 border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-semibold rounded-xl transition-all duration-300"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50"
+                    className={`px-6 py-3 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      loading 
+                        ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-green-600 to-blue-600 text-white hover:shadow-green-500/25'
+                    }`}
                   >
-                    {loading ? 'Salvando...' : 'Salvar'}
+                    {loading ? (
+                      <div className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Salvando...
+                      </div>
+                    ) : (
+                      'Salvar'
+                    )}
                   </button>
                 </div>
               )}
@@ -266,62 +288,72 @@ const Profile = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Bio */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Sobre</h2>
+            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Sobre
+              </h2>
               {isEditing ? (
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleInputChange}
                   placeholder="Conte um pouco sobre você..."
-                  className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full h-32 px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
                   maxLength={500}
                 />
               ) : (
-                <p className="text-gray-700 whitespace-pre-wrap">
+                <p className="text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
                   {formData.bio || 'Nenhuma biografia adicionada ainda.'}
                 </p>
               )}
               {isEditing && (
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-gray-400 mt-3">
                   {formData.bio.length}/500 caracteres
                 </p>
               )}
             </div>
 
             {/* Skills */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Habilidades</h2>
+            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                Habilidades
+              </h2>
               {isEditing ? (
                 <div>
-                  <div className="flex space-x-2 mb-4">
+                  <div className="flex space-x-3 mb-6">
                     <input
                       type="text"
                       value={newSkill}
                       onChange={(e) => setNewSkill(e.target.value)}
                       placeholder="Adicionar habilidade..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
                     />
                     <button
                       onClick={handleAddSkill}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
                     >
                       Adicionar
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {formData.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                        className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600/20 text-blue-300 border border-blue-500/30"
                       >
                         {skill}
                         <button
                           onClick={() => handleRemoveSkill(skill)}
-                          className="ml-2 text-blue-600 hover:text-blue-800"
+                          className="ml-2 text-blue-400 hover:text-blue-200 transition-colors"
                         >
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                           </svg>
                         </button>
@@ -330,18 +362,18 @@ const Profile = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {formData.skills.length > 0 ? (
                     formData.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                        className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600/20 text-blue-300 border border-blue-500/30"
                       >
                         {skill}
                       </span>
                     ))
                   ) : (
-                    <p className="text-gray-500">Nenhuma habilidade adicionada ainda.</p>
+                    <p className="text-gray-400 text-lg">Nenhuma habilidade adicionada ainda.</p>
                   )}
                 </div>
               )}
@@ -351,11 +383,16 @@ const Profile = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Personal Info */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Informações Pessoais</h2>
-              <div className="space-y-4">
+            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Informações Pessoais
+              </h2>
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Nome
                   </label>
                   {isEditing ? (
@@ -364,23 +401,23 @@ const Profile = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     />
                   ) : (
-                    <p className="text-gray-900">{formData.name}</p>
+                    <p className="text-white text-lg">{formData.name}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Email
                   </label>
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className="text-gray-300 text-lg">{user.email}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Membro desde
                   </label>
-                  <p className="text-gray-900">
+                  <p className="text-gray-300 text-lg">
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -388,11 +425,16 @@ const Profile = () => {
             </div>
 
             {/* Social Links */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Redes Sociais</h2>
-              <div className="space-y-4">
+            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Redes Sociais
+              </h2>
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     LinkedIn
                   </label>
                   {isEditing ? (
@@ -402,28 +444,28 @@ const Profile = () => {
                       value={formData.socialLinks.linkedin}
                       onChange={handleInputChange}
                       placeholder="https://linkedin.com/in/seu-perfil"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     />
                   ) : (
-                    <div className="text-gray-900">
+                    <div className="text-gray-300">
                       {formData.socialLinks.linkedin ? (
                         <a 
                           href={formData.socialLinks.linkedin} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 break-all block truncate"
+                          className="text-blue-400 hover:text-blue-300 break-all block truncate text-lg transition-colors"
                           title={formData.socialLinks.linkedin}
                         >
                           {formData.socialLinks.linkedin}
                         </a>
                       ) : (
-                        'Não informado'
+                        <span className="text-gray-400 text-lg">Não informado</span>
                       )}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     GitHub
                   </label>
                   {isEditing ? (
@@ -433,28 +475,28 @@ const Profile = () => {
                       value={formData.socialLinks.github}
                       onChange={handleInputChange}
                       placeholder="https://github.com/seu-usuario"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     />
                   ) : (
-                    <div className="text-gray-900">
+                    <div className="text-gray-300">
                       {formData.socialLinks.github ? (
                         <a 
                           href={formData.socialLinks.github} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 break-all block truncate"
+                          className="text-blue-400 hover:text-blue-300 break-all block truncate text-lg transition-colors"
                           title={formData.socialLinks.github}
                         >
                           {formData.socialLinks.github}
                         </a>
                       ) : (
-                        'Não informado'
+                        <span className="text-gray-400 text-lg">Não informado</span>
                       )}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Twitter
                   </label>
                   {isEditing ? (
@@ -464,28 +506,28 @@ const Profile = () => {
                       value={formData.socialLinks.twitter}
                       onChange={handleInputChange}
                       placeholder="https://twitter.com/seu-usuario"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     />
                   ) : (
-                    <div className="text-gray-900">
+                    <div className="text-gray-300">
                       {formData.socialLinks.twitter ? (
                         <a 
                           href={formData.socialLinks.twitter} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 break-all block truncate"
+                          className="text-blue-400 hover:text-blue-300 break-all block truncate text-lg transition-colors"
                           title={formData.socialLinks.twitter}
                         >
                           {formData.socialLinks.twitter}
                         </a>
                       ) : (
-                        'Não informado'
+                        <span className="text-gray-400 text-lg">Não informado</span>
                       )}
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Website
                   </label>
                   {isEditing ? (
@@ -495,22 +537,22 @@ const Profile = () => {
                       value={formData.socialLinks.website}
                       onChange={handleInputChange}
                       placeholder="https://seu-website.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     />
                   ) : (
-                    <div className="text-gray-900">
+                    <div className="text-gray-300">
                       {formData.socialLinks.website ? (
                         <a 
                           href={formData.socialLinks.website} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 break-all block truncate"
+                          className="text-blue-400 hover:text-blue-300 break-all block truncate text-lg transition-colors"
                           title={formData.socialLinks.website}
                         >
                           {formData.socialLinks.website}
                         </a>
                       ) : (
-                        'Não informado'
+                        <span className="text-gray-400 text-lg">Não informado</span>
                       )}
                     </div>
                   )}

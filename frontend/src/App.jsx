@@ -15,6 +15,7 @@ import EditProject from './pages/EditProject';
 import Profile from './pages/Profile';
 import UsersList from './pages/UsersList';
 import PublicProfile from './pages/PublicProfile';
+import MyProjects from './pages/MyProjects';
 import MatchesPage from './pages/MatchesPage';
 
 function App() {
@@ -90,6 +91,13 @@ function App() {
           <Route path="/users/:userId" element={
             <Layout>
               <PublicProfile />
+            </Layout>
+          } />
+          <Route path="/my-projects" element={
+            <Layout>
+              <ProtectedRoute>
+                <MyProjects />
+              </ProtectedRoute>
             </Layout>
           } />
           <Route path="/matches" element={

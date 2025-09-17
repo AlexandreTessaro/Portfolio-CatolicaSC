@@ -33,7 +33,10 @@ const MatchesPage = () => {
       setStats(response.data);
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
-      toast.error('Erro ao carregar estatísticas');
+      // Não mostrar toast de erro para 403 (token expirado)
+      if (error.response?.status !== 403) {
+        toast.error('Erro ao carregar estatísticas');
+      }
     } finally {
       setIsLoadingStats(false);
     }
@@ -61,72 +64,72 @@ const MatchesPage = () => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
           Solicitações de Participação
         </h1>
-        <p className="text-gray-600">
+        <p className="text-xl text-gray-300">
           Gerencie as solicitações de participação em projetos e acompanhe suas próprias solicitações.
         </p>
       </div>
 
       {/* Stats Cards */}
       {!isLoadingStats && stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/50 transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-blue-600/20 rounded-lg flex items-center justify-center border border-blue-500/30">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Recebidas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.received.total}</p>
+                <p className="text-sm font-medium text-gray-400">Recebidas</p>
+                <p className="text-2xl font-bold text-white">{stats.received.total}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/50 transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-yellow-600/20 rounded-lg flex items-center justify-center border border-yellow-500/30">
+                <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pendentes</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.received.pending}</p>
+                <p className="text-sm font-medium text-gray-400">Pendentes</p>
+                <p className="text-2xl font-bold text-white">{stats.received.pending}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/50 transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center border border-green-500/30">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Enviadas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.sent.total}</p>
+                <p className="text-sm font-medium text-gray-400">Enviadas</p>
+                <p className="text-2xl font-bold text-white">{stats.sent.total}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/50 transition-all duration-300">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-purple-600/20 rounded-lg flex items-center justify-center border border-purple-500/30">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Aceitas</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.received.accepted + stats.sent.accepted}</p>
+                <p className="text-sm font-medium text-gray-400">Aceitas</p>
+                <p className="text-2xl font-bold text-white">{stats.received.accepted + stats.sent.accepted}</p>
               </div>
             </div>
           </div>
@@ -134,26 +137,28 @@ const MatchesPage = () => {
       )}
 
       {/* Tabs */}
-      <div className="mb-6">
-        <div className="border-b border-gray-200">
+      <div className="mb-8">
+        <div className="border-b border-gray-700">
           <nav className="-mb-px flex space-x-8">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-3 px-1 border-b-2 font-semibold text-sm transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-400'
+                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-500'
                 }`}
               >
-                {tab.label}
-                {tab.pending > 0 && (
-                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    {tab.pending}
-                  </span>
-                )}
-                <span className="ml-2 text-gray-400">({tab.count})</span>
+                <div className="flex items-center">
+                  {tab.label}
+                  {tab.pending > 0 && (
+                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-600/20 text-yellow-300 border border-yellow-500/30">
+                      {tab.pending}
+                    </span>
+                  )}
+                  <span className="ml-2 text-gray-500">({tab.count})</span>
+                </div>
               </button>
             ))}
           </nav>
@@ -161,7 +166,7 @@ const MatchesPage = () => {
       </div>
 
       {/* Content */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {activeTab === 'received' && (
           <MatchesList
             type="received"
@@ -180,30 +185,52 @@ const MatchesPage = () => {
       </div>
 
       {/* Help Section */}
-      <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="mt-12 bg-blue-900/20 border border-blue-500/30 rounded-xl p-8 backdrop-blur-sm">
         <div className="flex items-start">
           <div className="flex-shrink-0">
-            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">
+          <div className="ml-4">
+            <h3 className="text-lg font-semibold text-blue-300 mb-4">
               Como funciona o sistema de solicitações?
             </h3>
-            <div className="mt-2 text-sm text-blue-700">
-              <ul className="list-disc list-inside space-y-1">
-                <li><strong>Solicitações Recebidas:</strong> Usuários interessados em participar dos seus projetos</li>
-                <li><strong>Solicitações Enviadas:</strong> Suas solicitações para participar de outros projetos</li>
-                <li><strong>Aceitar:</strong> Permite que o usuário participe do projeto</li>
-                <li><strong>Rejeitar:</strong> Recusa a solicitação de forma educada</li>
-                <li><strong>Bloquear:</strong> Impede futuras solicitações deste usuário</li>
-              </ul>
+            <div className="text-sm text-gray-300 space-y-2">
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-blue-300">Solicitações Recebidas:</span> Usuários interessados em participar dos seus projetos
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-green-300">Solicitações Enviadas:</span> Suas solicitações para participar de outros projetos
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-purple-300">Aceitar:</span> Permite que o usuário participe do projeto
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-red-300">Rejeitar:</span> Recusa a solicitação de forma educada
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-orange-400 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-orange-300">Bloquear:</span> Impede futuras solicitações deste usuário
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   );
 };

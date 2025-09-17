@@ -117,7 +117,7 @@ const UsersList = () => {
     return skills.slice(0, 3).map((skill, index) => (
       <span
         key={index}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1 border border-blue-200"
+        className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-blue-600/20 text-blue-300 mr-2 mb-2 border border-blue-500/30"
       >
         {skill}
       </span>
@@ -139,7 +139,7 @@ const UsersList = () => {
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-blue-600 transition-colors"
+        className="text-gray-400 hover:text-blue-400 transition-colors"
         title={link.name}
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -162,10 +162,10 @@ const UsersList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando usuários...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-300">Carregando usuários...</p>
         </div>
       </div>
     );
@@ -174,204 +174,222 @@ const UsersList = () => {
   const displayUsers = users;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Usuários</h1>
-            <p className="text-gray-600 mt-2">
-              {showAllUsers ? 'Todos os usuários' : 'Usuários recomendados'}
-            </p>
-          </div>
-          <div className="text-sm text-gray-500">
-            {displayUsers.length} usuário{displayUsers.length !== 1 ? 's' : ''} encontrado{displayUsers.length !== 1 ? 's' : ''}
-          </div>
+    <div className="py-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Usuários</h1>
+          <p className="text-xl text-gray-300">
+            {showAllUsers ? 'Todos os usuários' : 'Usuários recomendados'}
+          </p>
         </div>
+        <div className="text-lg text-gray-400 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          {displayUsers.length} usuário{displayUsers.length !== 1 ? 's' : ''} encontrado{displayUsers.length !== 1 ? 's' : ''}
+        </div>
+      </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Search */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Buscar por nome
-                </label>
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  placeholder="Digite o nome do usuário..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-              </div>
-
-              {/* Skills Filter */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filtrar por habilidades
-                </label>
-                <input
-                  type="text"
-                  value={filters.skills}
-                  onChange={(e) => handleFilterChange('skills', e.target.value)}
-                  placeholder="Ex: JavaScript, React, Python..."
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-              </div>
-
-              {/* Sort */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ordenar por
-                </label>
-                <select
-                  value={filters.sortBy}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="newest">Mais recentes</option>
-                  <option value="oldest">Mais antigos</option>
-                  <option value="name">Nome A-Z</option>
-                  <option value="skills">Mais habilidades</option>
-                </select>
-              </div>
+      {/* Filters */}
+      <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-8">
+        <form onSubmit={handleSearch} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Search */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Buscar por nome
+              </label>
+              <input
+                type="text"
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                placeholder="Digite o nome do usuário..."
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              />
             </div>
 
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-3">
-                <button
-                  type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
-                >
-                  Buscar
-                </button>
-                {hasActiveFilters() && (
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
-                  >
-                    Limpar Filtros
-                  </button>
-                )}
-              </div>
-              {!showAllUsers && (
+            {/* Skills Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Filtrar por habilidades
+              </label>
+              <input
+                type="text"
+                value={filters.skills}
+                onChange={(e) => handleFilterChange('skills', e.target.value)}
+                placeholder="Ex: JavaScript, React, Python..."
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              />
+            </div>
+
+            {/* Sort */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Ordenar por
+              </label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              >
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigos</option>
+                <option value="name">Nome A-Z</option>
+                <option value="skills">Mais habilidades</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+              >
+                Buscar
+              </button>
+              {hasActiveFilters() && (
                 <button
                   type="button"
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
+                  onClick={clearFilters}
+                  className="px-6 py-3 border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white font-semibold rounded-lg transition-all duration-300"
                 >
-                  {loadingMore ? 'Carregando...' : 'Ver Mais Usuários'}
+                  Limpar Filtros
                 </button>
               )}
             </div>
-          </form>
-        </div>
+            {!showAllUsers && (
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className={`px-6 py-3 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                  loadingMore 
+                    ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-purple-500/25'
+                }`}
+              >
+                {loadingMore ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Carregando...
+                  </div>
+                ) : (
+                  'Ver Mais Usuários'
+                )}
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
-        {/* Users Grid */}
-        {error ? (
-          <div className="text-center py-12">
-            <div className="text-red-600 mb-4">
-              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar usuários</h3>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={loadRecommendedUsers}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
-            >
-              Tentar novamente
-            </button>
+      {/* Users Grid */}
+      {error ? (
+        <div className="text-center py-16">
+          <div className="w-20 h-20 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-red-500/50">
+            <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-        ) : displayUsers.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum usuário encontrado</h3>
-            <p className="text-gray-600">Tente ajustar os filtros de busca</p>
+          <h3 className="text-2xl font-bold text-white mb-4">Erro ao carregar usuários</h3>
+          <p className="text-gray-300 mb-8 text-lg">{error}</p>
+          <button
+            onClick={loadRecommendedUsers}
+            className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"
+          >
+            <span className="relative z-10">Tentar novamente</span>
+            <svg className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      ) : displayUsers.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-            {displayUsers.map((user) => (
-              <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 hover:scale-105">
-                <div className="p-6">
-                  {/* User Header */}
-                  <div className="flex items-center space-x-4 mb-4">
-                    <ProfilePhoto user={user} size="lg" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
-                        {user.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 truncate">
-                        {user.email}
-                      </p>
-                      {user.isVerified && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          Verificado
+          <h3 className="text-2xl font-bold text-white mb-4">Nenhum usuário encontrado</h3>
+          <p className="text-gray-300 text-lg">Tente ajustar os filtros de busca</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {displayUsers.map((user) => (
+            <div key={user.id} className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl hover:bg-gray-800/50 hover:border-gray-600 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10">
+              <div className="p-6">
+                {/* User Header */}
+                <div className="flex items-center space-x-4 mb-6">
+                  <ProfilePhoto user={user} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-white truncate group-hover:text-blue-300 transition-colors">
+                      {user.name}
+                    </h3>
+                    <p className="text-sm text-gray-400 truncate">
+                      {user.email}
+                    </p>
+                    {user.isVerified && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-600/20 text-green-300 mt-2 border border-green-500/30">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Verificado
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bio */}
+                {user.bio && (
+                  <p className="text-gray-300 text-sm mb-6 line-clamp-2 leading-relaxed">
+                    {user.bio}
+                  </p>
+                )}
+
+                {/* Skills */}
+                {user.skills && user.skills.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex flex-wrap">
+                      {getSkillBadges(user.skills)}
+                      {user.skills.length > 3 && (
+                        <span className="text-xs text-gray-500 px-2 py-1">
+                          +{user.skills.length - 3} mais
                         </span>
                       )}
                     </div>
                   </div>
+                )}
 
-                  {/* Bio */}
-                  {user.bio && (
-                    <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-                      {user.bio}
-                    </p>
-                  )}
-
-                  {/* Skills */}
-                  {user.skills && user.skills.length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex flex-wrap">
-                        {getSkillBadges(user.skills)}
-                        {user.skills.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{user.skills.length - 3} mais
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social Links */}
-                  {user.socialLinks && (
-                    <div className="flex items-center space-x-2 mb-4">
-                      {getSocialLinks(user.socialLinks)}
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex space-x-2">
-                    <Link
-                      to={`/users/${user.id}`}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Ver Perfil
-                    </Link>
-                    {isAuthenticated && currentUser?.id !== user.id && (
-                      <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                        Conectar
-                      </button>
-                    )}
+                {/* Social Links */}
+                {user.socialLinks && (
+                  <div className="flex items-center space-x-3 mb-6">
+                    {getSocialLinks(user.socialLinks)}
                   </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex space-x-3">
+                  <Link
+                    to={`/users/${user.id}`}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+                  >
+                    Ver Perfil
+                  </Link>
+                  {isAuthenticated && currentUser?.id !== user.id && (
+                    <button className="px-4 py-3 border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white rounded-lg text-sm font-semibold transition-all duration-300">
+                      Conectar
+                    </button>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
