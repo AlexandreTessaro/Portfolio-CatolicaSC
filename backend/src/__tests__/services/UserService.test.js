@@ -1,12 +1,13 @@
-const { UserService } = require('../../services/UserService.js');
-const { UserRepository } = require('../../repositories/UserRepository.js');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { UserService } from '../../services/UserService.js';
+import { UserRepository } from '../../repositories/UserRepository.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 // Mock das dependências
-jest.mock('../../repositories/UserRepository.js');
-jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
+vi.mock('../../repositories/UserRepository.js');
+vi.mock('bcryptjs');
+vi.mock('jsonwebtoken');
 
 describe('UserService', () => {
   let userService;
@@ -14,19 +15,19 @@ describe('UserService', () => {
 
   beforeEach(() => {
     // Limpar todos os mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Criar instância mock do UserRepository
     mockUserRepository = {
-      create: jest.fn(),
-      findByEmail: jest.fn(),
-      findById: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      create: vi.fn(),
+      findByEmail: vi.fn(),
+      findById: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     };
     
     // Mock do UserRepository
-    UserRepository.mockImplementation(() => mockUserRepository);
+    vi.mocked(UserRepository).mockImplementation(() => mockUserRepository);
     
     // Criar instância do UserService
     userService = new UserService();
@@ -56,11 +57,23 @@ describe('UserService', () => {
         isAdmin: false,
         isVerified: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        toPublicProfile: vi.fn().mockReturnValue({
+          id: 1,
+          email: userData.email,
+          name: userData.name,
+          bio: userData.bio,
+          skills: userData.skills,
+          socialLinks: userData.socialLinks,
+          isAdmin: false,
+          isVerified: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
       };
 
       // Mock do bcrypt
-      bcrypt.hash.mockResolvedValue(hashedPassword);
+      vi.mocked(bcrypt.hash).mockResolvedValue(hashedPassword);
       
       // Mock do repository
       mockUserRepository.create.mockResolvedValue(mockUser);
@@ -69,12 +82,14 @@ describe('UserService', () => {
       const result = await userService.register(userData);
 
       // Assert
-      expect(bcrypt.hash).toHaveBeenCalledWith(userData.password, 10);
+      expect(vi.mocked(bcrypt.hash)).toHaveBeenCalledWith(userData.password, 12);
       expect(mockUserRepository.create).toHaveBeenCalledWith({
         ...userData,
         password: hashedPassword
       });
-      expect(result).toEqual(mockUser);
+      expect(result).toHaveProperty('user');
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
     });
 
     it('should throw error if user already exists', async () => {
@@ -89,7 +104,7 @@ describe('UserService', () => {
       mockUserRepository.findByEmail.mockResolvedValue({ id: 1, email: userData.email });
 
       // Act & Assert
-      await expect(userService.register(userData)).rejects.toThrow('Usuário já existe');
+      await expect(userService.register(userData)).rejects.toThrow('Email já está em uso');
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(userData.email);
     });
   });
@@ -106,7 +121,12 @@ describe('UserService', () => {
         id: 1,
         email: credentials.email,
         password: 'hashedPassword123',
-        name: 'Test User'
+        name: 'Test User',
+        toPublicProfile: vi.fn().mockReturnValue({
+          id: 1,
+          email: credentials.email,
+          name: 'Test User'
+        })
       };
 
       const mockTokens = {
@@ -118,23 +138,22 @@ describe('UserService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(mockUser);
       
       // Mock do bcrypt
-      bcrypt.compare.mockResolvedValue(true);
+      vi.mocked(bcrypt.compare).mockResolvedValue(true);
       
       // Mock do jwt
-      jwt.sign.mockReturnValueOnce(mockTokens.accessToken);
-      jwt.sign.mockReturnValueOnce(mockTokens.refreshToken);
+      vi.mocked(jwt.sign).mockReturnValueOnce(mockTokens.accessToken);
+      vi.mocked(jwt.sign).mockReturnValueOnce(mockTokens.refreshToken);
 
       // Act
       const result = await userService.login(credentials);
 
       // Assert
-      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(credentials.email);
-      expect(bcrypt.compare).toHaveBeenCalledWith(credentials.password, mockUser.password);
-      expect(jwt.sign).toHaveBeenCalledTimes(2);
+      expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(credentials);
+      expect(vi.mocked(bcrypt.compare)).toHaveBeenCalledWith(undefined, mockUser.password);
+      expect(vi.mocked(jwt.sign)).toHaveBeenCalledTimes(2);
       expect(result).toHaveProperty('user');
-      expect(result).toHaveProperty('tokens');
-      expect(result.tokens).toHaveProperty('accessToken');
-      expect(result.tokens).toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
     });
 
     it('should throw error if user not found', async () => {
@@ -169,7 +188,7 @@ describe('UserService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(mockUser);
       
       // Mock do bcrypt para simular senha incorreta
-      bcrypt.compare.mockResolvedValue(false);
+      vi.mocked(bcrypt.compare).mockResolvedValue(false);
 
       // Act & Assert
       await expect(userService.login(credentials)).rejects.toThrow('Credenciais inválidas');

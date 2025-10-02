@@ -262,6 +262,11 @@ class MatchService {
         return { canRequest: false, reason: 'Você não pode solicitar participação no seu próprio projeto' };
       }
 
+      // Verificar se já é membro da equipe
+      if (project.teamMembers && project.teamMembers.some(member => member.userId === userId)) {
+        return { canRequest: false, reason: 'Usuário já é membro do projeto' };
+      }
+
       // Verificar se já existe solicitação
       const existingMatch = await this.matchRepository.existsByUserAndProject(userId, projectId);
       

@@ -9,10 +9,19 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
   transform: {},
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/src/__tests__/services/',
+  transformIgnorePatterns: [
+    'node_modules/(?!(supertest)/)'
   ],
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.js'],
+  moduleFileExtensions: ['js', 'json', 'node'],
+  testTimeout: 10000
 };

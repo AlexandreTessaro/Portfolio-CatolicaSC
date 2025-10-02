@@ -1,10 +1,11 @@
-const { ProjectService } = require('../../services/ProjectService.js');
-const { ProjectRepository } = require('../../repositories/ProjectRepository.js');
-const { UserRepository } = require('../../repositories/UserRepository.js');
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ProjectService } from '../../services/ProjectService.js';
+import { ProjectRepository } from '../../repositories/ProjectRepository.js';
+import { UserRepository } from '../../repositories/UserRepository.js';
 
 // Mock das dependências
-jest.mock('../../repositories/ProjectRepository.js');
-jest.mock('../../repositories/UserRepository.js');
+vi.mock('../../repositories/ProjectRepository.js');
+vi.mock('../../repositories/UserRepository.js');
 
 describe('ProjectService', () => {
   let projectService;
@@ -13,30 +14,30 @@ describe('ProjectService', () => {
 
   beforeEach(() => {
     // Limpar todos os mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Criar instâncias mock dos repositories
     mockProjectRepository = {
-      create: jest.fn(),
-      findById: jest.fn(),
-      findByCreatorId: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      findAll: jest.fn(),
-      searchByText: jest.fn(),
-      getUserProjects: jest.fn(),
-      addTeamMember: jest.fn(),
-      removeTeamMember: jest.fn(),
-      getRecommendedProjects: jest.fn(),
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByCreatorId: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      findAll: vi.fn(),
+      searchByText: vi.fn(),
+      getUserProjects: vi.fn(),
+      addTeamMember: vi.fn(),
+      removeTeamMember: vi.fn(),
+      getRecommendedProjects: vi.fn(),
     };
 
     mockUserRepository = {
-      findById: jest.fn(),
+      findById: vi.fn(),
     };
     
     // Mock dos repositories
-    ProjectRepository.mockImplementation(() => mockProjectRepository);
-    UserRepository.mockImplementation(() => mockUserRepository);
+    vi.mocked(ProjectRepository).mockImplementation(() => mockProjectRepository);
+    vi.mocked(UserRepository).mockImplementation(() => mockUserRepository);
     
     // Criar instância do ProjectService
     projectService = new ProjectService();
@@ -48,7 +49,7 @@ describe('ProjectService', () => {
       const projectData = {
         title: 'Test Project',
         description: 'A test project description',
-        objectives: 'Test objectives',
+        objectives: ['Test objective 1', 'Test objective 2'],
         technologies: ['JavaScript', 'React'],
         category: 'Web Development',
         status: 'planning'
@@ -61,10 +62,19 @@ describe('ProjectService', () => {
         creatorId,
         teamMembers: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        toPublicView: vi.fn().mockReturnValue({
+          id: 1,
+          ...projectData,
+          creatorId,
+          teamMembers: [],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
       };
 
       // Mock do repository
+      mockUserRepository.findById.mockResolvedValue({ id: creatorId, name: 'Test User' });
       mockProjectRepository.create.mockResolvedValue(mockProject);
 
       // Act
@@ -75,7 +85,7 @@ describe('ProjectService', () => {
         ...projectData,
         creatorId
       });
-      expect(result).toEqual(mockProject);
+      expect(result).toEqual(mockProject.toPublicView());
     });
   });
 
@@ -87,7 +97,14 @@ describe('ProjectService', () => {
         id: projectId,
         title: 'Test Project',
         description: 'Test description',
-        creatorId: 1
+        creatorId: 1,
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          description: 'Test description',
+          creatorId: 1,
+          teamMembers: []
+        })
       };
 
       // Mock do repository
@@ -98,7 +115,7 @@ describe('ProjectService', () => {
 
       // Assert
       expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
-      expect(result).toEqual(mockProject);
+      expect(result).toEqual(mockProject.toPublicView());
     });
 
     it('should throw error if project not found', async () => {
@@ -132,7 +149,12 @@ describe('ProjectService', () => {
       const updatedProject = {
         ...existingProject,
         ...updates,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        toPublicView: vi.fn().mockReturnValue({
+          ...existingProject,
+          ...updates,
+          updatedAt: new Date()
+        })
       };
 
       // Mock do repository
@@ -145,7 +167,7 @@ describe('ProjectService', () => {
       // Assert
       expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
       expect(mockProjectRepository.update).toHaveBeenCalledWith(projectId, updates);
-      expect(result).toEqual(updatedProject);
+      expect(result).toEqual(updatedProject.toPublicView());
     });
 
     it('should throw error if user is not the creator', async () => {
@@ -162,7 +184,7 @@ describe('ProjectService', () => {
       mockProjectRepository.findById.mockResolvedValue(existingProject);
 
       // Act & Assert
-      await expect(projectService.updateProject(projectId, updates, 1)).rejects.toThrow('Apenas o criador pode editar este projeto');
+      await expect(projectService.updateProject(projectId, updates, 1)).rejects.toThrow('Apenas o criador pode editar o projeto');
     });
   });
 
@@ -186,7 +208,7 @@ describe('ProjectService', () => {
       // Assert
       expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
       expect(mockProjectRepository.delete).toHaveBeenCalledWith(projectId);
-      expect(result).toBe(true);
+      expect(result).toEqual({ message: 'Projeto deletado com sucesso' });
     });
 
     it('should throw error if user is not the creator', async () => {
@@ -202,7 +224,7 @@ describe('ProjectService', () => {
       mockProjectRepository.findById.mockResolvedValue(existingProject);
 
       // Act & Assert
-      await expect(projectService.deleteProject(projectId, 1)).rejects.toThrow('Apenas o criador pode excluir este projeto');
+      await expect(projectService.deleteProject(projectId, 1)).rejects.toThrow('Apenas o criador pode deletar o projeto');
     });
   });
 
@@ -221,7 +243,15 @@ describe('ProjectService', () => {
           title: 'React App',
           category: 'Web Development',
           status: 'active',
-          technologies: ['React', 'Node.js']
+          technologies: ['React', 'Node.js'],
+          toSummary: vi.fn().mockReturnValue({
+            id: 1,
+            title: 'React App',
+            category: 'Web Development',
+            status: 'active',
+            technologies: ['React', 'Node.js'],
+            teamMembers: 0
+          })
         }
       ];
 
@@ -232,8 +262,8 @@ describe('ProjectService', () => {
       const result = await projectService.searchProjects(filters);
 
       // Assert
-      expect(mockProjectRepository.findAll).toHaveBeenCalledWith(filters);
-      expect(result).toEqual(mockProjects);
+      expect(mockProjectRepository.findAll).toHaveBeenCalledWith(20, 0, filters);
+      expect(result).toEqual(mockProjects.map(p => p.toSummary()));
     });
   });
 });

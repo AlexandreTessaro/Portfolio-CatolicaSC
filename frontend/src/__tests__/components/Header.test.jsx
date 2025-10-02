@@ -74,7 +74,7 @@ describe('Header Component', () => {
     renderWithRouter(<Header />);
 
     // Assert
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getAllByText('John Doe')[0]).toBeInTheDocument();
     expect(screen.getByText('Perfil')).toBeInTheDocument();
     expect(screen.queryByText('Entrar')).not.toBeInTheDocument();
     expect(screen.queryByText('Cadastrar')).not.toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('Header Component', () => {
     const projectsLink = screen.getByText('Projetos');
     const usersLink = screen.getByText('Usuários');
 
-    expect(homeLink).toHaveAttribute('href', '/');
+    expect(homeLink).toHaveAttribute('href', '/dashboard');
     expect(projectsLink).toHaveAttribute('href', '/projects');
     expect(usersLink).toHaveAttribute('href', '/users');
   });

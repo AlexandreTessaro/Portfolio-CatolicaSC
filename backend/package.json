@@ -10,14 +10,18 @@
     "dev": "nodemon index.js",
     "lint": "eslint . --ext .js",
     "format": "prettier --write .",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
-    "test:integration": "jest --testPathPattern=integration",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:integration": "vitest run --testPathPattern=integration",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "cross-env": "^10.1.0",
     "eslint": "^9.33.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.3.0",
@@ -25,7 +29,8 @@
     "nodemon": "^3.0.2",
     "prettier": "^3.2.0",
     "supertest": "^6.3.3",
-    "ts-jest": "^29.4.1"
+    "ts-jest": "^29.4.1",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
