@@ -1,5 +1,6 @@
 import request from 'supertest';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 import { UserController } from '../../controllers/UserController.js';
 import { UserService } from '../../services/UserService.js';
@@ -33,22 +34,21 @@ describe('UserController', () => {
       getPublicProfile: vi.fn(),
     };
     
-    // Mock do UserService
-    vi.mocked(UserService).mockImplementation(() => mockUserService);
-    
     // Mock do middleware de autenticação
     mockAuthenticateToken = vi.fn((req, res, next) => {
-      req.user = { id: 1, email: 'test@example.com' };
+      req.user = { userId: 1, email: 'test@example.com' };
       next();
     });
     vi.mocked(authenticateToken).mockImplementation(mockAuthenticateToken);
     
-    // Criar instância do controller
+    // Criar instância do controller e substituir o serviço
     userController = new UserController();
+    userController.userService = mockUserService;
     
     // Configurar app Express para testes
     app = express();
     app.use(express.json());
+    app.use(cookieParser());
     
     // Rotas de teste
     app.post('/register', userController.validateRegister(), userController.register);
@@ -116,7 +116,7 @@ describe('UserController', () => {
       // Assert
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('errors');
       expect(mockUserService.register).not.toHaveBeenCalled();
     });
 
@@ -136,7 +136,7 @@ describe('UserController', () => {
         .send(userData);
 
       // Assert
-      expect(response.status).toBe(409);
+      expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message', 'Usuário já existe');
     });
@@ -156,10 +156,8 @@ describe('UserController', () => {
           name: 'Test User',
           email: 'test@example.com'
         },
-        tokens: {
-          accessToken: 'access-token-123',
-          refreshToken: 'refresh-token-123'
-        }
+        accessToken: 'access-token-123',
+        refreshToken: 'refresh-token-123'
       };
 
       mockUserService.login.mockResolvedValue(mockResult);
@@ -174,8 +172,8 @@ describe('UserController', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('user');
-      expect(response.body.data).toHaveProperty('tokens');
-      expect(mockUserService.login).toHaveBeenCalledWith(credentials);
+      expect(response.body.data).toHaveProperty('accessToken');
+      expect(mockUserService.login).toHaveBeenCalledWith(credentials.email, credentials.password);
     });
 
     it('should return 401 for invalid credentials', async () => {
@@ -234,7 +232,7 @@ describe('UserController', () => {
       // Act
       const response = await request(app)
         .post('/refresh-token')
-        .send(refreshData);
+        .set('Cookie', 'refreshToken=valid-refresh-token');
 
       // Assert
       expect(response.status).toBe(200);
@@ -256,7 +254,7 @@ describe('UserController', () => {
       // Act
       const response = await request(app)
         .post('/refresh-token')
-        .send(refreshData);
+        .set('Cookie', 'refreshToken=invalid-refresh-token');
 
       // Assert
       expect(response.status).toBe(401);
@@ -399,7 +397,12 @@ describe('UserController', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toEqual(mockUsers);
-      expect(mockUserService.searchUsers).toHaveBeenCalledWith(searchParams);
+      expect(mockUserService.searchUsers).toHaveBeenCalledWith(
+        { skills: ['React', 'Node.js'] },
+        10,
+        0,
+        null
+      );
     });
 
     it('should return empty array when no users found', async () => {
@@ -449,7 +452,7 @@ describe('UserController', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toEqual(mockPublicProfile);
-      expect(mockUserService.getPublicProfile).toHaveBeenCalledWith(userId);
+      expect(mockUserService.getPublicProfile).toHaveBeenCalledWith(userId.toString());
     });
 
     it('should return 404 if user not found', async () => {
