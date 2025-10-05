@@ -57,7 +57,6 @@ describe('UserController', () => {
     app.post('/logout', authenticateToken, userController.logout);
     app.get('/profile', authenticateToken, userController.getProfile);
     app.put('/profile', authenticateToken, userController.validateUpdateProfile(), userController.updateProfile);
-    app.delete('/profile', authenticateToken, userController.deleteProfile);
     app.get('/search', userController.searchUsers);
     app.get('/recommended', authenticateToken, userController.getRecommendedUsers);
     app.get('/public/:userId', userController.getPublicProfile);

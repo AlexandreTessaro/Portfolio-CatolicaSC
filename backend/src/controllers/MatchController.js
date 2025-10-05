@@ -36,9 +36,8 @@ class MatchController {
         });
       }
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const match = await matchService.createMatch(userId, projectId, message);
+      // Usar o serviço através do getter
+      const match = await this.matchService.createMatch(userId, projectId, message);
 
       res.status(201).json({
         success: true,
@@ -60,9 +59,7 @@ class MatchController {
       const userId = req.user.userId;
       const { status } = req.query || {};
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const matches = await matchService.getReceivedMatches(userId, status);
+      const matches = await this.matchService.getReceivedMatches(userId, status);
 
       res.json({
         success: true,
@@ -83,9 +80,7 @@ class MatchController {
       const userId = req.user.userId;
       const { status } = req.query || {};
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const matches = await matchService.getSentMatches(userId, status);
+      const matches = await this.matchService.getSentMatches(userId, status);
 
       res.json({
         success: true,
@@ -106,9 +101,7 @@ class MatchController {
       const { matchId } = req.params;
       const userId = req.user.userId;
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const match = await matchService.acceptMatch(matchId, userId);
+      const match = await this.matchService.acceptMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -130,9 +123,7 @@ class MatchController {
       const { matchId } = req.params;
       const userId = req.user.userId;
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const match = await matchService.rejectMatch(matchId, userId);
+      const match = await this.matchService.rejectMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -154,9 +145,7 @@ class MatchController {
       const { matchId } = req.params;
       const userId = req.user.userId;
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const match = await matchService.blockMatch(matchId, userId);
+      const match = await this.matchService.blockMatch(matchId, userId);
 
       res.json({
         success: true,
@@ -178,9 +167,7 @@ class MatchController {
       const { matchId } = req.params;
       const userId = req.user.userId;
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const deleted = await matchService.cancelMatch(matchId, userId);
+      const deleted = await this.matchService.cancelMatch(matchId, userId);
 
       if (deleted) {
         res.json({
@@ -208,9 +195,7 @@ class MatchController {
       const { matchId } = req.params;
       const userId = req.user.userId;
 
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const match = await matchService.getMatchById(matchId, userId);
+      const match = await this.matchService.getMatchById(matchId, userId);
 
       if (!match) {
         return res.status(404).json({
@@ -237,9 +222,7 @@ class MatchController {
     try {
       const userId = req.user.userId;
       
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const stats = await matchService.getMatchStats(userId);
+      const stats = await this.matchService.getMatchStats(userId);
 
       res.json({
         success: true,
@@ -262,9 +245,7 @@ class MatchController {
       const { projectId } = req.params;
       const userId = req.user.userId;
       
-      // Inicializar MatchService diretamente
-      const matchService = new MatchService(database);
-      const result = await matchService.canRequestParticipation(userId, projectId);
+      const result = await this.matchService.canRequestParticipation(userId, projectId);
 
       res.json({
         success: true,
