@@ -25,10 +25,6 @@ describe('ProjectService', () => {
       delete: vi.fn(),
       findAll: vi.fn(),
       searchByText: vi.fn(),
-      getUserProjects: vi.fn(),
-      addTeamMember: vi.fn(),
-      removeTeamMember: vi.fn(),
-      getRecommendedProjects: vi.fn(),
     };
 
     mockUserRepository = {
@@ -64,12 +60,12 @@ describe('ProjectService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         toPublicView: vi.fn().mockReturnValue({
-          id: 1,
-          ...projectData,
-          creatorId,
-          teamMembers: [],
-          createdAt: new Date(),
-          updatedAt: new Date()
+        id: 1,
+        ...projectData,
+        creatorId,
+        teamMembers: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
         })
       };
 
@@ -81,16 +77,32 @@ describe('ProjectService', () => {
       const result = await projectService.createProject(projectData, creatorId);
 
       // Assert
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(creatorId);
       expect(mockProjectRepository.create).toHaveBeenCalledWith({
         ...projectData,
         creatorId
       });
       expect(result).toEqual(mockProject.toPublicView());
     });
+
+    it('should throw error if creator not found', async () => {
+      // Arrange
+      const projectData = {
+        title: 'Test Project',
+        description: 'A test project description'
+      };
+      const creatorId = 999;
+
+      // Mock do repository para simular criador não encontrado
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(projectService.createProject(projectData, creatorId)).rejects.toThrow('Usuário criador não encontrado');
+    });
   });
 
   describe('getProject', () => {
-    it('should return project by id', async () => {
+    it('should return project by id with populated team members', async () => {
       // Arrange
       const projectId = 1;
       const mockProject = {
@@ -98,6 +110,52 @@ describe('ProjectService', () => {
         title: 'Test Project',
         description: 'Test description',
         creatorId: 1,
+        teamMembers: [2, 3],
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          description: 'Test description',
+          creatorId: 1,
+          teamMembers: []
+        })
+      };
+
+      const mockTeamMembers = [
+        { id: 2, name: 'Member 1', profileImage: 'img1.jpg', bio: 'Bio 1', skills: ['React'] },
+        { id: 3, name: 'Member 2', profileImage: 'img2.jpg', bio: 'Bio 2', skills: ['Node.js'] }
+      ];
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockUserRepository.findById
+        .mockResolvedValueOnce(mockTeamMembers[0])
+        .mockResolvedValueOnce(mockTeamMembers[1]);
+
+      // Act
+      const result = await projectService.getProject(projectId);
+
+      // Assert
+      expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
+      expect(mockUserRepository.findById).toHaveBeenCalledTimes(2);
+      expect(result.teamMembers).toHaveLength(2);
+      expect(result.teamMembers[0]).toEqual({
+        id: 2,
+        name: 'Member 1',
+        profileImage: 'img1.jpg',
+        bio: 'Bio 1',
+        skills: ['React']
+      });
+    });
+
+    it('should return project by id without team members', async () => {
+      // Arrange
+      const projectId = 1;
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        description: 'Test description',
+        creatorId: 1,
+        teamMembers: [],
         toPublicView: vi.fn().mockReturnValue({
           id: projectId,
           title: 'Test Project',
@@ -115,7 +173,8 @@ describe('ProjectService', () => {
 
       // Assert
       expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
-      expect(result).toEqual(mockProject.toPublicView());
+      expect(mockUserRepository.findById).not.toHaveBeenCalled();
+      expect(result.teamMembers).toEqual([]);
     });
 
     it('should throw error if project not found', async () => {
@@ -151,9 +210,9 @@ describe('ProjectService', () => {
         ...updates,
         updatedAt: new Date(),
         toPublicView: vi.fn().mockReturnValue({
-          ...existingProject,
-          ...updates,
-          updatedAt: new Date()
+        ...existingProject,
+        ...updates,
+        updatedAt: new Date()
         })
       };
 
@@ -264,6 +323,452 @@ describe('ProjectService', () => {
       // Assert
       expect(mockProjectRepository.findAll).toHaveBeenCalledWith(20, 0, filters);
       expect(result).toEqual(mockProjects.map(p => p.toSummary()));
+    });
+  });
+
+  describe('searchProjectsByText', () => {
+    it('should search projects by text successfully', async () => {
+      // Arrange
+      const searchTerm = 'react app';
+      const limit = 10;
+
+      const mockProjects = [
+        {
+          id: 1,
+          title: 'React Todo App',
+          description: 'A todo app built with React',
+          toSummary: vi.fn().mockReturnValue({
+            id: 1,
+            title: 'React Todo App',
+            description: 'A todo app built with React'
+          })
+        },
+        {
+          id: 2,
+          title: 'React Dashboard',
+          description: 'Dashboard built with React',
+          toSummary: vi.fn().mockReturnValue({
+            id: 2,
+            title: 'React Dashboard',
+            description: 'Dashboard built with React'
+          })
+        }
+      ];
+
+      // Mock do repository
+      mockProjectRepository.searchByText.mockResolvedValue(mockProjects);
+
+      // Act
+      const result = await projectService.searchProjectsByText(searchTerm, limit);
+
+      // Assert
+      expect(mockProjectRepository.searchByText).toHaveBeenCalledWith(searchTerm, limit);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual(mockProjects[0].toSummary());
+      expect(result[1]).toEqual(mockProjects[1].toSummary());
+    });
+
+    it('should return empty array when no projects found', async () => {
+      // Arrange
+      const searchTerm = 'nonexistent';
+      const limit = 10;
+
+      // Mock do repository
+      mockProjectRepository.searchByText.mockResolvedValue([]);
+
+      // Act
+      const result = await projectService.searchProjectsByText(searchTerm, limit);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getUserProjects', () => {
+    it('should get user projects successfully', async () => {
+      // Arrange
+      const userId = 1;
+      const limit = 10;
+      const offset = 0;
+
+      const mockProjects = [
+        {
+          id: 1,
+          title: 'User Project 1',
+          creatorId: userId,
+          toSummary: vi.fn().mockReturnValue({
+            id: 1,
+            title: 'User Project 1',
+            creatorId: userId
+          })
+        },
+        {
+          id: 2,
+          title: 'User Project 2',
+          creatorId: userId,
+          toSummary: vi.fn().mockReturnValue({
+            id: 2,
+            title: 'User Project 2',
+            creatorId: userId
+          })
+        }
+      ];
+
+      // Mock do repository
+      mockProjectRepository.findByCreatorId.mockResolvedValue(mockProjects);
+
+      // Act
+      const result = await projectService.getUserProjects(userId, limit, offset);
+
+      // Assert
+      expect(mockProjectRepository.findByCreatorId).toHaveBeenCalledWith(userId, limit, offset);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual(mockProjects[0].toSummary());
+      expect(result[1]).toEqual(mockProjects[1].toSummary());
+    });
+
+    it('should return empty array when user has no projects', async () => {
+      // Arrange
+      const userId = 999;
+      const limit = 10;
+      const offset = 0;
+
+      // Mock do repository
+      mockProjectRepository.findByCreatorId.mockResolvedValue([]);
+
+      // Act
+      const result = await projectService.getUserProjects(userId, limit, offset);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('addTeamMember', () => {
+    it('should add team member successfully', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 1; // Creator
+      const newMemberId = 2;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: userId,
+        teamMembers: [],
+        addTeamMember: vi.fn().mockImplementation(function(memberId) {
+          this.teamMembers.push(memberId);
+        }),
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          creatorId: userId,
+          teamMembers: [newMemberId]
+        })
+      };
+
+      const mockNewMember = {
+        id: newMemberId,
+        name: 'New Member',
+        email: 'newmember@example.com'
+      };
+
+      const mockUpdatedProject = {
+        ...mockProject,
+        teamMembers: [newMemberId],
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          creatorId: userId,
+          teamMembers: [newMemberId]
+        })
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockUserRepository.findById.mockResolvedValue(mockNewMember);
+      mockProjectRepository.update.mockResolvedValue(mockUpdatedProject);
+
+      // Act
+      const result = await projectService.addTeamMember(projectId, userId, newMemberId);
+
+      // Assert
+      expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(newMemberId);
+      expect(mockProject.addTeamMember).toHaveBeenCalledWith(newMemberId);
+      expect(mockProjectRepository.update).toHaveBeenCalledWith(projectId, {
+        teamMembers: [newMemberId]
+      });
+      expect(result).toEqual(mockUpdatedProject.toPublicView());
+    });
+
+    it('should throw error if project not found', async () => {
+      // Arrange
+      const projectId = 999;
+      const userId = 1;
+      const newMemberId = 2;
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(projectService.addTeamMember(projectId, userId, newMemberId)).rejects.toThrow('Projeto não encontrado');
+    });
+
+    it('should throw error if user is not the creator', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 2; // Not creator
+      const newMemberId = 3;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: 1 // Different from userId
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+
+      // Act & Assert
+      await expect(projectService.addTeamMember(projectId, userId, newMemberId)).rejects.toThrow('Apenas o criador pode adicionar membros da equipe');
+    });
+
+    it('should throw error if new member not found', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 1;
+      const newMemberId = 999;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: userId,
+        teamMembers: []
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(projectService.addTeamMember(projectId, userId, newMemberId)).rejects.toThrow('Usuário não encontrado');
+    });
+
+    it('should throw error if user is already a team member', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 1;
+      const newMemberId = 2;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: userId,
+        teamMembers: [newMemberId] // Already a member
+      };
+
+      const mockNewMember = {
+        id: newMemberId,
+        name: 'Existing Member'
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockUserRepository.findById.mockResolvedValue(mockNewMember);
+
+      // Act & Assert
+      await expect(projectService.addTeamMember(projectId, userId, newMemberId)).rejects.toThrow('Usuário já é membro da equipe');
+    });
+  });
+
+  describe('removeTeamMember', () => {
+    it('should remove team member successfully', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 1; // Creator
+      const memberId = 2;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: userId,
+        teamMembers: [memberId],
+        removeTeamMember: vi.fn().mockImplementation(function(memberId) {
+          this.teamMembers = this.teamMembers.filter(id => id !== memberId);
+        }),
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          creatorId: userId,
+          teamMembers: []
+        })
+      };
+
+      const mockUpdatedProject = {
+        ...mockProject,
+        teamMembers: [],
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          creatorId: userId,
+          teamMembers: []
+        })
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockProjectRepository.update.mockResolvedValue(mockUpdatedProject);
+
+      // Act
+      const result = await projectService.removeTeamMember(projectId, userId, memberId);
+
+      // Assert
+      expect(mockProjectRepository.findById).toHaveBeenCalledWith(projectId);
+      expect(mockProject.removeTeamMember).toHaveBeenCalledWith(memberId);
+      expect(mockProjectRepository.update).toHaveBeenCalledWith(projectId, {
+        teamMembers: []
+      });
+      expect(result).toEqual(mockUpdatedProject.toPublicView());
+    });
+
+    it('should throw error if project not found', async () => {
+      // Arrange
+      const projectId = 999;
+      const userId = 1;
+      const memberId = 2;
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(projectService.removeTeamMember(projectId, userId, memberId)).rejects.toThrow('Projeto não encontrado');
+    });
+
+    it('should throw error if user is not the creator', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 2; // Not creator
+      const memberId = 3;
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: 1 // Different from userId
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+
+      // Act & Assert
+      await expect(projectService.removeTeamMember(projectId, userId, memberId)).rejects.toThrow('Apenas o criador pode remover membros da equipe');
+    });
+
+    it('should throw error if user is not a team member', async () => {
+      // Arrange
+      const projectId = 1;
+      const userId = 1;
+      const memberId = 999; // Not a member
+
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: userId,
+        teamMembers: [2, 3] // memberId not included
+      };
+
+      // Mock do repository
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+
+      // Act & Assert
+      await expect(projectService.removeTeamMember(projectId, userId, memberId)).rejects.toThrow('Usuário não é membro da equipe');
+    });
+  });
+
+  describe('getRecommendedProjects', () => {
+    it('should get recommended projects successfully', async () => {
+      // Arrange
+      const userId = 1;
+      const limit = 5;
+
+      const mockUser = {
+        id: userId,
+        name: 'Test User',
+        skills: ['JavaScript', 'React', 'Node.js']
+      };
+
+      const mockProjects = [
+        {
+          id: 1,
+          title: 'React Project',
+          technologies: ['React', 'JavaScript'],
+          toSummary: vi.fn().mockReturnValue({
+            id: 1,
+            title: 'React Project',
+            technologies: ['React', 'JavaScript']
+          })
+        },
+        {
+          id: 2,
+          title: 'Node.js API',
+          technologies: ['Node.js', 'Express'],
+          toSummary: vi.fn().mockReturnValue({
+            id: 2,
+            title: 'Node.js API',
+            technologies: ['Node.js', 'Express']
+          })
+        }
+      ];
+
+      // Mock do repository
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockProjectRepository.findAll.mockResolvedValue(mockProjects);
+
+      // Act
+      const result = await projectService.getRecommendedProjects(userId, limit);
+
+      // Assert
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
+      expect(mockProjectRepository.findAll).toHaveBeenCalledWith(limit, 0, {
+        technologies: mockUser.skills
+      });
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual(mockProjects[0].toSummary());
+      expect(result[1]).toEqual(mockProjects[1].toSummary());
+    });
+
+    it('should throw error if user not found', async () => {
+      // Arrange
+      const userId = 999;
+      const limit = 5;
+
+      // Mock do repository
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(projectService.getRecommendedProjects(userId, limit)).rejects.toThrow('Usuário não encontrado');
+    });
+
+    it('should return empty array when no projects match user skills', async () => {
+      // Arrange
+      const userId = 1;
+      const limit = 5;
+
+      const mockUser = {
+        id: userId,
+        name: 'Test User',
+        skills: ['Python', 'Django']
+      };
+
+      // Mock do repository
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockProjectRepository.findAll.mockResolvedValue([]);
+
+      // Act
+      const result = await projectService.getRecommendedProjects(userId, limit);
+
+      // Assert
+      expect(result).toEqual([]);
     });
   });
 });
