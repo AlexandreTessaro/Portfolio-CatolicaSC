@@ -15,7 +15,22 @@
     "test:ui": "vitest --ui",
     "test:integration": "vitest run --testPathPattern=integration",
     "db:migrate": "node scripts/migrate.js",
-    "db:seed": "node scripts/seed.js"
+    "db:seed": "node scripts/seed.js",
+    "db:seed-synthetic": "node scripts/generate-synthetic-data.js",
+    "db:seed-realistic": "node scripts/generate-realistic-data.js",
+    "db:seed-simple": "node scripts/generate-simple-data.js",
+    "db:seed-working": "node scripts/generate-working-data.js",
+    "db:insert-data": "node insert-data.js",
+    "db:seed-scalable": "node scripts/generate-scalable-data.js",
+    "db:test-accuracy": "node test-recommendation-accuracy.js",
+    "db:clear": "node scripts/data-manager.js clear",
+    "db:stats": "node scripts/data-manager.js stats",
+    "db:users": "node scripts/data-manager.js users",
+    "db:projects": "node scripts/data-manager.js projects",
+    "db:matches": "node scripts/data-manager.js matches",
+    "db:export": "node scripts/data-manager.js export",
+    "db:examples": "node scripts/examples.js",
+    "db:test-synthetic": "node test-synthetic-data.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

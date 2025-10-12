@@ -10,6 +10,8 @@ import 'express-async-errors';
 import userRoutes from './src/routes/userRoutes.js';
 import projectRoutes from './src/routes/projectRoutes.js';
 import matchRoutes from './src/routes/matchRoutes.js';
+import recommendationRoutes from './src/routes/recommendationRoutes.js';
+import userConnectionRoutes from './src/routes/userConnectionRoutes.js';
 
 // Importar configurações
 import pool from './src/config/database.js';
@@ -245,6 +247,8 @@ app.get('/api/test-match', async (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/user-connections', userConnectionRoutes);
 
 // Rota de health check
 app.get('/health', (req, res) => {

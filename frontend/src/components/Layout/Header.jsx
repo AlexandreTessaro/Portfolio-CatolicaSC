@@ -20,7 +20,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700">
+    <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 relative z-[9998]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -79,7 +79,7 @@ const Header = () => {
                   </button>
 
                   {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-700">
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl py-1 z-[9999] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-700">
                     {/* User Info Header */}
                     <div className="px-4 py-3 border-b border-gray-700">
                       <ProfilePhoto user={user} size="md" showName={true} />

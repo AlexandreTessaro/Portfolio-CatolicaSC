@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { projectService } from '../services/apiService';
+import { projectService, recommendationService } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
 
 const ProjectsList = () => {
@@ -14,7 +14,7 @@ const ProjectsList = () => {
     search: ''
   });
 
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   const loadProjects = async () => {
     try {
@@ -24,11 +24,16 @@ const ProjectsList = () => {
       let response;
       if (filters.search) {
         response = await projectService.searchProjects(filters.search);
+        setProjects(response.data || []);
+      } else if (isAuthenticated && user) {
+        // Se usuário está logado, usar serviço de recomendações
+        response = await recommendationService.getProjectsWithScores(filters);
+        setProjects(response.data || []);
       } else {
+        // Se não está logado, usar serviço normal
         response = await projectService.getProjects(filters);
+        setProjects(response.data || []);
       }
-      
-      setProjects(response.data || []);
     } catch (err) {
       setError(err?.response?.data?.message || 'Erro ao carregar projetos');
     } finally {
@@ -69,6 +74,20 @@ const ProjectsList = () => {
       launched: 'Lançado'
     };
     return labels[status] || status;
+  };
+
+  const getRecommendationColor = (score) => {
+    if (score >= 80) return 'text-green-400 bg-green-400/10 border-green-400/30';
+    if (score >= 60) return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
+    if (score >= 40) return 'text-orange-400 bg-orange-400/10 border-orange-400/30';
+    return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
+  };
+
+  const getRecommendationLabel = (score) => {
+    if (score >= 80) return 'Excelente match';
+    if (score >= 60) return 'Bom match';
+    if (score >= 40) return 'Match moderado';
+    return 'Match baixo';
   };
 
   if (loading) {
@@ -215,9 +234,21 @@ const ProjectsList = () => {
           {projects.map((project) => (
             <div key={project.id} className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/50 hover:border-gray-600 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/10">
               <div className="flex justify-between items-start mb-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-                  {getStatusLabel(project.status)}
-                </span>
+                <div className="flex flex-col gap-2">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+                    {getStatusLabel(project.status)}
+                  </span>
+                  {isAuthenticated && project.recommendationScore !== undefined && (
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getRecommendationColor(project.recommendationScore)}`}>
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                        </svg>
+                        {project.recommendationScore}% match
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <span className="text-xs text-gray-400">
                   {new Date(project.createdAt).toLocaleDateString('pt-BR')}
                 </span>

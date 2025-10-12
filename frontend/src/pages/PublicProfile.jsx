@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { userService } from '../services/apiService';
+import { userService, userConnectionService } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
 import ProfilePhoto from '../components/ProfilePhoto';
 import toast from 'react-hot-toast';
@@ -10,6 +10,8 @@ const PublicProfile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const { user: currentUser, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
@@ -34,13 +36,74 @@ const PublicProfile = () => {
     }
   }, [userId]);
 
+  useEffect(() => {
+    const checkConnectionStatus = async () => {
+      console.log('🔍 Debug - checkConnectionStatus called');
+      console.log('🔍 userId:', userId);
+      console.log('🔍 isAuthenticated:', isAuthenticated);
+      console.log('🔍 currentUser?.id:', currentUser?.id);
+      
+      if (userId && isAuthenticated && currentUser?.id !== userId) {
+        try {
+          console.log('🔍 Making API call to get connection status...');
+          const response = await userConnectionService.getConnectionStatus(userId);
+          console.log('🔍 API response:', response);
+          setConnectionStatus(response.data);
+          console.log('🔍 Connection status set to:', response.data);
+        } catch (error) {
+          console.error('Erro ao verificar status de conexão:', error);
+        }
+      } else {
+        console.log('🔍 Conditions not met for API call');
+      }
+    };
+
+    // Verificar status sempre que a página carregar ou quando as dependências mudarem
+    checkConnectionStatus();
+  }, [userId, isAuthenticated, currentUser?.id]); // Mudado para currentUser?.id para evitar loops
+
+  // Conectar com o usuário
+  const handleConnect = async () => {
+    if (!isAuthenticated) {
+      toast.error('Você precisa estar logado para conectar com outros usuários');
+      return;
+    }
+
+    try {
+      setIsConnecting(true);
+      
+      const response = await userConnectionService.createConnection(userId, 'Olá! Gostaria de me conectar com você.');
+      
+      toast.success('Solicitação de conexão enviada com sucesso!');
+      
+      // Atualizar status da conexão imediatamente
+      setConnectionStatus({ status: 'pending', connected: false });
+      
+      // Verificar status real da conexão após um pequeno delay
+      setTimeout(async () => {
+        try {
+          const statusResponse = await userConnectionService.getConnectionStatus(userId);
+          setConnectionStatus(statusResponse.data);
+        } catch (error) {
+          console.error('Erro ao verificar status após conexão:', error);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Erro ao conectar:', error);
+      toast.error(error.response?.data?.message || 'Erro ao enviar solicitação de conexão');
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
   const getSkillBadges = (skills) => {
     if (!skills || skills.length === 0) return null;
     
     return skills.map((skill, index) => (
       <span
         key={index}
-        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mr-2 mb-2"
+        className="px-3 py-1 bg-gray-700/50 text-gray-300 text-xs rounded-lg border border-gray-600 mr-2 mb-2"
       >
         {skill}
       </span>
@@ -96,20 +159,23 @@ const PublicProfile = () => {
 
   if (error || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 mb-4">
-            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="text-center py-16">
+          <div className="w-20 h-20 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm border border-red-500/50">
+            <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Usuário não encontrado</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-white mb-4">Usuário não encontrado</h2>
+          <p className="text-gray-300 mb-8 text-lg">{error}</p>
           <Link
             to="/users"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="group relative inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold text-lg rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"
           >
-            Voltar para Usuários
+            <span className="relative z-10">Voltar para Usuários</span>
+            <svg className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
           </Link>
         </div>
       </div>
@@ -117,28 +183,28 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <ProfilePhoto user={user} size="2xl" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-white mb-2">
                   {user.name}
                 </h1>
-                <p className="text-gray-600 mb-2">{user.email}</p>
+                <p className="text-gray-300 mb-2">{user.email}</p>
                 <div className="flex items-center space-x-4">
                   {user.isVerified && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600/20 text-green-300 border border-green-500/30">
                       <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                       Verificado
                     </span>
                   )}
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-400">
                     Membro desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
@@ -146,13 +212,46 @@ const PublicProfile = () => {
             </div>
             <div className="flex space-x-3">
               {isAuthenticated && currentUser?.id !== user.id && (
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                  Conectar
+                <button 
+                  onClick={() => {
+                    console.log('🔍 Button clicked - current connectionStatus:', connectionStatus);
+                    handleConnect();
+                  }}
+                  disabled={isConnecting}
+                  className={`px-6 py-3 font-medium rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                    isConnecting
+                      ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                      : connectionStatus?.status === 'pending'
+                      ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white hover:shadow-yellow-500/25'
+                      : connectionStatus?.status === 'accepted'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white hover:shadow-blue-500/25'
+                      : connectionStatus?.status === 'rejected'
+                      ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white hover:shadow-red-500/25'
+                      : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white hover:shadow-green-500/25'
+                  }`}
+                >
+                  {isConnecting ? (
+                    <div className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Conectando...
+                    </div>
+                  ) : connectionStatus?.status === 'pending' ? (
+                    'Solicitado'
+                  ) : connectionStatus?.status === 'accepted' ? (
+                    'Conectado'
+                  ) : connectionStatus?.status === 'rejected' ? (
+                    'Rejeitado'
+                  ) : (
+                    'Conectar'
+                  )}
                 </button>
               )}
               <Link
                 to="/users"
-                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors"
+                className="border-2 border-gray-600 hover:border-gray-400 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-medium transition-all duration-300"
               >
                 Voltar
               </Link>
@@ -161,14 +260,19 @@ const PublicProfile = () => {
         </div>
 
         {/* Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8">
             {/* Bio */}
             {user.bio && (
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Sobre</h2>
-                <p className="text-gray-700 whitespace-pre-wrap">
+              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                  <svg className="w-6 h-6 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Sobre
+                </h2>
+                <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
                   {user.bio}
                 </p>
               </div>
@@ -176,9 +280,14 @@ const PublicProfile = () => {
 
             {/* Skills */}
             {user.skills && user.skills.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Habilidades</h2>
-                <div className="flex flex-wrap">
+              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                  <svg className="w-6 h-6 mr-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  Habilidades
+                </h2>
+                <div className="flex flex-wrap gap-2">
                   {getSkillBadges(user.skills)}
                 </div>
               </div>
@@ -186,11 +295,16 @@ const PublicProfile = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Social Links */}
             {user.socialLinks && (
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Redes Sociais</h2>
+              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                  <svg className="w-6 h-6 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Redes Sociais
+                </h2>
                 <div className="space-y-3">
                   {getSocialLinks(user.socialLinks)}
                 </div>
@@ -198,22 +312,27 @@ const PublicProfile = () => {
             )}
 
             {/* Stats */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Estatísticas</h2>
-              <div className="space-y-4">
+            <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <svg className="w-6 h-6 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Estatísticas
+              </h2>
+              <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Habilidades</span>
-                  <span className="font-semibold text-gray-900">{user.skills?.length || 0}</span>
+                  <span className="text-gray-300">Habilidades</span>
+                  <span className="font-bold text-white text-lg">{user.skills?.length || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Membro há</span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="text-gray-300">Membro há</span>
+                  <span className="font-bold text-white text-lg">
                     {Math.floor((new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24))} dias
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Status</span>
-                  <span className="font-semibold text-green-600">Ativo</span>
+                  <span className="text-gray-300">Status</span>
+                  <span className="font-bold text-green-400 text-lg">Ativo</span>
                 </div>
               </div>
             </div>

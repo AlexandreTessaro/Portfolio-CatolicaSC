@@ -234,9 +234,94 @@ export const healthService = {
   }
 };
 
+// Serviço de recomendações
+export const recommendationService = {
+  async getProjectsWithScores(filters = {}) {
+    const params = new URLSearchParams();
+    if (filters.limit) params.append('limit', filters.limit);
+    if (filters.offset) params.append('offset', filters.offset);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.technologies) params.append('technologies', filters.technologies);
+
+    const response = await apiClient.get(`${API_ENDPOINTS.RECOMMENDATIONS.PROJECTS}?${params}`);
+    return response.data;
+  },
+
+  async getRecommendationScore(projectId) {
+    const response = await apiClient.get(API_ENDPOINTS.RECOMMENDATIONS.SCORE(projectId));
+    return response.data;
+  },
+
+  async getMultipleScores(projectIds) {
+    const response = await apiClient.post(API_ENDPOINTS.RECOMMENDATIONS.SCORES, { projectIds });
+    return response.data;
+  }
+};
+
+// Serviço de conexões entre usuários
+export const userConnectionService = {
+  async createConnection(receiverId, message = null) {
+    const response = await apiClient.post(API_ENDPOINTS.USER_CONNECTIONS.CREATE, {
+      receiverId,
+      message
+    });
+    return response.data;
+  },
+
+  async getReceivedConnections(status = null) {
+    const params = status ? `?status=${status}` : '';
+    const response = await apiClient.get(`${API_ENDPOINTS.USER_CONNECTIONS.RECEIVED}${params}`);
+    return response.data;
+  },
+
+  async getSentConnections(status = null) {
+    const params = status ? `?status=${status}` : '';
+    const response = await apiClient.get(`${API_ENDPOINTS.USER_CONNECTIONS.SENT}${params}`);
+    return response.data;
+  },
+
+  async getAcceptedConnections() {
+    const response = await apiClient.get(API_ENDPOINTS.USER_CONNECTIONS.ACCEPTED);
+    return response.data;
+  },
+
+  async getConnectionStats() {
+    const response = await apiClient.get(API_ENDPOINTS.USER_CONNECTIONS.STATS);
+    return response.data;
+  },
+
+  async getConnectionStatus(userId) {
+    const response = await apiClient.get(API_ENDPOINTS.USER_CONNECTIONS.STATUS(userId));
+    return response.data;
+  },
+
+  async acceptConnection(connectionId) {
+    const response = await apiClient.put(API_ENDPOINTS.USER_CONNECTIONS.ACCEPT(connectionId));
+    return response.data;
+  },
+
+  async rejectConnection(connectionId) {
+    const response = await apiClient.put(API_ENDPOINTS.USER_CONNECTIONS.REJECT(connectionId));
+    return response.data;
+  },
+
+  async blockConnection(connectionId) {
+    const response = await apiClient.put(API_ENDPOINTS.USER_CONNECTIONS.BLOCK(connectionId));
+    return response.data;
+  },
+
+  async deleteConnection(connectionId) {
+    const response = await apiClient.delete(API_ENDPOINTS.USER_CONNECTIONS.DELETE(connectionId));
+    return response.data;
+  }
+};
+
 export default {
   userService,
   projectService,
   matchService,
+  recommendationService,
+  userConnectionService,
   healthService
 };

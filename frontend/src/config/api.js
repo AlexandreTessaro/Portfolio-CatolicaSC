@@ -42,6 +42,27 @@ export const API_ENDPOINTS = {
     CAN_REQUEST: (projectId) => `${API_BASE_URL}/matches/can-request/${projectId}`,
   },
 
+  // Recomendações
+  RECOMMENDATIONS: {
+    PROJECTS: `${API_BASE_URL}/recommendations/projects`,
+    SCORE: (projectId) => `${API_BASE_URL}/recommendations/score/${projectId}`,
+    SCORES: `${API_BASE_URL}/recommendations/scores`,
+  },
+
+  // Conexões entre usuários
+  USER_CONNECTIONS: {
+    CREATE: `${API_BASE_URL}/user-connections`,
+    RECEIVED: `${API_BASE_URL}/user-connections/received`,
+    SENT: `${API_BASE_URL}/user-connections/sent`,
+    ACCEPTED: `${API_BASE_URL}/user-connections/accepted`,
+    STATS: `${API_BASE_URL}/user-connections/stats`,
+    STATUS: (userId) => `${API_BASE_URL}/user-connections/status/${userId}`,
+    ACCEPT: (connectionId) => `${API_BASE_URL}/user-connections/${connectionId}/accept`,
+    REJECT: (connectionId) => `${API_BASE_URL}/user-connections/${connectionId}/reject`,
+    BLOCK: (connectionId) => `${API_BASE_URL}/user-connections/${connectionId}/block`,
+    DELETE: (connectionId) => `${API_BASE_URL}/user-connections/${connectionId}`,
+  },
+
   // Health check
   HEALTH: `${API_BASE_URL.replace('/api', '')}/health`,
 };
