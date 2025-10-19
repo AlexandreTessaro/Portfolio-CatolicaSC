@@ -7,6 +7,9 @@ const ProjectsList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hasMoreProjects, setHasMoreProjects] = useState(false);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [totalProjects, setTotalProjects] = useState(0);
   const [filters, setFilters] = useState({
     status: '',
     category: '',
@@ -16,24 +19,54 @@ const ProjectsList = () => {
 
   const { isAuthenticated, user } = useAuthStore();
 
-  const loadProjects = async () => {
+  const loadProjects = async (offset = 0, append = false) => {
     try {
       setLoading(true);
       setError(null);
       
+      const limit = 6;
       let response;
+      
       if (filters.search) {
         response = await projectService.searchProjects(filters.search);
-        setProjects(response.data || []);
+        const projectsData = response.data || [];
+        if (append) {
+          setProjects(prev => [...prev, ...projectsData]);
+        } else {
+          setProjects(projectsData);
+        }
+        setHasMoreProjects(false); // Busca por texto não suporta paginação
       } else if (isAuthenticated && user) {
         // Se usuário está logado, usar serviço de recomendações
-        response = await recommendationService.getProjectsWithScores(filters);
-        setProjects(response.data || []);
+        response = await recommendationService.getProjectsWithScores({
+          ...filters,
+          limit,
+          offset
+        });
+        const projectsData = response.data || [];
+        if (append) {
+          setProjects(prev => [...prev, ...projectsData]);
+        } else {
+          setProjects(projectsData);
+        }
+        setHasMoreProjects(projectsData.length === limit);
       } else {
         // Se não está logado, usar serviço normal
-        response = await projectService.getProjects(filters);
-        setProjects(response.data || []);
+        response = await projectService.getProjects({
+          ...filters,
+          limit,
+          offset
+        });
+        const projectsData = response.data || [];
+        if (append) {
+          setProjects(prev => [...prev, ...projectsData]);
+        } else {
+          setProjects(projectsData);
+        }
+        setHasMoreProjects(projectsData.length === limit);
       }
+      
+      setCurrentOffset(offset);
     } catch (err) {
       setError(err?.response?.data?.message || 'Erro ao carregar projetos');
     } finally {
@@ -42,16 +75,41 @@ const ProjectsList = () => {
   };
 
   useEffect(() => {
-    loadProjects();
-  }, [filters.status, filters.category, filters.technologies]);
+    loadInitialProjects();
+  }, [filters.status, filters.category]);
+
+  const loadInitialProjects = () => {
+    setCurrentOffset(0);
+    loadProjects(0, false);
+  };
+
+  const loadMoreProjects = () => {
+    const nextOffset = currentOffset + 6;
+    loadProjects(nextOffset, true);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    loadProjects();
+    loadInitialProjects();
   };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      status: '',
+      category: '',
+      technologies: '',
+      search: ''
+    });
+    setCurrentOffset(0);
+    setHasMoreProjects(false);
+  };
+
+  const hasActiveFilters = () => {
+    return filters.status || filters.category || filters.technologies || filters.search;
   };
 
   const getStatusColor = (status) => {
@@ -142,6 +200,18 @@ const ProjectsList = () => {
               >
                 Buscar
               </button>
+              {hasActiveFilters() && (
+                <button 
+                  type="button"
+                  onClick={clearFilters}
+                  className="px-6 py-3 bg-gray-600/50 hover:bg-gray-600 text-gray-300 hover:text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-gray-500 hover:border-gray-400 flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Limpar
+                </button>
+              )}
             </div>
           </div>
 
@@ -301,6 +371,21 @@ const ProjectsList = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Load More Button */}
+      {hasMoreProjects && !loading && (
+        <div className="flex justify-end mt-8">
+          <button
+            onClick={loadMoreProjects}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Carregar Mais Projetos
+          </button>
         </div>
       )}
     </div>
