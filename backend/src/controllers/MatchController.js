@@ -1,5 +1,5 @@
 import MatchService from '../services/MatchService.js';
-import database from '../config/database.js';
+import pool from '../config/database.js';
 
 class MatchController {
   constructor() {
@@ -9,7 +9,7 @@ class MatchController {
   get matchService() {
     if (!this._matchService) {
       console.log('🔧 Inicializando MatchService...');
-      this._matchService = new MatchService(database);
+      this._matchService = new MatchService(pool);
       console.log('✅ MatchService inicializado');
     }
     return this._matchService;
