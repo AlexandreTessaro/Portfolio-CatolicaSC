@@ -74,20 +74,29 @@ const PublicProfile = () => {
       
       const response = await userConnectionService.createConnection(userId, 'Olá! Gostaria de me conectar com você.');
       
-      toast.success('Solicitação de conexão enviada com sucesso!');
-      
-      // Atualizar status da conexão imediatamente
-      setConnectionStatus({ status: 'pending', connected: false });
-      
-      // Verificar status real da conexão após um pequeno delay
-      setTimeout(async () => {
-        try {
-          const statusResponse = await userConnectionService.getConnectionStatus(userId);
-          setConnectionStatus(statusResponse.data);
-        } catch (error) {
-          console.error('Erro ao verificar status após conexão:', error);
-        }
-      }, 1000);
+      // Se é uma conexão existente, mostrar mensagem informativa
+      if (response.data?.isExisting) {
+        toast.info('Vocês já estão conectados!');
+        // Atualizar status com os dados da conexão existente
+        setConnectionStatus({
+          status: response.data.status,
+          connected: response.data.status === 'accepted'
+        });
+      } else {
+        toast.success('Solicitação de conexão enviada com sucesso!');
+        // Atualizar status da conexão imediatamente
+        setConnectionStatus({ status: 'pending', connected: false });
+        
+        // Verificar status real da conexão após um pequeno delay
+        setTimeout(async () => {
+          try {
+            const statusResponse = await userConnectionService.getConnectionStatus(userId);
+            setConnectionStatus(statusResponse.data);
+          } catch (error) {
+            console.error('Erro ao verificar status após conexão:', error);
+          }
+        }, 1000);
+      }
       
     } catch (error) {
       console.error('Erro ao conectar:', error);

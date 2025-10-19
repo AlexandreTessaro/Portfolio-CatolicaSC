@@ -14,9 +14,14 @@ export class UserConnectionService {
       }
 
       // Verificar se já existe conexão entre os usuários
-      const existingConnection = await this.userConnectionRepository.existsBetweenUsers(requesterId, receiverId);
+      const existingConnection = await this.userConnectionRepository.findByRequesterAndReceiver(requesterId, receiverId);
       if (existingConnection) {
-        throw new Error('Já existe uma conexão entre estes usuários');
+        // Retornar informações da conexão existente em vez de erro
+        return {
+          ...existingConnection,
+          message: 'Conexão já existe entre estes usuários',
+          isExisting: true
+        };
       }
 
       // Criar a conexão

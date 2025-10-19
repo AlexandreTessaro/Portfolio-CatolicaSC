@@ -31,6 +31,15 @@ export class UserConnectionController {
 
       const connection = await this.userConnectionService.createConnection(requesterId, receiverId, message);
 
+      // Se é uma conexão existente, retornar status 200 com informações da conexão
+      if (connection.isExisting) {
+        return res.status(200).json({
+          success: true,
+          message: 'Conexão já existe entre estes usuários',
+          data: connection.toJSON ? connection.toJSON() : connection
+        });
+      }
+
       res.status(201).json({
         success: true,
         message: 'Solicitação de conexão enviada com sucesso',

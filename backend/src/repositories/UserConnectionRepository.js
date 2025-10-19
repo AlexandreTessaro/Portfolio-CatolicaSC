@@ -248,6 +248,38 @@ export class UserConnectionRepository {
     }
   }
 
+  // Buscar conexão entre dois usuários específicos
+  async findByRequesterAndReceiver(userId1, userId2) {
+    const client = await this.pool.connect();
+    try {
+      const query = `
+        SELECT * FROM user_connections 
+        WHERE (requester_id = $1 AND receiver_id = $2) 
+           OR (requester_id = $2 AND receiver_id = $1)
+        ORDER BY created_at DESC
+        LIMIT 1
+      `;
+      const result = await client.query(query, [userId1, userId2]);
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+      
+      const row = result.rows[0];
+      return new UserConnection({
+        id: row.id,
+        requesterId: row.requester_id,
+        receiverId: row.receiver_id,
+        status: row.status,
+        message: row.message,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      });
+    } finally {
+      client.release();
+    }
+  }
+
   // Deletar conexão
   async delete(id) {
     const client = await this.pool.connect();
