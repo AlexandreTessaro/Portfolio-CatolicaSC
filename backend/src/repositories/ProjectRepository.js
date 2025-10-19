@@ -124,10 +124,12 @@ export class ProjectRepository {
         if (updates[field] !== undefined) {
           if (field === 'objectives' || field === 'technologies' || field === 'images') {
             setFields.push(`${field} = $${paramCount}::jsonb`);
+            // Converter array para JSON string antes de enviar para o PostgreSQL
+            values.push(JSON.stringify(updates[field]));
           } else {
             setFields.push(`${field} = $${paramCount}`);
+            values.push(updates[field]);
           }
-          values.push(updates[field]);
           paramCount++;
         }
       });
