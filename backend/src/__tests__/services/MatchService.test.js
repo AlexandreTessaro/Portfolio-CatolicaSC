@@ -610,7 +610,7 @@ describe('MatchService', () => {
         id: 1,
         title: 'Test Project',
         creatorId: 2,
-        teamMembers: [{ userId: userId }] // Já é membro
+        teamMembers: [userId] // Já é membro
       };
 
       // Mock do repository

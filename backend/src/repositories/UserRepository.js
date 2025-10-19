@@ -2,8 +2,11 @@ import pool from '../config/database.js';
 import User from '../domain/User.js';
 
 export class UserRepository {
+  constructor(database = null) {
+    this.db = database || pool;
+  }
   async create(userData) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const { email, password, name, bio, skills, socialLinks, profileImage } = userData;
       
@@ -48,7 +51,7 @@ export class UserRepository {
   }
 
   async findById(id) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = 'SELECT * FROM users WHERE id = $1';
       const result = await client.query(query, [id]);
@@ -78,7 +81,7 @@ export class UserRepository {
   }
 
   async findByEmail(email) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = 'SELECT * FROM users WHERE email = $1';
       const result = await client.query(query, [email]);
@@ -108,7 +111,7 @@ export class UserRepository {
   }
 
   async update(id, updates) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const setFields = [];
       const values = [];
@@ -180,7 +183,7 @@ export class UserRepository {
   }
 
   async delete(id) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = 'DELETE FROM users WHERE id = $1 RETURNING *';
       const result = await client.query(query, [id]);
@@ -196,7 +199,7 @@ export class UserRepository {
   }
 
   async findAll(limit = 50, offset = 0) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = `
         SELECT * FROM users 
@@ -226,7 +229,7 @@ export class UserRepository {
   }
 
   async findBySkills(skills, limit = 20) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = `
         SELECT * FROM users 
@@ -257,7 +260,7 @@ export class UserRepository {
   }
 
   async findByName(name, limit = 20, offset = 0) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = `
         SELECT * FROM users 
@@ -288,7 +291,7 @@ export class UserRepository {
   }
 
   async searchUsers(filters = {}, limit = 20, offset = 0) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       let query = `SELECT * FROM users WHERE 1=1`;
       const params = [];
@@ -355,7 +358,7 @@ export class UserRepository {
   }
 
   async findRecommendedUsers(limit = 4, excludeUserId = null) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       let query = `
         SELECT * FROM users 

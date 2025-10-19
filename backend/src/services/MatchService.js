@@ -250,25 +250,29 @@ class MatchService {
   // Verificar se usuário pode solicitar participação em projeto
   async canRequestParticipation(userId, projectId) {
     try {
+      // Converter projectId para número se necessário
+      const numericProjectId = parseInt(projectId);
+      const numericUserId = parseInt(userId);
+      
       // Verificar se o projeto existe
-      const project = await this.projectRepository.findById(projectId);
+      const project = await this.projectRepository.findById(numericProjectId);
       
       if (!project) {
         return { canRequest: false, reason: 'Projeto não encontrado' };
       }
 
       // Verificar se não é o criador
-      if (project.creatorId === userId) {
+      if (project.creatorId === numericUserId) {
         return { canRequest: false, reason: 'Você não pode solicitar participação no seu próprio projeto' };
       }
 
       // Verificar se já é membro da equipe
-      if (project.teamMembers && project.teamMembers.some(member => member.userId === userId)) {
+      if (project.teamMembers && project.teamMembers.includes(numericUserId)) {
         return { canRequest: false, reason: 'Usuário já é membro do projeto' };
       }
 
       // Verificar se já existe solicitação
-      const existingMatch = await this.matchRepository.existsByUserAndProject(userId, projectId);
+      const existingMatch = await this.matchRepository.existsByUserAndProject(numericUserId, numericProjectId);
       
       if (existingMatch) {
         return { canRequest: false, reason: 'Você já enviou uma solicitação para este projeto' };

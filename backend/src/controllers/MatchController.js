@@ -3,16 +3,7 @@ import pool from '../config/database.js';
 
 class MatchController {
   constructor() {
-    this._matchService = null;
-  }
-
-  get matchService() {
-    if (!this._matchService) {
-      console.log('🔧 Inicializando MatchService...');
-      this._matchService = new MatchService(pool);
-      console.log('✅ MatchService inicializado');
-    }
-    return this._matchService;
+    this.matchService = new MatchService(pool);
   }
 
   // Criar uma nova solicitação de match
@@ -261,4 +252,4 @@ class MatchController {
   }
 }
 
-export default new MatchController();
+export default MatchController;

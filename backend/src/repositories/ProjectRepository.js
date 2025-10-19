@@ -2,8 +2,11 @@ import pool from '../config/database.js';
 import Project from '../domain/Project.js';
 
 export class ProjectRepository {
+  constructor(database = null) {
+    this.db = database || pool;
+  }
   async create(projectData) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const { title, description, objectives, technologies, status, category, creatorId, images } = projectData;
       
@@ -50,7 +53,7 @@ export class ProjectRepository {
   }
 
   async findById(id) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = 'SELECT * FROM projects WHERE id = $1';
       const result = await client.query(query, [id]);
@@ -81,7 +84,7 @@ export class ProjectRepository {
   }
 
   async findByCreatorId(creatorId, limit = 20, offset = 0) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = `
         SELECT * FROM projects 
@@ -113,7 +116,7 @@ export class ProjectRepository {
   }
 
   async update(id, updates) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const allowedFields = ['title', 'description', 'objectives', 'technologies', 'status', 'category', 'images'];
       const setFields = [];
@@ -177,7 +180,7 @@ export class ProjectRepository {
   }
 
   async delete(id) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = 'DELETE FROM projects WHERE id = $1 RETURNING *';
       const result = await client.query(query, [id]);
@@ -193,7 +196,7 @@ export class ProjectRepository {
   }
 
   async findAll(limit = 50, offset = 0, filters = {}) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       let query = 'SELECT * FROM projects WHERE 1=1';
       const values = [];
@@ -243,7 +246,7 @@ export class ProjectRepository {
   }
 
   async searchByText(searchTerm, limit = 20) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       const query = `
         SELECT * FROM projects 
@@ -276,7 +279,7 @@ export class ProjectRepository {
 
   // Adicionar membro à equipe do projeto
   async addTeamMember(projectId, userId) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       // Buscar o projeto atual
       const project = await this.findById(projectId);
@@ -330,7 +333,7 @@ export class ProjectRepository {
 
   // Remover membro da equipe do projeto
   async removeTeamMember(projectId, userId) {
-    const client = await pool.connect();
+    const client = await this.db.connect();
     try {
       // Buscar o projeto atual
       const project = await this.findById(projectId);
