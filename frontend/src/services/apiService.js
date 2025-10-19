@@ -34,12 +34,17 @@ apiClient.interceptors.response.use(
         const refreshToken = authStore.getRefreshToken();
         
         if (refreshToken) {
-          const response = await axios.post(API_ENDPOINTS.USERS.REFRESH_TOKEN, {}, {
-            withCredentials: true
+          // Enviar refresh token no corpo da requisição, não como cookie
+          const response = await axios.post(API_ENDPOINTS.USERS.REFRESH_TOKEN, {
+            refreshToken: refreshToken
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
           });
 
-          const { accessToken } = response.data.data;
-          authStore.setTokens(accessToken, refreshToken);
+          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+          authStore.setTokens(accessToken, newRefreshToken || refreshToken);
 
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return apiClient(originalRequest);

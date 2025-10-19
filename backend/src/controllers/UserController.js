@@ -117,7 +117,10 @@ export class UserController {
   // Renovar access token
   async refreshToken(req, res) {
     try {
-      const { refreshToken } = req.cookies;
+      // Tentar obter refresh token do corpo da requisição primeiro, depois dos cookies
+      const { refreshToken: bodyRefreshToken } = req.body;
+      const cookieRefreshToken = req.cookies?.refreshToken;
+      const refreshToken = bodyRefreshToken || cookieRefreshToken;
       
       if (!refreshToken) {
         return res.status(401).json({
