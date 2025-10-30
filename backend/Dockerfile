@@ -8,8 +8,8 @@ RUN apk add --no-cache python3 make g++
 # Copiar apenas os arquivos do backend (evita copiar o monorepo raiz)
 COPY backend/package*.json ./
 
-# Instalar dependências
-RUN npm ci --only=production
+# Instalar dependências (usar install para ignorar lockfile desatualizado)
+RUN npm install --omit=dev
 
 # Copiar código fonte do backend
 COPY backend/. .
