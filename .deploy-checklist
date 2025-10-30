@@ -1,0 +1,51 @@
+# ✅ Checklist de Deploy
+
+## ⚠️ SEGURANÇA CRÍTICA - FAZER ANTES DO DEPLOY
+
+- [ ] **REMOVER credenciais do render.yaml** (já feito ✅)
+- [ ] Configurar variáveis de ambiente no dashboard (Railway/Render/Vercel)
+- [ ] Gerar novos secrets JWT fortes (nunca usar os de exemplo!)
+- [ ] Verificar que .env files estão no .gitignore
+- [ ] Verificar que nenhum secret está hardcoded no código
+- [ ] Alterar todas as senhas padrão
+
+## ✅ Configuração Backend
+
+- [ ] Banco de dados criado e acessível
+- [ ] DATABASE_URL configurada corretamente
+- [ ] Migrações executadas (`npm run db:migrate`)
+- [ ] Seed executado se necessário (`npm run db:seed`)
+- [ ] JWT_SECRET e JWT_REFRESH_SECRET configurados (secrets fortes!)
+- [ ] FRONTEND_URL configurada com URL correta do frontend
+- [ ] CORS configurado corretamente
+- [ ] NODE_ENV=production
+- [ ] PORT configurada (Railway usa variável PORT, Render pode precisar)
+- [ ] Health check funcionando (`/health`)
+
+## ✅ Configuração Frontend
+
+- [ ] VITE_API_URL configurada com URL do backend
+- [ ] Build funciona localmente (`npm run build`)
+- [ ] Verificar que dist/ não está no gitignore (precisa ser buildado no deploy)
+
+## ✅ Verificações Pós-Deploy
+
+- [ ] Backend responde no health check
+- [ ] Frontend carrega corretamente
+- [ ] Teste de cadastro funciona
+- [ ] Teste de login funciona
+- [ ] CORS não bloqueia requisições
+- [ ] Tokens JWT são gerados e validados
+- [ ] Teste criação de projeto
+- [ ] Teste busca de projetos
+- [ ] Verificar logs para erros
+
+## ✅ Melhorias (Opcional)
+
+- [ ] Configurar domínio customizado
+- [ ] Configurar SSL/HTTPS (geralmente automático)
+- [ ] Configurar monitoramento/alertas
+- [ ] Configurar backups automáticos do banco
+
+
+

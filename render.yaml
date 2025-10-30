@@ -5,24 +5,20 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
+    # ⚠️ IMPORTANTE: Configure todas as variáveis de ambiente no dashboard do Render
+    # Acesse: https://dashboard.render.com → Seu Serviço → Environment
+    # NUNCA commite credenciais neste arquivo!
     envVars:
-      - key: DATABASE_URL
-        value: postgresql://postgres.kdqmxqftmwmtyxmrauhy:SU3kafmNVoPLCRST@aws-1-us-east-2.pooler.supabase.com:5432/postgres
-      - key: DB_USER
-        value: postgres.kdqmxqftmwmtyxmrauhy
-      - key: DB_PASSWORD
-        value: SU3kafmNVoPLCRST
-      - key: DB_HOST
-        value: aws-1-us-east-2.pooler.supabase.com
-      - key: DB_PORT
-        value: "5432"
-      - key: DB_NAME
-        value: postgres
-      - key: DB_SSL
-        value: "true"
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: FRONTEND_URL
         value: https://portfolio-catolicasc.vercel.app
+      # Configure estas variáveis no dashboard (não coloque valores aqui):
+      # - DATABASE_URL (use o serviço PostgreSQL do Render ou configure manualmente)
+      # - JWT_SECRET (gere um secret forte: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))")
+      # - JWT_REFRESH_SECRET (gere outro secret forte diferente)
+      # - REDIS_URL (opcional, se usar Redis)
+      # - REDIS_ENABLED (true/false)
+      # - SMTP_HOST, SMTP_USER, SMTP_PASS (opcional, para emails)
