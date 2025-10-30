@@ -203,15 +203,20 @@ async function createTables() {
   }
 };
 
-// Executar migração sempre que este script for chamado diretamente via Node
-createTables()
-  .then(() => {
-    console.log('✅ Migração executada com sucesso');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('❌ Falha na migração:', error);
-    process.exit(1);
-  });
+// Executar migração apenas quando chamado diretamente via Node (CLI)
+const isDirectExecution = process.argv[1] && /migrate\.js$/.test(process.argv[1]);
+const shouldAutoRun = process.env.RUN_MIGRATIONS === 'true';
+
+if (isDirectExecution || shouldAutoRun) {
+  createTables()
+    .then(() => {
+      console.log('✅ Migração executada com sucesso');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('❌ Falha na migração:', error);
+      process.exit(1);
+    });
+}
 
 export default createTables;
