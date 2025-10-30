@@ -21,9 +21,24 @@ const app = express();
 // Segurança
 app.use(helmet());
 
-// CORS
+// CORS com validação flexível de origin (inclui variações com/sem esquema)
+const configuredFrontend = process.env.FRONTEND_URL || 'http://localhost:3000';
+const frontendHost = configuredFrontend.replace(/^https?:\/\//, '');
+const allowedOrigins = new Set([
+  configuredFrontend,
+  `https://${frontendHost}`,
+  `http://${frontendHost}`,
+  frontendHost // caso algum proxy/env injete sem esquema
+]);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+    // Permitir prévias do Vercel se forem do mesmo host base
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
