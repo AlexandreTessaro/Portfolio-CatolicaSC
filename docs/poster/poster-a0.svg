@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- A0 portrait: 841mm x 1189mm. Using 1px ~= 1pt at 72 DPI; this SVG is scalable. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="841mm" height="1189mm" viewBox="0 0 841 1189">
+  <defs>
+    <style type="text/css"><![CDATA[
+      .bg { fill: #ffffff; }
+      .accent { fill: #0d47a1; }
+      .text-dark { fill: #111111; font-family: Arial, Helvetica, sans-serif; }
+      .text-light { fill: #ffffff; font-family: Arial, Helvetica, sans-serif; }
+      .title { font-size: 24px; font-weight: 700; }
+      .subtitle { font-size: 14px; font-weight: 600; }
+      .body { font-size: 8px; line-height: 1.4; }
+      .small { font-size: 7px; }
+      .section-title { font-size: 14px; font-weight: 700; fill: #0d47a1; }
+      .card { fill: #f7f9fc; stroke: #e0e6f1; stroke-width: 0.4; }
+      .qr-box { fill: #ffffff; stroke: #0d47a1; stroke-width: 0.8; }
+    ]]></style>
+    <!-- Grid margins -->
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" x="0" y="0" width="841" height="1189"/>
+
+  <!-- Top banner -->
+  <rect class="accent" x="0" y="0" width="841" height="70"/>
+  <text class="text-light title" x="30" y="42">Startup Collab – Plataforma de Colaboração para Startups</text>
+  <text class="text-light small" x="30" y="60">Católica SC — Poster + Demo Day</text>
+
+  <!-- Logo placeholder (Católica SC) -->
+  <rect x="700" y="15" width="120" height="40" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6"/>
+  <text class="text-dark small" x="760" y="39" text-anchor="middle">Insira a logomarca aqui</text>
+
+  <!-- Header metadata card -->
+  <rect class="card" x="30" y="85" width="781" height="80" rx="2"/>
+  <text class="text-dark subtitle" x="45" y="110">Autores</text>
+  <text class="text-dark body" x="45" y="125">Nome do integrante — email@catolicasc.edu.br</text>
+  <text class="text-dark body" x="45" y="137">(Adicione demais integrantes, se houver)</text>
+
+  <!-- QR codes area -->
+  <text class="text-dark subtitle" x="600" y="110">Acesse</text>
+  <rect class="qr-box" x="600" y="120" width="60" height="60"/>
+  <text class="text-dark small" x="630" y="193" text-anchor="middle">QR — Produção</text>
+  <rect class="qr-box" x="680" y="120" width="60" height="60"/>
+  <text class="text-dark small" x="710" y="193" text-anchor="middle">QR — Repositório</text>
+  <rect class="qr-box" x="760" y="120" width="60" height="60"/>
+  <text class="text-dark small" x="790" y="193" text-anchor="middle">QR — Vídeo</text>
+
+  <!-- Left column: Contexto/Problema + Solução -->
+  <text class="section-title" x="30" y="200">Contexto / Problema</text>
+  <rect class="card" x="30" y="208" width="500" height="160" rx="2"/>
+  <foreignObject x="36" y="214" width="488" height="148">
+    <body xmlns="http://www.w3.org/1999/xhtml">
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size:8px; color:#111; line-height:1.4;">
+        <p>Startups e talentos têm dificuldade em se conectar de forma eficiente para colaboração em projetos, mentorias e validação de ideias. As interações acabam dispersas em múltiplos canais, sem curadoria, com baixa taxa de compatibilidade e acompanhamento.</p>
+        <ul>
+          <li>Descoberta de projetos desalinhada com interesses e habilidades;</li>
+          <li>Falta de visibilidade de oportunidades em tempo real;</li>
+          <li>Baixa taxa de engajamento pós-match.</li>
+        </ul>
+      </div>
+    </body>
+  </foreignObject>
+
+  <text class="section-title" x="30" y="388">Solução Proposta</text>
+  <rect class="card" x="30" y="396" width="500" height="180" rx="2"/>
+  <foreignObject x="36" y="402" width="488" height="168">
+    <body xmlns="http://www.w3.org/1999/xhtml">
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size:8px; color:#111; line-height:1.4;">
+        <p>Plataforma web que conecta startups, estudantes e profissionais via cadastro de perfis, publicação de projetos e mecanismo de <i>matching</i> baseado em interesses e competências.</p>
+        <ul>
+          <li>Front-end em React + Vite com UI responsiva;</li>
+          <li>API Node.js/Express com autenticação JWT, validação e rate limiting;</li>
+          <li>Banco relacional (PostgreSQL) e cache Redis para desempenho;</li>
+          <li>Deploy do front-end (Vercel) e API (Koyeb);</li>
+          <li>Fluxos: login, gestão de perfil, cadastro de projetos, busca e candidatura, mensagens e feedback.</li>
+        </ul>
+      </div>
+    </body>
+  </foreignObject>
+
+  <!-- Right column: Arquitetura diagram card -->
+  <text class="section-title" x="550" y="200">Arquitetura</text>
+  <rect class="card" x="550" y="208" width="261" height="368" rx="2"/>
+  <!-- Simple architecture diagram -->
+  <g transform="translate(560,220)">
+    <!-- Client -->
+    <rect x="0" y="0" width="100" height="40" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6" rx="3"/>
+    <text class="text-dark small" x="50" y="24" text-anchor="middle">React + Vite (Vercel)</text>
+    <!-- API -->
+    <rect x="130" y="0" width="110" height="40" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6" rx="3"/>
+    <text class="text-dark small" x="185" y="16" text-anchor="middle">Node.js / Express</text>
+    <text class="text-dark small" x="185" y="30" text-anchor="middle">(Koyeb)</text>
+    <!-- Arrow -->
+    <line x1="100" y1="20" x2="130" y2="20" stroke="#0d47a1" stroke-width="0.8" marker-end="url(#arrow)"/>
+
+    <!-- DB -->
+    <rect x="130" y="70" width="110" height="40" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6" rx="3"/>
+    <text class="text-dark small" x="185" y="94" text-anchor="middle">PostgreSQL</text>
+    <line x1="185" y1="40" x2="185" y2="70" stroke="#0d47a1" stroke-width="0.8"/>
+
+    <!-- Cache -->
+    <rect x="0" y="70" width="100" height="40" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6" rx="3"/>
+    <text class="text-dark small" x="50" y="86" text-anchor="middle">Redis (cache)</text>
+    <text class="text-dark small" x="50" y="100" text-anchor="middle">rate limiting</text>
+    <line x1="130" y1="20" x2="50" y2="70" stroke="#0d47a1" stroke-width="0.6"/>
+
+    <!-- Auth -->
+    <rect x="0" y="130" width="240" height="50" fill="#ffffff" stroke="#0d47a1" stroke-width="0.6" rx="3"/>
+    <text class="text-dark small" x="120" y="150" text-anchor="middle">Autenticação JWT, validação (express-validator)</text>
+    <text class="text-dark small" x="120" y="164" text-anchor="middle">Segurança: Helmet, CORS, Rate Limit</text>
+  </g>
+
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L6,3 z" fill="#0d47a1" />
+    </marker>
+  </defs>
+
+  <!-- Lower row: Referências -->
+  <text class="section-title" x="30" y="600">Referências</text>
+  <rect class="card" x="30" y="608" width="781" height="130" rx="2"/>
+  <foreignObject x="36" y="614" width="769" height="118">
+    <body xmlns="http://www.w3.org/1999/xhtml">
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size:8px; color:#111; line-height:1.4;">
+        <ul>
+          <li>React, Vite e React Router — Documentação oficial</li>
+          <li>Express, express-validator, Helmet — Documentação oficial</li>
+          <li>PostgreSQL — Guia e referências</li>
+          <li>Redis — Uso para cache e rate limiting</li>
+          <li>Boas práticas de UX para posters acadêmicos</li>
+          <li>Repositório do projeto: (insira URL)</li>
+          <li>Deploy de produção: (insira URL)</li>
+          <li>Vídeo de demonstração: (insira URL)</li>
+        </ul>
+      </div>
+    </body>
+  </foreignObject>
+
+  <!-- Footer notes -->
+  <text class="text-dark small" x="30" y="760">Fonte mínima 20 pt ao imprimir em A0. Mantenha bom contraste e legibilidade. Substitua os QR codes e URLs antes de exportar para PDF.</text>
+
+</svg>
+
+
