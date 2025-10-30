@@ -5,12 +5,12 @@
   "installCommand": "npm install",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://portfolio-backend-production-a492.up.railway.app/api"
+    "VITE_API_URL": "https://olympic-mandie-portfolio-catolicasc-ddfd6b64.koyeb.app/api"
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
