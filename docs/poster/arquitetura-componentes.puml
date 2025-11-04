@@ -1,0 +1,161 @@
+@startuml Arquitetura_Startup_Collab_Componentes
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #424242
+}
+
+title Arquitetura de Componentes - Startup Collab Platform\n\nCatólica SC - Engenharia de Software
+
+package "Camada de Apresentação" #FFF9C4 {
+    component [React + Vite] as Frontend {
+        component [Pages] as Pages
+        component [Components] as Components
+        component [Services] as Services
+        component [Stores] as Stores
+        component [Config] as Config
+    }
+    
+    component [Tailwind CSS] as Tailwind
+    component [Zustand] as Zustand
+}
+
+package "Camada de API" #C8E6C9 {
+    component [Express.js] as Express {
+        component [Routes] as Routes
+        component [Controllers] as Controllers
+        component [Middleware] as Middleware
+        component [Services] as BackendServices
+        component [Repositories] as Repositories
+    }
+    
+    component [JWT Authentication] as JWT
+    component [express-validator] as Validator
+    component [Helmet] as Helmet
+    component [CORS] as CORS
+    component [Rate Limiting] as RateLimit
+}
+
+package "Camada de Dados" #FFCCBC {
+    database "PostgreSQL" as PostgreSQL {
+        component [Users Table] as UsersTable
+        component [Projects Table] as ProjectsTable
+        component [Matches Table] as MatchesTable
+        component [User Connections] as ConnectionsTable
+        component [Audit Logs] as AuditTable
+    }
+    
+    component [Redis Cache] as Redis {
+        component [Session Cache] as SessionCache
+        component [Rate Limit Cache] as RateLimitCache
+        component [Query Cache] as QueryCache
+    }
+}
+
+package "Infraestrutura" #E1BEE7 {
+    component [Docker] as Docker
+    component [Docker Compose] as DockerCompose
+    component [Vercel Deploy] as Vercel
+    component [Koyeb Deploy] as Koyeb
+}
+
+cloud "Internet" {
+    component [Usuários] as Users
+}
+
+' Conexões Frontend
+Users --> Frontend : HTTPS
+Frontend --> Pages : Routing
+Pages --> Components : Composition
+Components --> Services : API Calls
+Services --> Stores : State Management
+Stores --> Config : Configuration
+Frontend --> Tailwind : Styling
+Frontend --> Zustand : State Management
+
+' Conexões API
+Frontend --> Express : HTTP/REST API
+Express --> Routes : Route Definition
+Routes --> Middleware : Auth & Validation
+Middleware --> JWT : Token Verification
+Middleware --> Validator : Input Validation
+Middleware --> Helmet : Security Headers
+Middleware --> CORS : Cross-Origin
+Middleware --> RateLimit : Request Limiting
+Routes --> Controllers : Request Handling
+Controllers --> BackendServices : Business Logic
+BackendServices --> Repositories : Data Access
+Repositories --> PostgreSQL : SQL Queries
+Repositories --> Redis : Cache Operations
+
+' Conexões Banco de Dados
+PostgreSQL --> UsersTable : Store
+PostgreSQL --> ProjectsTable : Store
+PostgreSQL --> MatchesTable : Store
+PostgreSQL --> ConnectionsTable : Store
+PostgreSQL --> AuditTable : Store
+
+Redis --> SessionCache : Store
+Redis --> RateLimitCache : Store
+Redis --> QueryCache : Store
+
+' Conexões Rate Limiting
+RateLimit --> Redis : Check Limits
+
+' Conexões Infraestrutura
+Frontend --> Vercel : Deploy
+Express --> Koyeb : Deploy
+Docker --> DockerCompose : Orchestration
+DockerCompose --> Frontend : Container
+DockerCompose --> Express : Container
+DockerCompose --> PostgreSQL : Container
+DockerCompose --> Redis : Container
+
+note right of Frontend
+  **Tecnologias:**
+  - React 18+
+  - Vite
+  - React Router
+  - Tailwind CSS
+  - Zustand
+  - Axios
+end note
+
+note right of Express
+  **Tecnologias:**
+  - Node.js
+  - Express.js
+  - Clean Architecture
+  - SOLID Principles
+  - JWT + bcrypt
+  - express-validator
+end note
+
+note right of PostgreSQL
+  **Estrutura:**
+  - Users (perfis)
+  - Projects (projetos)
+  - Matches (colaborações)
+  - User_connections
+  - Audit_logs
+end note
+
+note right of Redis
+  **Uso:**
+  - Cache de sessões
+  - Rate limiting
+  - Cache de consultas
+end note
+
+@enduml
+
+
+

@@ -1,0 +1,117 @@
+@startuml Sistema_Recomendacao_Exemplo
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam backgroundColor #FFFFFF
+
+title Exemplo Prático - Cálculo de Score de Recomendação\n\nStartup Collab Platform
+
+actor "Usuário\nAlexandre" as User
+participant "Frontend" as Frontend
+participant "RecommendationService" as Service
+database "PostgreSQL" as DB
+
+== Cenário: Usuário visualiza projetos ==
+
+User -> Frontend: Acessa página de projetos
+Frontend -> Service: getProjectsWithScores(userId=1)
+
+== Buscar dados do usuário ==
+
+Service -> DB: SELECT skills FROM users WHERE id = 1
+DB --> Service: ["React", "Node.js", "PostgreSQL", "TypeScript"]
+
+Service -> DB: SELECT * FROM collaboration_requests\nWHERE user_id = 1 AND status = 'accepted'
+DB --> Service: [5 projetos aceitos anteriormente]
+
+note right of Service
+  **Dados do Usuário:**
+  - Skills: React, Node.js, 
+    PostgreSQL, TypeScript
+  - Projetos aceitos: 5
+  - Categorias trabalhadas: 
+    fintech, sustainability
+end note
+
+== Buscar dados do projeto ==
+
+Service -> DB: SELECT technologies, category\nFROM projects WHERE id = 10
+DB --> Service: technologies: ["React", "Node.js", "Express", "PostgreSQL"]\ncategory: "fintech"
+
+note right of Service
+  **Dados do Projeto:**
+  - Tecnologias: React, Node.js,
+    Express, PostgreSQL
+  - Categoria: fintech
+end note
+
+== Calcular Match de Skills ==
+
+Service -> Service: Comparar skills com tecnologias
+Service -> Service: Skills em comum: React, Node.js, PostgreSQL
+Service -> Service: Total skills usuário: 4
+Service -> Service: Match = (3/4) × 100 = 75%
+
+note right of Service
+  **Match Skills:**
+  - Skills usuário: 4
+  - Skills em comum: 3
+  - Porcentagem: 75%
+end note
+
+== Calcular Bonus Histórico ==
+
+Service -> Service: Verificar projetos aceitos com tecnologias similares
+Service -> Service: Projetos similares encontrados: 2
+Service -> Service: Bonus = (2/5) × 10 = 4%
+
+note right of Service
+  **Bonus Histórico:**
+  - Projetos aceitos: 5
+  - Projetos similares: 2
+  - Bonus: 4%
+end note
+
+== Calcular Bonus Categoria ==
+
+Service -> Service: Verificar categoria do projeto: "fintech"
+Service -> Service: Usuário trabalhou em "fintech"? Sim
+Service -> Service: Bonus = 5%
+
+note right of Service
+  **Bonus Categoria:**
+  - Categoria projeto: fintech
+  - Usuário trabalhou em fintech? Sim
+  - Bonus: 5%
+end note
+
+== Calcular Score Final ==
+
+Service -> Service: Score = 75% + 4% + 5%
+Service -> Service: Score = 84%
+Service -> Service: Limitado a 100%? Não
+Service -> Service: Arredondar: 84%
+
+note right of Service
+  **Score Final:**
+  75% (Skills) +
+  4% (Histórico) +
+  5% (Categoria)
+  = 84%
+end note
+
+Service --> Frontend: Score: 84%
+Frontend -> Frontend: Exibir "❤️ 84% match" no card
+Frontend --> User: Mostrar projeto com match destacado
+
+note right of Frontend
+  **Interface:**
+  Card do projeto mostra:
+  - Título
+  - Descrição
+  - ❤️ 84% match (verde)
+  - Tecnologias
+end note
+
+@enduml
+
+

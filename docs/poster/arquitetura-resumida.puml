@@ -1,0 +1,122 @@
+@startuml Arquitetura_Resumida_Startup_Collab
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 2
+}
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #424242
+    BorderThickness 2
+}
+
+title Arquitetura Resumida - Startup Collab Platform\n\nCatólica SC - Engenharia de Software
+
+package "👤 FRONTEND" #E3F2FD {
+    component [React + Vite] as Frontend
+}
+
+note right of Frontend
+  **Tecnologias:**
+  - React 18+
+  - Vite
+  - React Router
+  - Tailwind CSS
+  - Zustand (State)
+  - Axios
+end note
+
+package "🌐 BACKEND API" #C8E6C9 {
+    component [Express.js] as Backend
+    component [Autenticação JWT] as Auth
+    component [Validação] as Validation
+    component [Rate Limiting] as RateLimit
+}
+
+note right of Backend
+  **Stack:**
+  - Node.js
+  - Express.js
+  - Clean Architecture
+  - SOLID Principles
+  - RESTful API
+end note
+
+package "💾 DADOS" #FFCCBC {
+    database "PostgreSQL" as PostgreSQL
+    component [Redis Cache] as Redis
+}
+
+note right of PostgreSQL
+  **Tabelas:**
+  - users
+  - projects
+  - matches
+  - user_connections
+  - audit_logs
+end note
+
+note right of Redis
+  **Uso:**
+  - Rate limiting
+  - Query cache
+  - Session cache
+end note
+
+package "🐳 DEPLOYMENT" #E1BEE7 {
+    component [Vercel] as Vercel
+    component [Koyeb] as Koyeb
+    component [Docker] as Docker
+}
+
+' Fluxo Principal
+Frontend --> Backend : HTTP/REST API
+Backend --> Auth : Autentica
+Backend --> Validation : Valida
+Backend --> RateLimit : Limita
+Backend --> PostgreSQL : SQL Queries
+Backend --> Redis : Cache
+RateLimit --> Redis : Contadores
+
+' Deploy
+Vercel --> Frontend : Deploy Frontend
+Koyeb --> Backend : Deploy Backend
+Docker --> Frontend : Dev Container
+Docker --> Backend : Dev Container
+Docker --> PostgreSQL : Dev Container
+Docker --> Redis : Dev Container
+
+note bottom of Frontend
+  **Funcionalidades:**
+  - Autenticação
+  - Gestão de Perfis
+  - Criação de Projetos
+  - Sistema de Matchmaking
+  - Solicitações de Colaboração
+  - Interface Responsiva
+end note
+
+note bottom of Backend
+  **Camadas:**
+  - Routes (Rotas API)
+  - Controllers (Handlers)
+  - Services (Lógica de Negócio)
+  - Repositories (Acesso a Dados)
+  - Domain Models (Entidades)
+end note
+
+note bottom of PostgreSQL
+  **Características:**
+  - Normalizado
+  - Foreign Keys
+  - Indexes
+  - Audit Logging
+end note
+
+@enduml
+
+

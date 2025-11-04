@@ -1,0 +1,119 @@
+@startuml Sistema_Recomendacao_Componentes
+!theme plain
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 2
+}
+
+title Sistema de Recomendação - Componentes e Cálculo\n\nStartup Collab Platform
+
+package "📊 Entrada" {
+    component [Usuário] as User {
+        component [Skills] as UserSkills
+        component [Histórico] as UserHistory
+    }
+    
+    component [Projeto] as Project {
+        component [Tecnologias] as ProjectTechs
+        component [Categoria] as ProjectCategory
+    }
+}
+
+package "🧮 Algoritmo de Recomendação" {
+    component [RecommendationService] as Service {
+        component [Match Skills] as MatchSkills
+        component [Bonus Histórico] as BonusHistory
+        component [Bonus Categoria] as BonusCategory
+        component [Calculadora Score] as ScoreCalc
+    }
+}
+
+package "📈 Saída" {
+    component [Score Final] as FinalScore {
+        component [Porcentagem] as Percentage
+        component [Recomendação] as Recommendation
+    }
+}
+
+' Fluxo de cálculo
+User --> Service : userId
+Project --> Service : projectId
+
+Service --> MatchSkills : Calcular Match
+UserSkills --> MatchSkills : Skills do usuário
+ProjectTechs --> MatchSkills : Tecnologias do projeto
+
+MatchSkills --> MatchSkills : Comparar arrays
+note right of MatchSkills
+  **Cálculo:**
+  matchingSkills = userSkills.filter(
+    skill => projectTechs.includes(skill)
+  )
+  matchPercentage = 
+    (matchingSkills.length / 
+     userSkills.length) × 100
+end note
+
+MatchSkills --> BonusHistory : Match %
+Service --> BonusHistory : Buscar histórico
+UserHistory --> BonusHistory : Projetos aceitos
+
+BonusHistory --> BonusHistory : Comparar tecnologias
+note right of BonusHistory
+  **Cálculo:**
+  similarProjects = projetos aceitos
+    com tecnologias em comum
+  historyBonus = 
+    (similarProjects / 
+     acceptedProjects.length) × 10
+  Máximo: 10%
+end note
+
+BonusHistory --> BonusCategory : Bonus Histórico
+Service --> BonusCategory : Buscar categoria
+ProjectCategory --> BonusCategory : Categoria do projeto
+
+BonusCategory --> BonusCategory : Verificar histórico
+note right of BonusCategory
+  **Cálculo:**
+  Se usuário trabalhou em projetos
+  da mesma categoria:
+    categoryBonus = 5%
+  Senão: 0%
+end note
+
+MatchSkills --> ScoreCalc : Match Skills (0-100%)
+BonusHistory --> ScoreCalc : Bonus Histórico (0-10%)
+BonusCategory --> ScoreCalc : Bonus Categoria (0-5%)
+
+ScoreCalc --> ScoreCalc : Somar componentes
+note right of ScoreCalc
+  **Fórmula Final:**
+  finalScore = 
+    matchPercentage + 
+    historyBonus + 
+    categoryBonus
+  finalScore = min(100, finalScore)
+  
+  **Exemplo:**
+  75% + 6% + 5% = 86%
+end note
+
+ScoreCalc --> FinalScore : Score Final (0-100%)
+FinalScore --> Percentage : Porcentagem
+FinalScore --> Recommendation : Classificação
+
+note bottom of Recommendation
+  **Classificação:**
+  🟢 80%+ : Excelente match
+  🟡 60-79% : Bom match
+  🟠 40-59% : Match moderado
+  ⚫ <40% : Match baixo
+end note
+
+@enduml
+
+

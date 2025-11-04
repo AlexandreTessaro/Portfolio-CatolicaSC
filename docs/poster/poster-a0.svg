@@ -124,14 +124,13 @@
     <body xmlns="http://www.w3.org/1999/xhtml">
       <div style="font-family: Arial, Helvetica, sans-serif; font-size:8px; color:#111; line-height:1.4;">
         <ul>
-          <li>React, Vite e React Router — Documentação oficial</li>
-          <li>Express, express-validator, Helmet — Documentação oficial</li>
-          <li>PostgreSQL — Guia e referências</li>
-          <li>Redis — Uso para cache e rate limiting</li>
-          <li>Boas práticas de UX para posters acadêmicos</li>
-          <li>Repositório do projeto: (insira URL)</li>
-          <li>Deploy de produção: (insira URL)</li>
-          <li>Vídeo de demonstração: (insira URL)</li>
+          <li>React, Express.js, PostgreSQL, Redis — Documentação oficial</li>
+          <li>Clean Architecture — Martin, R. C. (2017)</li>
+          <li>SOLID Principles — Martin, R. C.</li>
+          <li>REST API — Fielding, R. T. (2000)</li>
+          <li>Repositório: https://github.com/AlexandreTessaro/Portfolio-CatolicaSC</li>
+          <li>Deploy: (insira URL)</li>
+          <li>Vídeo: (insira URL)</li>
         </ul>
       </div>
     </body>

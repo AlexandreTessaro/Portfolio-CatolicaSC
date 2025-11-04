@@ -1,0 +1,165 @@
+@startuml Arquitetura_Deployment
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam cloud {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 2
+}
+skinparam component {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    BorderThickness 2
+}
+
+title Arquitetura de Deployment - Ambiente de Produção\n\nStartup Collab Platform
+
+cloud "Internet" {
+    actor "Usuários" as Users
+}
+
+cloud "Vercel CDN" #FFF9C4 {
+    component [Frontend React App] as VercelFrontend {
+        component [Static Assets] as Static
+        component [SPA Routes] as SPA
+        component [API Client] as APIClient
+    }
+    
+    note right of VercelFrontend
+      **Vercel Deployment:**
+      - Build automático via Git
+      - CDN global
+      - HTTPS automático
+      - Environment variables
+      - Analytics integrado
+    end note
+}
+
+cloud "Koyeb Platform" #C8E6C9 {
+    component [Backend API] as KoyebBackend {
+        component [Node.js Runtime] as NodeJS
+        component [Express Server] as Express
+        component [API Routes] as Routes
+        component [Business Logic] as Logic
+    }
+    
+    note right of KoyebBackend
+      **Koyeb Deployment:**
+      - Docker container
+      - Auto-scaling
+      - Health checks
+      - Logs centralizados
+      - Environment variables
+    end note
+}
+
+cloud "Database Services" #FFCCBC {
+    database "PostgreSQL\n(Managed DB)" as ProdDB {
+        component [Users] as UsersTable
+        component [Projects] as ProjectsTable
+        component [Matches] as MatchesTable
+        component [Connections] as ConnectionsTable
+    }
+    
+    note right of ProdDB
+      **Database Options:**
+      - AWS RDS
+      - Google Cloud SQL
+      - DigitalOcean
+      - Railway
+      - Render
+    end note
+}
+
+cloud "Cache Services" #E1BEE7 {
+    component "Redis\n(Managed Cache)" as ProdRedis {
+        component [Rate Limit] as RateLimit
+        component [Session Cache] as Session
+        component [Query Cache] as Query
+    }
+    
+    note right of ProdRedis
+      **Redis Options:**
+      - Redis Cloud
+      - Upstash
+      - AWS ElastiCache
+      - Railway Redis
+    end note
+}
+
+cloud "Development\n(Local)" #F5F5F5 {
+    component "Docker Compose" as Docker {
+        component [Frontend Container] as DevFrontend
+        component [Backend Container] as DevBackend
+        component [PostgreSQL Container] as DevDB
+        component [Redis Container] as DevRedis
+    }
+    
+    note right of Docker
+      **Local Development:**
+      - docker-compose up
+      - Hot reload
+      - Local database
+      - Development tools
+    end note
+}
+
+' Fluxo de Produção
+Users --> VercelFrontend : HTTPS Request
+VercelFrontend --> APIClient : API Call
+APIClient --> KoyebBackend : HTTPS Request\n(API_URL env var)
+KoyebBackend --> NodeJS : Process Request
+NodeJS --> Express : Route Handler
+Express --> Routes : Match Route
+Routes --> Logic : Business Logic
+Logic --> ProdDB : SQL Queries
+Logic --> ProdRedis : Cache Operations
+ProdDB --> Logic : Query Results
+ProdRedis --> Logic : Cached Data
+Logic --> Routes : Response Data
+Routes --> Express : HTTP Response
+Express --> NodeJS : Send Response
+NodeJS --> KoyebBackend : Return Response
+KoyebBackend --> APIClient : JSON Response
+APIClient --> VercelFrontend : Update UI
+VercelFrontend --> Users : Render Page
+
+' Environment Variables
+VercelFrontend ..> VercelFrontend : VITE_API_URL
+KoyebBackend ..> KoyebBackend : DATABASE_URL
+KoyebBackend ..> KoyebBackend : REDIS_URL
+KoyebBackend ..> KoyebBackend : JWT_SECRET
+KoyebBackend ..> KoyebBackend : NODE_ENV=production
+
+' Development Connection
+DevFrontend --> DevBackend : http://localhost:5000
+DevBackend --> DevDB : localhost:5432
+DevBackend --> DevRedis : localhost:6379
+
+note top of Users
+  **Acesso:**
+  - URL: https://startup-collab.vercel.app
+  - Responsive design
+  - PWA ready
+end note
+
+note bottom of ProdDB
+  **Backup & Recovery:**
+  - Backups automáticos
+  - Point-in-time recovery
+  - Read replicas (opcional)
+end note
+
+note bottom of ProdRedis
+  **Performance:**
+  - Sub-millisecond latency
+  - High availability
+  - Automatic failover
+end note
+
+@enduml
+
+
+

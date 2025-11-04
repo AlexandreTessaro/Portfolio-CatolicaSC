@@ -1,0 +1,150 @@
+@startuml Arquitetura_Fluxo_Autenticacao
+!theme plain
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam maxmessagesize 60
+skinparam backgroundColor #FFFFFF
+
+title Fluxo de Autenticação JWT com Refresh Token\n\nStartup Collab Platform
+
+actor Usuário as User
+participant "Frontend\n(React)" as Frontend
+participant "API Gateway\n(Express)" as API
+participant "Auth Middleware\n(JWT)" as Auth
+participant "User Service" as Service
+participant "User Repository" as Repository
+database "PostgreSQL" as DB
+participant "Redis Cache" as Redis
+
+== Login ==
+
+User -> Frontend: 1. Preenche credenciais
+Frontend -> API: 2. POST /api/users/login\n(email, password)
+API -> Service: 3. login(email, password)
+Service -> Repository: 4. findByEmail(email)
+Repository -> DB: 5. SELECT * FROM users...
+DB --> Repository: 6. User data
+Repository --> Service: 7. User entity
+
+Service -> Service: 8. comparePassword(password, hash)
+alt Senha válida
+    Service -> Service: 9. generateTokens(userId)
+    Service -> Service: 10. createAccessToken()
+    Service -> Service: 11. createRefreshToken()
+    
+    Service -> Repository: 12. saveRefreshToken(userId, token)
+    Repository -> DB: 13. UPDATE users SET refresh_token...
+    DB --> Repository: 14. Success
+    Repository --> Service: 15. Confirmed
+    
+    Service --> API: 16. { accessToken, refreshToken, user }
+    API -> Frontend: 17. HTTP 200 + Set-Cookie (refreshToken)
+    Frontend -> Frontend: 18. Store tokens (Zustand)
+    Frontend --> User: 19. Redireciona para dashboard
+else Senha inválida
+    Service --> API: 16. HTTP 401 Unauthorized
+    API --> Frontend: 17. Error message
+    Frontend --> User: 18. Exibe erro
+end
+
+== Requisição Autenticada ==
+
+User -> Frontend: 20. Acessa página protegida
+Frontend -> Frontend: 21. Get accessToken from store
+Frontend -> API: 22. GET /api/projects\nAuthorization: Bearer {accessToken}
+API -> Auth: 23. authenticateToken()
+Auth -> Auth: 24. verifyToken(accessToken)
+alt Token válido
+    Auth -> Auth: 25. Extract userId from token
+    Auth --> API: 26. userId (req.user)
+    API -> Service: 27. getProjects(userId)
+    Service -> Repository: 28. findProjects(userId)
+    Repository -> DB: 29. SELECT * FROM projects...
+    DB --> Repository: 30. Projects data
+    Repository --> Service: 31. Projects array
+    Service --> API: 32. Projects data
+    API --> Frontend: 33. HTTP 200 + Projects
+    Frontend --> User: 34. Exibe projetos
+else Token inválido/expirado
+    Auth --> API: 26. HTTP 401 Unauthorized
+    API --> Frontend: 27. HTTP 401
+    Frontend -> Frontend: 28. Token expired, try refresh
+end
+
+== Refresh Token ==
+
+alt Token Expirado
+    Frontend -> Frontend: 29. Intercepta 401
+    Frontend -> Frontend: 30. Get refreshToken from store
+    Frontend -> API: 31. POST /api/users/refresh-token\n{ refreshToken }
+    API -> Service: 32. refreshToken(refreshToken)
+    Service -> Repository: 33. findByRefreshToken(token)
+    Repository -> DB: 34. SELECT * FROM users WHERE...
+    DB --> Repository: 35. User with refresh token
+    Repository --> Service: 36. User entity
+    
+    Service -> Service: 37. verifyRefreshToken(token)
+    alt Refresh Token válido
+        Service -> Service: 38. generateNewTokens(userId)
+        Service -> Service: 39. createAccessToken()
+        Service -> Service: 40. createRefreshToken()
+        
+        Service -> Repository: 41. updateRefreshToken(userId, newToken)
+        Repository -> DB: 42. UPDATE users SET...
+        DB --> Repository: 43. Success
+        
+        Service --> API: 44. { accessToken, refreshToken }
+        API --> Frontend: 45. HTTP 200 + New tokens
+        Frontend -> Frontend: 46. Update tokens in store
+        Frontend -> API: 47. Retry original request
+        API --> Frontend: 48. HTTP 200 + Data
+        Frontend --> User: 49. Exibe dados
+    else Refresh Token inválido/expirado
+        Service --> API: 44. HTTP 401 Unauthorized
+        API --> Frontend: 45. HTTP 401
+        Frontend -> Frontend: 46. Logout user
+        Frontend --> User: 47. Redireciona para login
+    end
+end
+
+== Logout ==
+
+User -> Frontend: 50. Clica em logout
+Frontend -> API: 51. POST /api/users/logout\nCookie: refreshToken
+API -> Service: 52. logout(userId)
+Service -> Repository: 53. clearRefreshToken(userId)
+Repository -> DB: 54. UPDATE users SET refresh_token = NULL
+DB --> Repository: 55. Success
+Repository --> Service: 56. Confirmed
+Service --> API: 57. Success
+API -> Frontend: 58. HTTP 200 + Clear cookie
+Frontend -> Frontend: 59. Clear tokens from store
+Frontend --> User: 60. Redireciona para login
+
+note right of Auth
+  **JWT Middleware:**
+  - Verifica assinatura
+  - Valida expiração
+  - Extrai payload
+  - Adiciona userId ao request
+end note
+
+note right of Service
+  **Token Generation:**
+  - Access Token: 15min
+  - Refresh Token: 7 dias
+  - Assinados com secrets
+  - Payload: { userId, email }
+end note
+
+note right of Redis
+  **Cache Strategy:**
+  - Rate limiting keys
+  - Session data (opcional)
+  - Query cache (opcional)
+end note
+
+@enduml
+
+
+

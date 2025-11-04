@@ -1,0 +1,28 @@
+# Referências - Pôster (Versão Resumida)
+
+## Tecnologias Principais
+
+• React — https://react.dev/
+• Express.js — https://expressjs.com/
+• PostgreSQL — https://www.postgresql.org/
+• Redis — https://redis.io/
+• Docker — https://www.docker.com/
+
+## Arquitetura e Padrões
+
+• Clean Architecture — Martin, R. C. (2017)
+• SOLID Principles — Martin, R. C.
+• REST API — Fielding, R. T. (2000)
+
+## Bibliografia
+
+• MARTIN, R. C. Clean Architecture: A Craftsman's Guide to Software Structure and Design. Prentice Hall, 2017.
+• MARTIN, R. C. Clean Code: A Handbook of Agile Software Craftsmanship. Prentice Hall, 2008.
+
+## Links do Projeto
+
+• Repositório: https://github.com/AlexandreTessaro/Portfolio-CatolicaSC
+• Deploy: [inserir URL]
+• Vídeo: [inserir URL]
+
+

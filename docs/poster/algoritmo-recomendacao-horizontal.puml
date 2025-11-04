@@ -1,0 +1,61 @@
+@startuml Sistema_Recomendacao_Horizontal
+!theme plain
+skinparam activity {
+    BorderColor #0D47A1
+    BorderThickness 2
+    FontSize 12
+    FontColor #0D47A1
+    Padding 6
+}
+skinparam arrow {
+    Color #0D47A1
+    Thickness 2
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+    BorderThickness 1
+    FontSize 10
+    FontColor #000000
+}
+
+title Sistema de Recomendação\nStartup Collab Platform
+
+start
+
+#FFE0B2:🎯 **Match Skills**\n(0-100%)\n\nCompara skills do usuário\ncom tecnologias do projeto;
+note right #FFF9C4
+  Exemplo:
+  Skills usuário: 4
+  Skills em comum: 3
+  Match = 75%
+end note
+
+#C8E6C9:📊 **Bonus Histórico**\n(0-10%)\n\nAnalisa projetos aceitos\ncom tecnologias similares;
+note right #FFF9C4
+  Exemplo:
+  2 similares / 5 aceitos
+  Bonus = 4%
+end note
+
+#FFCCBC:🏷️ **Bonus Categoria**\n(0-5%)\n\nVerifica categoria\ndo projeto;
+note right #FFF9C4
+  Exemplo:
+  Categoria: fintech
+  Trabalhou? Sim
+  Bonus = 5%
+end note
+
+#E1BEE7:⭐ **Score Final**\n(0-100%)\n\nSoma todos os componentes\ne limita ao máximo;
+note right #FFF9C4
+  Exemplo Completo:
+  75% + 4% + 5% = 84%
+  
+  🟢 80%+ Excelente
+  🟡 60-79% Bom
+  🟠 40-59% Moderado
+end note
+
+stop
+
+@enduml

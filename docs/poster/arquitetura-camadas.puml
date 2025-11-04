@@ -1,0 +1,158 @@
+@startuml Arquitetura_Camadas_Backend
+!theme plain
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #424242
+    BorderThickness 2
+}
+
+title Arquitetura em Camadas - Backend (Clean Architecture)\n\nStartup Collab Platform
+
+package "Camada de Apresentação\n(API Layer)" #E3F2FD {
+    component [Routes] as Routes {
+        - userRoutes
+        - projectRoutes
+        - matchRoutes
+        - recommendationRoutes
+        - userConnectionRoutes
+    }
+    
+    component [Controllers] as Controllers {
+        + UserController
+        + ProjectController
+        + MatchController
+        + RecommendationController
+        + UserConnectionController
+    }
+    
+    component [Middleware] as Middleware {
+        + authenticateToken()
+        + optionalAuth()
+        + requireAdmin()
+    }
+}
+
+package "Camada de Aplicação\n(Application Layer)" #C8E6C9 {
+    component [Services] as Services {
+        + UserService
+        + ProjectService
+        + MatchService
+        + RecommendationService
+        + UserConnectionService
+    }
+}
+
+package "Camada de Domínio\n(Domain Layer)" #FFF9C4 {
+    component [Domain Models] as Domain {
+        + User
+        + Project
+        + Match
+        + UserConnection
+    }
+    
+    component [Business Rules] as BusinessRules {
+        + Validation Rules
+        + Business Logic
+        + Entity Methods
+    }
+}
+
+package "Camada de Infraestrutura\n(Infrastructure Layer)" #FFCCBC {
+    component [Repositories] as Repositories {
+        + UserRepository
+        + ProjectRepository
+        + MatchRepository
+        + UserConnectionRepository
+    }
+    
+    component [Database] as Database {
+        + PostgreSQL Connection Pool
+        + Query Builder
+    }
+    
+    component [Cache] as Cache {
+        + Redis Client
+        + Cache Operations
+    }
+    
+    component [Config] as Config {
+        + database.js
+        + redis.js
+        + jwt.js
+    }
+}
+
+package "Segurança e Validação" #E1BEE7 {
+    component [JWT] as JWT {
+        + Token Generation
+        + Token Verification
+        + Refresh Tokens
+    }
+    
+    component [Validation] as Validation {
+        + express-validator
+        + Input Sanitization
+    }
+    
+    component [Security] as Security {
+        + Helmet (Headers)
+        + CORS Configuration
+        + Rate Limiting
+        + bcrypt (Password Hashing)
+    }
+}
+
+' Fluxo de dependências (Clean Architecture)
+Routes --> Controllers : "uses"
+Controllers --> Middleware : "validates with"
+Controllers --> Services : "delegates to"
+Services --> Domain : "uses"
+Services --> Repositories : "queries"
+Repositories --> Database : "executes"
+Repositories --> Cache : "caches"
+Services --> Cache : "uses cache"
+Controllers --> Validation : "validates"
+Middleware --> JWT : "verifies"
+Security --> Routes : "protects"
+Config --> Database : "configures"
+Config --> Cache : "configures"
+Config --> JWT : "configures"
+
+note right of Controllers
+  **Responsabilidades:**
+  - Receber requisições HTTP
+  - Validar entrada
+  - Chamar serviços
+  - Retornar respostas
+end note
+
+note right of Services
+  **Responsabilidades:**
+  - Lógica de negócio
+  - Orquestração
+  - Validações de domínio
+  - Coordenação entre repositories
+end note
+
+note right of Domain
+  **Responsabilidades:**
+  - Entidades de domínio
+  - Regras de negócio
+  - Validações de entidade
+  - Métodos de domínio
+end note
+
+note right of Repositories
+  **Responsabilidades:**
+  - Acesso a dados
+  - Queries SQL
+  - Cache operations
+  - Abstração de persistência
+end note
+
+@enduml
+
+
+

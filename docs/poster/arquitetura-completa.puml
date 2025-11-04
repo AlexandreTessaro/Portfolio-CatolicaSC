@@ -1,0 +1,241 @@
+@startuml Arquitetura_Completa_Startup_Collab
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #424242
+    BorderThickness 2
+}
+
+title Arquitetura Completa da Aplicação - Startup Collab Platform\n\nCatólica SC - Engenharia de Software
+
+package "👤 CAMADA DE APRESENTAÇÃO" #E3F2FD {
+    component [React Application] as ReactApp
+    
+    package "Frontend Modules" {
+        component [Pages] as Pages
+        component [Components] as Components
+        component [Services] as FrontendServices
+        component [State Management] as State
+        component [Config] as FrontendConfig
+    }
+    
+    component [Styling] as Styling
+}
+
+package "🌐 CAMADA DE API" #C8E6C9 {
+    component [Express Server] as Express
+    
+    package "API Modules" {
+        component [Routes] as Routes
+        component [Controllers] as Controllers
+        component [Middleware] as Middleware
+    }
+    
+    package "Security Layer" {
+        component [JWT] as JWT
+        component [Validation] as Validation
+        component [Protection] as Protection
+        component [Password Security] as Password
+    }
+}
+
+package "💼 CAMADA DE NEGÓCIO" #FFF9C4 {
+    component [Services] as BusinessServices
+    component [UserService] as UserService
+    component [ProjectService] as ProjectService
+    component [MatchService] as MatchService
+    component [RecommendationService] as RecommendationService
+    component [UserConnectionService] as ConnectionService
+}
+
+package "🏛️ CAMADA DE DOMÍNIO" #FFE0B2 {
+    component [Domain Models] as Domain
+    component [User Model] as UserModel
+    component [Project Model] as ProjectModel
+    component [Match Model] as MatchModel
+    component [UserConnection Model] as ConnectionModel
+}
+
+package "💾 CAMADA DE DADOS" #FFCCBC {
+    component [Repositories] as Repositories
+    component [UserRepository] as UserRepo
+    component [ProjectRepository] as ProjectRepo
+    component [MatchRepository] as MatchRepo
+    component [UserConnectionRepository] as ConnectionRepo
+    
+    database "PostgreSQL" as PostgreSQL
+    component [Tables] as Tables
+    component [Indexes] as Indexes
+    
+    component [Redis Cache] as Redis
+    component [Rate Limiting Cache] as RateLimitCache
+    component [Query Cache] as QueryCache
+    component [Session Cache] as SessionCache
+}
+
+package "🐳 INFRAESTRUTURA" #E1BEE7 {
+    component [Docker] as Docker
+    component [Docker Compose] as DockerCompose
+    
+    component [CI/CD] as CICD
+    component [GitHub Actions] as GitHubActions
+    
+    component [Deployment] as Deployment
+    component [Vercel] as Vercel
+    component [Koyeb] as Koyeb
+}
+
+' Conexões Principais - Frontend
+ReactApp --> Pages : Contains
+ReactApp --> Components : Contains
+ReactApp --> FrontendServices : Uses
+ReactApp --> State : Uses
+ReactApp --> FrontendConfig : Uses
+ReactApp --> Styling : Uses
+FrontendServices --> Express : HTTP/REST API
+
+' Conexões API
+Express --> Routes : Defines
+Express --> Controllers : Contains
+Express --> Middleware : Uses
+Routes --> Middleware : Validates
+Middleware --> JWT : Verifies
+Routes --> Controllers : Handles
+Controllers --> Validation : Validates Input
+Controllers --> BusinessServices : Delegates
+Protection --> JWT : Uses
+Protection --> Validation : Uses
+
+' Conexões Business
+BusinessServices --> UserService : Contains
+BusinessServices --> ProjectService : Contains
+BusinessServices --> MatchService : Contains
+BusinessServices --> RecommendationService : Contains
+BusinessServices --> ConnectionService : Contains
+BusinessServices --> Domain : Uses Models
+BusinessServices --> Repositories : Queries Data
+
+' Conexões Domain
+Domain --> UserModel : Contains
+Domain --> ProjectModel : Contains
+Domain --> MatchModel : Contains
+Domain --> ConnectionModel : Contains
+
+' Conexões Data
+Repositories --> UserRepo : Contains
+Repositories --> ProjectRepo : Contains
+Repositories --> MatchRepo : Contains
+Repositories --> ConnectionRepo : Contains
+Repositories --> PostgreSQL : SQL Queries
+Repositories --> Redis : Cache Operations
+
+PostgreSQL --> Tables : Contains
+PostgreSQL --> Indexes : Contains
+
+Redis --> RateLimitCache : Contains
+Redis --> QueryCache : Contains
+Redis --> SessionCache : Contains
+
+Protection --> RateLimitCache : Rate Limiting
+
+' Conexões Infraestrutura
+Docker --> DockerCompose : Contains
+DockerCompose --> ReactApp : Container
+DockerCompose --> Express : Container
+DockerCompose --> PostgreSQL : Container
+DockerCompose --> Redis : Container
+
+CICD --> GitHubActions : Contains
+GitHubActions --> Vercel : Auto Deploy
+GitHubActions --> Koyeb : Auto Deploy
+
+Deployment --> Vercel : Contains
+Deployment --> Koyeb : Contains
+Vercel --> ReactApp : Production Deploy
+Koyeb --> Express : Production Deploy
+
+note right of Pages
+  **Páginas:**
+  - LandingPage, Login, Register
+  - Home, Profile, ProjectsList
+  - ProjectDetails, CreateProject
+  - EditProject, MatchesPage
+  - UsersList, PublicProfile
+end note
+
+note right of Components
+  **Componentes:**
+  - Header, Layout
+  - ProtectedRoute
+  - ProfilePhoto
+  - MatchesList
+  - RequestParticipationModal
+end note
+
+note right of FrontendServices
+  **Serviços Frontend:**
+  - userService
+  - projectService
+  - matchService
+  - recommendationService
+  - userConnectionService
+end note
+
+note right of Express
+  **Tecnologias Backend:**
+  - Node.js + Express.js
+  - Clean Architecture
+  - SOLID Principles
+  - RESTful API
+end note
+
+note right of Routes
+  **Rotas API:**
+  - /api/users/*
+  - /api/projects/*
+  - /api/matches/*
+  - /api/recommendations/*
+  - /api/user-connections/*
+  - /health
+end note
+
+note right of Controllers
+  **Controllers:**
+  - UserController
+  - ProjectController
+  - MatchController
+  - RecommendationController
+  - UserConnectionController
+end note
+
+note right of BusinessServices
+  **Lógica de Negócio:**
+  - Matchmaking Algorithm
+  - Recommendation System
+  - User Connections
+  - Project Management
+  - Business Rules Validation
+end note
+
+note right of PostgreSQL
+  **Database Schema:**
+  - users, projects
+  - matches
+  - user_connections
+  - audit_logs
+  - Indexes para performance
+end note
+
+note right of Redis
+  **Cache Strategy:**
+  - Rate limiting counters
+  - Query result caching
+  - Session storage (opcional)
+  - TTL-based expiration
+end note
+
+@enduml
+

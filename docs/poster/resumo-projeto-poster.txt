@@ -1,0 +1,57 @@
+# 📝 Resumo do Projeto - Versões para Pôster
+
+## Versão 1: Resumo Médio (Para Seção de Solução)
+
+Startup Collab é uma plataforma web desenvolvida para conectar startups, estudantes e profissionais, facilitando a formação de equipes multidisciplinares. A solução resolve problemas de descoberta e conexão através de um sistema inteligente de matching baseado em habilidades, histórico e categorias.
+
+A plataforma oferece autenticação segura com JWT, gestão de perfis personalizáveis, criação e gestão de projetos, sistema de matchmaking inteligente com score de compatibilidade (0-100%), solicitações de colaboração e interface responsiva.
+
+O diferencial é o algoritmo de recomendação que calcula compatibilidade através de três componentes: Match de Skills (0-100%), Bonus Histórico (0-10%) e Bonus Categoria (0-5%), resultando em um score final que facilita a descoberta de projetos adequados.
+
+A arquitetura utiliza React + Vite no frontend, Node.js + Express no backend, PostgreSQL como banco de dados e Redis para cache e rate limiting. O projeto segue Clean Architecture e princípios SOLID, com deploy em Vercel (frontend) e Koyeb (backend).
+
+---
+
+## Versão 2: Resumo Curto (Para Pôster)
+
+Startup Collab é uma plataforma web que conecta startups e talentos através de matching inteligente baseado em habilidades. O sistema calcula compatibilidade (0-100%) considerando skills do usuário, histórico de projetos aceitos e categoria, facilitando a descoberta de oportunidades adequadas.
+
+**Tecnologias:** React, Node.js, PostgreSQL, Redis  
+**Diferencial:** Algoritmo de recomendação com score de compatibilidade  
+**Status:** Funcional e em produção  
+
+---
+
+## Versão 3: Resumo Ultra-Curto (1 parágrafo)
+
+Startup Collab é uma plataforma web desenvolvida para conectar startups e talentos através de um sistema inteligente de matching. O algoritmo calcula compatibilidade (0-100%) baseado em habilidades do usuário, histórico de projetos e categoria, facilitando a formação de equipes multidisciplinares. Desenvolvida com React, Node.js, PostgreSQL e Redis, seguindo Clean Architecture e princípios SOLID, com deploy em Vercel e Koyeb.
+
+---
+
+## Versão 4: Tópicos (Para Cards Visuais)
+
+**Problema:**
+- Descoberta de projetos desalinhada com habilidades
+- Falta de visibilidade de oportunidades
+- Baixa taxa de engajamento
+
+**Solução:**
+- Plataforma web de matching inteligente
+- Algoritmo de recomendação com score 0-100%
+- Conexões diretas entre talentos e projetos
+
+**Tecnologias:**
+- Frontend: React + Vite + Tailwind CSS
+- Backend: Node.js + Express + PostgreSQL
+- Cache: Redis
+- Deploy: Vercel + Koyeb
+
+**Diferencial:**
+- Match baseado em skills, histórico e categoria
+- Score de compatibilidade automático
+- Interface responsiva e moderna
+
+---
+
+**Escolha a versão que melhor se adequa ao espaço disponível no seu pôster!**
+

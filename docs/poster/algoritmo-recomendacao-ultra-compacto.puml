@@ -1,0 +1,64 @@
+@startuml Sistema_Recomendacao_Ultra_Compacto
+!theme plain
+skinparam activity {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    FontSize 10
+    FontColor #0D47A1
+    Padding 3
+}
+skinparam arrow {
+    Color #0D47A1
+    Thickness 1.5
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+    FontSize 8
+}
+
+title Sistema de Recomendação\nStartup Collab
+
+|#FFE0B2|**Skills**|
+start
+:Buscar e comparar;
+:Contar matches;
+note right
+  3/4 = 75%
+end note
+:0-100%;
+stop
+
+|#C8E6C9|**Histórico**|
+start
+:Projetos aceitos;
+:Comparar similares;
+note right
+  (2/5)×10 = 4%
+end note
+:0-10%;
+stop
+
+|#FFCCBC|**Categoria**|
+start
+:Verificar categoria;
+:Já trabalhou?;
+note right
+  Sim = 5%
+end note
+:0 ou 5%;
+stop
+
+|#E1BEE7|**Final**|
+start
+:Somar componentes;
+:Limitar a 100%;
+note right
+  75%+4%+5%=84%
+end note
+:Score 0-100%;
+stop
+
+@enduml
+
+

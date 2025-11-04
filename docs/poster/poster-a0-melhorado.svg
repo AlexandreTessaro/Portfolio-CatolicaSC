@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- A0 portrait: 841mm x 1189mm - Versão Melhorada Visual -->
+<svg xmlns="http://www.w3.org/2000/svg" width="841mm" height="1189mm" viewBox="0 0 841 1189">
+  <defs>
+    <style type="text/css"><![CDATA[
+      .bg { fill: #ffffff; }
+      .accent { fill: #0d47a1; }
+      .accent-light { fill: #1976d2; }
+      .text-dark { fill: #111111; font-family: Arial, Helvetica, sans-serif; }
+      .text-light { fill: #ffffff; font-family: Arial, Helvetica, sans-serif; }
+      .title { font-size: 28px; font-weight: 700; }
+      .subtitle { font-size: 16px; font-weight: 600; }
+      .body { font-size: 12px; line-height: 1.5; }
+      .small { font-size: 10px; }
+      .section-title { font-size: 18px; font-weight: 700; fill: #0d47a1; }
+      .card { fill: #f7f9fc; stroke: #e0e6f1; stroke-width: 0.5; }
+      .qr-box { fill: #ffffff; stroke: #0d47a1; stroke-width: 1; }
+      .icon-box { fill: #e3f2fd; stroke: #0d47a1; stroke-width: 0.8; }
+      .highlight-box { fill: #fff3e0; stroke: #f57c00; stroke-width: 0.8; }
+    ]]></style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,8 L8,4 z" fill="#0d47a1" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect class="bg" x="0" y="0" width="841" height="1189"/>
+
+  <!-- Top banner -->
+  <rect class="accent" x="0" y="0" width="841" height="80"/>
+  <text class="text-light title" x="30" y="50">Startup Collab – Plataforma de Colaboração para Startups</text>
+  <text class="text-light small" x="30" y="70">Católica SC — Poster + Demo Day</text>
+  
+  <!-- Logo placeholder (Católica SC) -->
+  <rect x="700" y="15" width="120" height="50" fill="#ffffff" stroke="#0d47a1" stroke-width="1" rx="3"/>
+  <text class="text-dark small" x="760" y="45" text-anchor="middle">Logo Católica SC</text>
+
+  <!-- Header metadata card -->
+  <rect class="card" x="30" y="95" width="500" height="75" rx="3"/>
+  <text class="text-dark subtitle" x="45" y="120">Autor</text>
+  <text class="text-dark body" x="45" y="140">Alexandre Tessaro Vieira</text>
+  <text class="text-dark body" x="45" y="155">alexandre.tessaro@catolicasc.edu.br</text>
+
+  <!-- QR codes area -->
+  <text class="text-dark subtitle" x="560" y="120">Acesse</text>
+  <g transform="translate(560, 130)">
+    <rect class="qr-box" x="0" y="0" width="70" height="70" rx="3"/>
+    <text class="text-dark small" x="35" y="88" text-anchor="middle">QR Produção</text>
+    <rect class="qr-box" x="80" y="0" width="70" height="70" rx="3"/>
+    <text class="text-dark small" x="115" y="88" text-anchor="middle">QR Repositório</text>
+    <rect class="qr-box" x="160" y="0" width="70" height="70" rx="3"/>
+    <text class="text-dark small" x="195" y="88" text-anchor="middle">QR Vídeo</text>
+  </g>
+
+  <!-- Seção 1: Contexto/Problema (Visual com ícones) -->
+  <text class="section-title" x="30" y="200">Contexto / Problema</text>
+  <rect class="card" x="30" y="210" width="781" height="140" rx="3"/>
+  
+  <!-- Ícones de problemas -->
+  <g transform="translate(50, 230)">
+    <!-- Problema 1: Busca desalinhada -->
+    <rect class="icon-box" x="0" y="0" width="180" height="100" rx="5"/>
+    <circle cx="90" cy="35" r="20" fill="#0d47a1" opacity="0.2"/>
+    <text x="90" y="42" text-anchor="middle" font-size="28" fill="#0d47a1">🔍</text>
+    <text class="text-dark body" x="90" y="65" text-anchor="middle" font-weight="600">Busca Desalinhada</text>
+    <text class="text-dark small" x="90" y="80" text-anchor="middle">Projetos não correspondem</text>
+    <text class="text-dark small" x="90" y="92" text-anchor="middle">a habilidades</text>
+    
+    <!-- Problema 2: Falta de visibilidade -->
+    <rect class="icon-box" x="200" y="0" width="180" height="100" rx="5"/>
+    <circle cx="290" cy="35" r="20" fill="#0d47a1" opacity="0.2"/>
+    <text x="290" y="42" text-anchor="middle" font-size="28" fill="#0d47a1">⏱️</text>
+    <text class="text-dark body" x="290" y="65" text-anchor="middle" font-weight="600">Oportunidades Perdidas</text>
+    <text class="text-dark small" x="290" y="80" text-anchor="middle">Falta de visibilidade</text>
+    <text class="text-dark small" x="290" y="92" text-anchor="middle">em tempo real</text>
+    
+    <!-- Problema 3: Baixo engajamento -->
+    <rect class="icon-box" x="400" y="0" width="180" height="100" rx="5"/>
+    <circle cx="490" cy="35" r="20" fill="#0d47a1" opacity="0.2"/>
+    <text x="490" y="42" text-anchor="middle" font-size="28" fill="#0d47a1">📉</text>
+    <text class="text-dark body" x="490" y="65" text-anchor="middle" font-weight="600">Baixo Engajamento</text>
+    <text class="text-dark small" x="490" y="80" text-anchor="middle">Taxa de match</text>
+    <text class="text-dark small" x="490" y="92" text-anchor="middle">insuficiente</text>
+  </g>
+
+  <!-- Seção 2: Solução Proposta (Cards visuais de tecnologias) -->
+  <text class="section-title" x="30" y="380">Solução Proposta</text>
+  <rect class="card" x="30" y="390" width="781" height="120" rx="3"/>
+  
+  <text class="text-dark body" x="50" y="415" font-weight="600">Plataforma web que conecta startups e talentos através de matching inteligente</text>
+  
+  <!-- Cards de tecnologias -->
+  <g transform="translate(50, 430)">
+    <rect class="icon-box" x="0" y="0" width="120" height="70" rx="5"/>
+    <text x="60" y="35" text-anchor="middle" font-size="24">⚛️</text>
+    <text class="text-dark body" x="60" y="55" text-anchor="middle" font-weight="600">React</text>
+    <text class="text-dark small" x="60" y="67" text-anchor="middle">Frontend</text>
+    
+    <rect class="icon-box" x="140" y="0" width="120" height="70" rx="5"/>
+    <text x="200" y="35" text-anchor="middle" font-size="24">🚀</text>
+    <text class="text-dark body" x="200" y="55" text-anchor="middle" font-weight="600">Express</text>
+    <text class="text-dark small" x="200" y="67" text-anchor="middle">Backend</text>
+    
+    <rect class="icon-box" x="280" y="0" width="120" height="70" rx="5"/>
+    <text x="340" y="35" text-anchor="middle" font-size="24">🗄️</text>
+    <text class="text-dark body" x="340" y="55" text-anchor="middle" font-weight="600">PostgreSQL</text>
+    <text class="text-dark small" x="340" y="67" text-anchor="middle">Database</text>
+    
+    <rect class="icon-box" x="420" y="0" width="120" height="70" rx="5"/>
+    <text x="480" y="35" text-anchor="middle" font-size="24">⚡</text>
+    <text class="text-dark body" x="480" y="55" text-anchor="middle" font-weight="600">Redis</text>
+    <text class="text-dark small" x="480" y="67" text-anchor="middle">Cache</text>
+    
+    <rect class="icon-box" x="560" y="0" width="140" height="70" rx="5"/>
+    <text x="630" y="35" text-anchor="middle" font-size="24">🔐</text>
+    <text class="text-dark body" x="630" y="55" text-anchor="middle" font-weight="600">JWT Auth</text>
+    <text class="text-dark small" x="630" y="67" text-anchor="middle">Segurança</text>
+  </g>
+
+  <!-- Seção 3: Algoritmo de Recomendação (Infográfico Visual) -->
+  <text class="section-title" x="30" y="540">Sistema de Recomendação Inteligente</text>
+  <rect class="highlight-box" x="30" y="550" width="781" height="180" rx="3"/>
+  
+  <!-- Fluxo do algoritmo -->
+  <g transform="translate(80, 575)">
+    <!-- Componente 1: Skills -->
+    <rect class="icon-box" x="0" y="0" width="150" height="80" rx="5"/>
+    <circle cx="75" cy="30" r="18" fill="#1976d2"/>
+    <text x="75" y="38" text-anchor="middle" font-size="20" fill="white">🎯</text>
+    <text class="text-dark body" x="75" y="60" text-anchor="middle" font-weight="600">Match de Skills</text>
+    <text class="text-dark small" x="75" y="72" text-anchor="middle">Até 100%</text>
+    
+    <!-- Seta -->
+    <line x1="150" y1="40" x2="190" y2="40" stroke="#0d47a1" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="170" y="35" text-anchor="middle" font-size="14" fill="#0d47a1" font-weight="600">+</text>
+    
+    <!-- Componente 2: Histórico -->
+    <rect class="icon-box" x="200" y="0" width="150" height="80" rx="5"/>
+    <circle cx="275" cy="30" r="18" fill="#1976d2"/>
+    <text x="275" y="38" text-anchor="middle" font-size="20" fill="white">📊</text>
+    <text class="text-dark body" x="275" y="60" text-anchor="middle" font-weight="600">Histórico</text>
+    <text class="text-dark small" x="275" y="72" text-anchor="middle">Até +10%</text>
+    
+    <!-- Seta -->
+    <line x1="350" y1="40" x2="390" y2="40" stroke="#0d47a1" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="370" y="35" text-anchor="middle" font-size="14" fill="#0d47a1" font-weight="600">+</text>
+    
+    <!-- Componente 3: Categoria -->
+    <rect class="icon-box" x="400" y="0" width="150" height="80" rx="5"/>
+    <circle cx="475" cy="30" r="18" fill="#1976d2"/>
+    <text x="475" y="38" text-anchor="middle" font-size="20" fill="white">🏷️</text>
+    <text class="text-dark body" x="475" y="60" text-anchor="middle" font-weight="600">Categoria</text>
+    <text class="text-dark small" x="475" y="72" text-anchor="middle">Até +5%</text>
+    
+    <!-- Seta final -->
+    <line x1="550" y1="40" x2="590" y2="40" stroke="#0d47a1" stroke-width="2" marker-end="url(#arrow)"/>
+    
+    <!-- Score Final -->
+    <rect class="accent" x="600" y="10" width="120" height="80" rx="5"/>
+    <text x="660" y="45" text-anchor="middle" font-size="24" fill="white" font-weight="700">SCORE</text>
+    <text x="660" y="70" text-anchor="middle" font-size="20" fill="white" font-weight="700">Máx. 100%</text>
+  </g>
+  
+  <!-- Fórmula -->
+  <text class="text-dark body" x="425" y="695" text-anchor="middle" font-weight="600">
+    Score Final = Match Skills + Bonus Histórico + Bonus Categoria (máx. 100%)
+  </text>
+  
+  <!-- Exemplo prático -->
+  <rect class="card" x="50" y="700" width="741" height="20" rx="3"/>
+  <text class="text-dark small" x="420" y="713" text-anchor="middle">
+    Exemplo: 75% (Skills) + 6% (Histórico) + 5% (Categoria) = 86% de Match
+  </text>
+
+  <!-- Seção 4: Diferenciais -->
+  <text class="section-title" x="30" y="750">Por que escolher Startup Collab?</text>
+  <g transform="translate(30, 760)">
+    <rect class="icon-box" x="0" y="0" width="240" height="100" rx="5"/>
+    <text x="120" y="40" text-anchor="middle" font-size="36">🎯</text>
+    <text class="text-dark body" x="120" y="60" text-anchor="middle" font-weight="700">Match Inteligente</text>
+    <text class="text-dark small" x="120" y="75" text-anchor="middle">Algoritmo baseado em</text>
+    <text class="text-dark small" x="120" y="87" text-anchor="middle">skills e histórico</text>
+    
+    <rect class="icon-box" x="260" y="0" width="240" height="100" rx="5"/>
+    <text x="380" y="40" text-anchor="middle" font-size="36">🤝</text>
+    <text class="text-dark body" x="380" y="60" text-anchor="middle" font-weight="700">Colaboração Eficiente</text>
+    <text class="text-dark small" x="380" y="75" text-anchor="middle">Conexões diretas entre</text>
+    <text class="text-dark small" x="380" y="87" text-anchor="middle">talentos e projetos</text>
+    
+    <rect class="icon-box" x="520" y="0" width="241" height="100" rx="5"/>
+    <text x="640" y="40" text-anchor="middle" font-size="36">📈</text>
+    <text class="text-dark body" x="640" y="60" text-anchor="middle" font-weight="700">Crescimento Profissional</text>
+    <text class="text-dark small" x="640" y="75" text-anchor="middle">Networking e</text>
+    <text class="text-dark small" x="640" y="87" text-anchor="middle">aprendizado contínuo</text>
+  </g>
+
+  <!-- Seção 5: Screenshot (Espaço reservado) -->
+  <text class="section-title" x="30" y="890">Interface da Aplicação</text>
+  <rect class="card" x="30" y="900" width="781" height="180" rx="3"/>
+  <rect x="40" y="910" width="761" height="160" fill="#e0e0e0" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <text class="text-dark body" x="420" y="990" text-anchor="middle" fill="#666">
+    [INSERIR SCREENSHOT DA APLICAÇÃO AQUI]
+  </text>
+  <text class="text-dark small" x="420" y="1005" text-anchor="middle" fill="#666">
+    Mostrar página de projetos com sistema de match visível
+  </text>
+
+  <!-- Seção 6: Arquitetura (Diagrama simplificado) -->
+  <text class="section-title" x="30" y="1110">Arquitetura</text>
+  <rect class="card" x="30" y="1120" width="781" height="50" rx="3"/>
+  <g transform="translate(80, 1135)">
+    <!-- Frontend -->
+    <rect class="icon-box" x="0" y="0" width="140" height="30" rx="3"/>
+    <text class="text-dark body" x="70" y="20" text-anchor="middle" font-weight="600">React + Vite</text>
+    
+    <!-- Seta -->
+    <line x1="140" y1="15" x2="160" y2="15" stroke="#0d47a1" stroke-width="2" marker-end="url(#arrow)"/>
+    
+    <!-- Backend -->
+    <rect class="icon-box" x="170" y="0" width="140" height="30" rx="3"/>
+    <text class="text-dark body" x="240" y="20" text-anchor="middle" font-weight="600">Express.js</text>
+    
+    <!-- Seta -->
+    <line x1="310" y1="15" x2="330" y2="15" stroke="#0d47a1" stroke-width="2" marker-end="url(#arrow)"/>
+    
+    <!-- Database -->
+    <rect class="icon-box" x="340" y="0" width="140" height="30" rx="3"/>
+    <text class="text-dark body" x="410" y="20" text-anchor="middle" font-weight="600">PostgreSQL</text>
+    
+    <!-- Cache (conectado ao backend) -->
+    <line x1="240" y1="30" x2="240" y2="50" stroke="#0d47a1" stroke-width="1.5"/>
+    <line x1="240" y1="50" x2="480" y2="50" stroke="#0d47a1" stroke-width="1.5"/>
+    <line x1="480" y1="50" x2="480" y2="30" stroke="#0d47a1" stroke-width="1.5"/>
+    <rect class="icon-box" x="410" y="0" width="140" height="30" rx="3"/>
+    <text class="text-dark body" x="480" y="20" text-anchor="middle" font-weight="600">Redis</text>
+  </g>
+
+  <!-- Seção 7: Referências -->
+  <text class="section-title" x="30" y="1190">Referências</text>
+  <rect class="card" x="30" y="1200" width="781" height="80" rx="3"/>
+  <foreignObject x="40" y="1210" width="761" height="65">
+    <body xmlns="http://www.w3.org/1999/xhtml">
+      <div style="font-family: Arial, Helvetica, sans-serif; font-size:10px; color:#111; line-height:1.6;">
+        <p style="margin: 0;">
+          <strong>Tecnologias:</strong> React, Express.js, PostgreSQL, Redis — Documentação oficial | 
+          <strong>Arquitetura:</strong> Clean Architecture (Martin, R. C., 2017) | 
+          <strong>Padrões:</strong> SOLID Principles, REST API (Fielding, R. T., 2000) | 
+          <strong>Repositório:</strong> github.com/AlexandreTessaro/Portfolio-CatolicaSC
+        </p>
+      </div>
+    </body>
+  </foreignObject>
+
+</svg>
+
+

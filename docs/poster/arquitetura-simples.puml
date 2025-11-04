@@ -1,0 +1,98 @@
+@startuml Arquitetura_Simples_Startup_Collab
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 3
+    FontSize 14
+}
+skinparam database {
+    BackgroundColor #FFCCBC
+    BorderColor #E65100
+    BorderThickness 3
+    FontSize 14
+}
+
+title Arquitetura da Aplicação - Startup Collab Platform\n\nCatólica SC - Engenharia de Software
+
+' Componentes Principais
+component [React Frontend\nVite + Tailwind] as Frontend
+component [Express API\nNode.js] as Backend
+database [PostgreSQL\nDatabase] as DB
+component [Redis\nCache] as Redis
+
+' Deploy
+cloud [Vercel\nProduction] as Vercel
+cloud [Koyeb\nProduction] as Koyeb
+
+' Fluxo de Dados
+Frontend --> Backend : REST API\n(HTTPS)
+Backend --> DB : SQL Queries
+Backend --> Redis : Cache\nRate Limiting
+
+' Deploy
+Vercel --> Frontend : Frontend Deploy
+Koyeb --> Backend : Backend Deploy
+Koyeb --> DB : Database Connection
+Koyeb --> Redis : Cache Connection
+
+note right of Frontend
+  **Frontend:**
+  - React 18+
+  - Vite (Build)
+  - React Router
+  - Tailwind CSS
+  - Zustand (State)
+  
+  **Páginas:**
+  - Login/Register
+  - Home/Dashboard
+  - Projects
+  - Profile
+  - Matches
+end note
+
+note right of Backend
+  **Backend:**
+  - Node.js + Express
+  - Clean Architecture
+  - JWT Authentication
+  - express-validator
+  - Rate Limiting
+  
+  **Rotas:**
+  - /api/users
+  - /api/projects
+  - /api/matches
+  - /api/recommendations
+end note
+
+note left of DB
+  **PostgreSQL:**
+  - users
+  - projects
+  - matches
+  - user_connections
+  - audit_logs
+  
+  **Features:**
+  - Normalizado
+  - Foreign Keys
+  - Indexes
+end note
+
+note left of Redis
+  **Redis:**
+  - Rate Limiting
+  - Query Cache
+  - Session Cache
+  - TTL Management
+end note
+
+@enduml
+
+
+

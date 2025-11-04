@@ -1,0 +1,96 @@
+@startuml Sistema_Recomendacao_Fluxo
+!theme plain
+skinparam activity {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    FontSize 12
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+}
+
+title Sistema de Recomendação - Fluxo Completo\n\nStartup Collab Platform
+
+start
+
+:Usuário acessa página de projetos;
+:Frontend solicita projetos com scores;
+
+partition "Backend - RecommendationService" {
+    :Receber userId e projectId;
+    
+    partition "1. Buscar Skills do Usuário" {
+        :Query: SELECT skills FROM users WHERE id = userId;
+        :Parse JSON skills;
+        note right
+            Skills do usuário:
+            ["React", "Node.js", 
+             "PostgreSQL", "TypeScript"]
+        end note
+    }
+    
+    partition "2. Buscar Tecnologias do Projeto" {
+        :Query: SELECT technologies FROM projects WHERE id = projectId;
+        :Parse JSON technologies;
+        note right
+            Tecnologias do projeto:
+            ["React", "Node.js", 
+             "Express", "PostgreSQL"]
+        end note
+    }
+    
+    partition "3. Calcular Match de Skills" {
+        :Comparar skills do usuário com tecnologias do projeto;
+        :Contar skills em comum;
+        :Calcular porcentagem;
+        note right
+            Skills em comum: 3
+            Total skills usuário: 4
+            Match = (3/4) × 100 = 75%
+        end note
+    }
+    
+    partition "4. Calcular Bonus Histórico" {
+        :Query: Buscar projetos aceitos pelo usuário;
+        :Comparar tecnologias de projetos aceitos com projeto atual;
+        :Contar projetos similares;
+        :Calcular bonus (até 10%);
+        note right
+            Projetos aceitos: 5
+            Projetos similares: 2
+            Bonus = (2/5) × 10 = 4%
+        end note
+    }
+    
+    partition "5. Calcular Bonus Categoria" {
+        :Query: Buscar categoria do projeto;
+        :Query: Verificar se usuário trabalhou em projetos da mesma categoria;
+        :Aplicar bonus se verdadeiro (5%);
+        note right
+            Projeto categoria: "fintech"
+            Usuário já trabalhou em "fintech"?
+            Se sim: +5%
+        end note
+    }
+    
+    partition "6. Calcular Score Final" {
+        :Score = Match Skills + Bonus Histórico + Bonus Categoria;
+        :Limitar ao máximo de 100%;
+        :Arredondar score;
+        note right
+            Score = 75% + 4% + 5%
+            Score = 84%
+            Limitado a 100%
+        end note
+    }
+}
+
+:Retornar score para Frontend;
+:Frontend exibe match % nos cards de projeto;
+
+stop
+
+@enduml
+
+
