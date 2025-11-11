@@ -1,4 +1,5 @@
 [config]
 SCM_DO_BUILD_DURING_DEPLOYMENT=false
-COMMAND=npm start
+# COMMAND removido - Azure vai usar o startup command configurado no App Service
+# O Azure App Service Linux detecta automaticamente o package.json e executa npm start após o deploy
 
