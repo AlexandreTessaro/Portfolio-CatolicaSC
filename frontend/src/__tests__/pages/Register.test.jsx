@@ -135,11 +135,16 @@ describe('Register Page', () => {
       expect(userService.register).toHaveBeenCalledWith({
         name: 'John Doe',
         email: 'john@example.com',
-        password: 'Password123!'
+        password: 'Password123!',
+        consentAccepted: true,
+        consentTimestamp: expect.any(String)
       });
     });
 
-    expect(mockLogin).toHaveBeenCalledWith({ user: mockResponse.data.user }, { accessToken: undefined, refreshToken: undefined });
+    expect(mockLogin).toHaveBeenCalledWith(
+      { user: mockResponse.data.user }, 
+      { accessToken: 'access-token', refreshToken: 'refresh-token' }
+    );
   });
 
   it('should show validation errors for empty fields', async () => {

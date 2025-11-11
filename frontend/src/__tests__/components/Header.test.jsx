@@ -66,6 +66,7 @@ describe('Header Component', () => {
       user: mockUser,
       isAuthenticated: true,
       logout: vi.fn(),
+      getAccessToken: vi.fn().mockReturnValue('mock-token'),
     });
 
     vi.mocked(useAuthStore).mockImplementation(mockUseAuthStore);

@@ -64,7 +64,7 @@ describe('ProjectController', () => {
     app.get('/search', optionalAuth, projectController.searchProjectsByText);
     app.get('/:projectId', optionalAuth, projectController.getProject);
     app.get('/user/:userId', optionalAuth, projectController.getUserProjects);
-    app.post('/', authenticateToken, projectController.createProject);
+    app.post('/', authenticateToken, projectController.validateCreateProject(), projectController.createProject);
     app.put('/:projectId', authenticateToken, projectController.updateProject);
     app.delete('/:projectId', authenticateToken, projectController.deleteProject);
     app.post('/:projectId/team', authenticateToken, projectController.addTeamMember);

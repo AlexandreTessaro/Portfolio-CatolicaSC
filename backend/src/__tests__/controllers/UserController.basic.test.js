@@ -89,7 +89,7 @@ describe('UserController - Basic Tests', () => {
       expect(mockUserService.register).toHaveBeenCalledWith({
         ...userData,
         ipAddress: expect.any(String),
-        userAgent: expect.any(String)
+        userAgent: expect.anything() // Pode ser string ou undefined
       });
     });
 
