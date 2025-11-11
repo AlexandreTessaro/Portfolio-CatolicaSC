@@ -12,7 +12,7 @@ env:
 
 # Evitar múltiplos deploys simultâneos (erro 409)
 concurrency:
-  group: deploy-azure-${{ env.AZURE_WEBAPP_NAME }}
+  group: deploy-azure-startup-collab-backend
   cancel-in-progress: false
 
 jobs:
