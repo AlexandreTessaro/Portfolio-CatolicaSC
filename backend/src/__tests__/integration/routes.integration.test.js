@@ -36,7 +36,7 @@ vi.mock('../../services/ProjectService.js', () => ({
 }));
 
 vi.mock('../../services/MatchService.js', () => ({
-  MatchService: vi.fn().mockImplementation(() => ({
+  default: vi.fn().mockImplementation(() => ({
     createMatch: vi.fn().mockResolvedValue({ id: 1, status: 'pending' }),
     getReceivedMatches: vi.fn().mockResolvedValue([]),
     getSentMatches: vi.fn().mockResolvedValue([]),
