@@ -262,6 +262,17 @@ function startServer(port) {
       // Exportar io para uso em outros módulos
       app.set('io', io);
       
+      // Heartbeat para manter o processo ativo no Azure App Service
+      // Azure mata processos sem output por 60 segundos
+      const heartbeatInterval = setInterval(() => {
+        console.log('💓 Heartbeat - Servidor ativo');
+      }, 30000); // A cada 30 segundos
+      
+      // Limpar intervalo ao encerrar
+      server.on('close', () => {
+        clearInterval(heartbeatInterval);
+      });
+      
       resolve(server);
     });
     server.on('error', (err) => {

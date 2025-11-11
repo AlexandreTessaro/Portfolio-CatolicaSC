@@ -42,6 +42,14 @@ jobs:
         package: ./backend
         startup-command: 'npm start'
     
+    - name: Configure Azure App Service Settings
+      run: |
+        az webapp config appsettings set \
+          --resource-group startup-collab-rg \
+          --name ${{ env.AZURE_WEBAPP_NAME }} \
+          --settings SCM_COMMAND_IDLE_TIMEOUT=600 \
+          --output none
+    
     - name: Azure logout
       run: az logout
 
