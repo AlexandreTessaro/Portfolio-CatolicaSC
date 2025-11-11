@@ -42,11 +42,12 @@ jobs:
     
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
+      timeout-minutes: 10  # Timeout de 10 minutos para evitar travamentos
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         package: ./backend
-        startup-command: 'npm start'
+        # Não usar startup-command aqui - será configurado no Azure App Service
     
     - name: Configure Azure App Service Settings
       run: |
@@ -55,6 +56,7 @@ jobs:
           --name ${{ env.AZURE_WEBAPP_NAME }} \
           --settings SCM_COMMAND_IDLE_TIMEOUT=600 \
           --output none
+        # O Azure App Service Linux usa automaticamente 'npm start' do package.json
     
     - name: Azure logout
       run: az logout
