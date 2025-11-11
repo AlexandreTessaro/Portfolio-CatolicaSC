@@ -38,11 +38,15 @@ const dbConfig = useDatabaseUrl
       return {
         connectionString: process.env.DATABASE_URL,
         ssl: isProduction ? { rejectUnauthorized: false } : false,
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 30000,
+        // Otimizado para suportar 1000+ usuários simultâneos
+        max: parseInt(process.env.DB_POOL_MAX) || 100, // Aumentado de 20 para 100
+        min: parseInt(process.env.DB_POOL_MIN) || 10, // Mínimo de conexões mantidas
+        idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE_TIMEOUT) || 30000,
+        connectionTimeoutMillis: parseInt(process.env.DB_POOL_CONNECTION_TIMEOUT) || 30000,
         keepAlive: true,
         keepAliveInitialDelayMillis: 0,
+        // Permitir que o pool crie conexões sob demanda
+        allowExitOnIdle: false,
       };
     })()
   : (() => {
@@ -56,9 +60,13 @@ const dbConfig = useDatabaseUrl
         password: process.env.DB_PASSWORD || 'password',
         port: parseInt(process.env.DB_PORT) || 5432,
         ssl: false, // SSL desabilitado para desenvolvimento local
-        max: 20,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000,
+        // Otimizado para suportar 1000+ usuários simultâneos
+        max: parseInt(process.env.DB_POOL_MAX) || 50, // Aumentado de 20 para 50 (dev)
+        min: parseInt(process.env.DB_POOL_MIN) || 5, // Mínimo de conexões mantidas
+        idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE_TIMEOUT) || 30000,
+        connectionTimeoutMillis: parseInt(process.env.DB_POOL_CONNECTION_TIMEOUT) || 2000,
+        keepAlive: true,
+        allowExitOnIdle: false,
       };
     })();
 

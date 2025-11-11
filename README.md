@@ -80,13 +80,20 @@ docker-compose exec backend npm run db:seed
 
 ### Configuração de Produção
 
-Para produção, você pode usar qualquer provedor de PostgreSQL:
+A aplicação está configurada para deploy na **AWS**. Consulte **[aws-deploy-guide.md](./aws-deploy-guide.md)** para instruções completas.
 
-- **AWS RDS PostgreSQL**
+**Arquitetura de Produção (AWS):**
+- **Backend**: AWS App Runner ou ECS Fargate
+- **Frontend**: S3 + CloudFront (CDN)
+- **Banco de Dados**: RDS PostgreSQL
+- **CI/CD**: GitHub Actions
+
+**Outras opções de PostgreSQL para produção:**
+- **AWS RDS PostgreSQL** (recomendado)
 - **Google Cloud SQL**
 - **DigitalOcean Managed Database**
-- **Railway PostgreSQL**
-- **Render PostgreSQL**
+- **Railway PostgreSQL** (legado)
+- **Render PostgreSQL** (legado)
 
 Configure a variável `DATABASE_URL` no seu ambiente de produção:
 
@@ -208,6 +215,7 @@ npm run dev
 - **Rate limiting** para prevenir abusos
 - **Validação** de entrada com express-validator
 - **CORS** configurado adequadamente
+- **AWS Secrets Manager** para gerenciamento de secrets (produção)
 
 ## 📊 Monitoramento
 

@@ -254,3 +254,7 @@ Match = (Skills em Comum / Total de Skills) × 100%
 **Projeto:** Startup Collab Platform - Católica SC
 
 
+
+
+
+

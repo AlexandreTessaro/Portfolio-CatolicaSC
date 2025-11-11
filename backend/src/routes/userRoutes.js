@@ -8,6 +8,7 @@ const userController = new UserController();
 // Rotas públicas
 router.post('/register', userController.validateRegister(), userController.register);
 router.post('/login', userController.validateLogin(), userController.login);
+// router.post('/firebase-login', userController.firebaseLogin); // COMENTADO - OAuth deixado para depois
 router.post('/refresh-token', userController.refreshToken);
 router.post('/logout', userController.logout);
 
@@ -17,6 +18,7 @@ router.put('/profile', authenticateToken, userController.validateUpdateProfile()
 router.get('/public/:userId', userController.getPublicProfile);
 router.get('/search', userController.searchUsers);
 router.get('/recommended', userController.getRecommendedUsers);
+router.delete('/forget-me', authenticateToken, userController.forgetMe); // Direito ao esquecimento (LGPD)
 
 // Rotas administrativas
 router.delete('/:userId', authenticateToken, requireAdmin, userController.deleteUser);

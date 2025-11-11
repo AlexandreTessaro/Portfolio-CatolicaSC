@@ -2,8 +2,11 @@ import dotenv from 'dotenv';
 import app from './app.js';
 import pool from './src/config/database.js';
 import redisClient from './src/config/redis.js';
+import { setupSocketIO } from './src/config/socket.js';
 
 dotenv.config();
+// Azure App Service usa porta 8080 por padrão
+// Koyeb e outros podem usar 5000
 const PORT = Number(process.env.PORT) || 5000;
 let serverInstance = null;
 
@@ -251,6 +254,14 @@ function startServer(port) {
       const actualPort = server.address().port;
       console.log(`🚀 Servidor rodando em http://localhost:${actualPort}`);
       console.log(`📊 Health check: http://localhost:${actualPort}/health`);
+      
+      // Configurar Socket.io
+      const io = setupSocketIO(server);
+      console.log('🔌 Socket.io configurado');
+      
+      // Exportar io para uso em outros módulos
+      app.set('io', io);
+      
       resolve(server);
     });
     server.on('error', (err) => {

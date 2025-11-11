@@ -1,5 +1,6 @@
 import { UserService } from '../services/UserService.js';
 import { body, validationResult } from 'express-validator';
+import { logAudit } from '../utils/auditHelper.js';
 
 export class UserController {
   constructor() {
@@ -16,6 +17,8 @@ export class UserController {
     this.searchUsers = this.searchUsers.bind(this);
     this.getRecommendedUsers = this.getRecommendedUsers.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
+    this.firebaseLogin = this.firebaseLogin.bind(this);
+    this.forgetMe = this.forgetMe.bind(this);
   }
 
   // Validações para registro
@@ -60,7 +63,14 @@ export class UserController {
         });
       }
 
-      const result = await this.userService.register(req.body);
+      // Adicionar IP e User Agent para log de consentimento
+      const userData = {
+        ...req.body,
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('user-agent')
+      };
+
+      const result = await this.userService.register(userData);
       
       res.status(201).json({
         success: true,
@@ -97,6 +107,15 @@ export class UserController {
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
       });
+
+      // Registrar log de auditoria de login
+      await logAudit(
+        { ...req, user: { userId: result.user.id } },
+        'user.login',
+        'user',
+        result.user.id,
+        { email: result.user.email }
+      );
 
       res.status(200).json({
         success: true,
@@ -147,8 +166,15 @@ export class UserController {
   // Logout do usuário
   async logout(req, res) {
     try {
+      const userId = req.user?.userId;
+      
       // Limpar cookie do refresh token
       res.clearCookie('refreshToken');
+      
+      // Registrar log de auditoria de logout
+      if (userId) {
+        await logAudit(req, 'user.logout', 'user', userId);
+      }
       
       res.status(200).json({
         success: true,
@@ -212,6 +238,15 @@ export class UserController {
 
       const userId = req.user.userId;
       const updatedProfile = await this.userService.updateProfile(userId, req.body);
+      
+      // Registrar log de auditoria de atualização de perfil
+      await logAudit(
+        req,
+        'user.profile.update',
+        'user',
+        userId,
+        { fieldsUpdated: Object.keys(req.body) }
+      );
       
       res.status(200).json({
         success: true,
@@ -296,11 +331,89 @@ export class UserController {
   async deleteUser(req, res) {
     try {
       const { userId } = req.params;
+      const adminId = req.user?.userId;
       const result = await this.userService.deleteUser(userId);
+      
+      // Registrar log de auditoria de exclusão de usuário (ação administrativa)
+      await logAudit(
+        req,
+        'admin.user.delete',
+        'user',
+        parseInt(userId, 10),
+        { deletedBy: adminId }
+      );
       
       res.status(200).json({
         success: true,
         message: result.message
+      });
+    } catch (_error) {
+      res.status(400).json({
+        success: false,
+        message: _error.message
+      });
+    }
+  }
+
+  // Login com Firebase (COMENTADO - OAuth deixado para depois)
+  async firebaseLogin(req, res) {
+    return res.status(503).json({
+      success: false,
+      message: 'Login com Firebase está temporariamente desabilitado. OAuth será implementado posteriormente.'
+    });
+    /* COMENTADO
+    try {
+      const { idToken } = req.body;
+
+      if (!idToken) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token do Firebase é obrigatório'
+        });
+      }
+
+      const result = await this.userService.loginWithFirebase(idToken);
+
+      res.status(200).json({
+        success: true,
+        message: 'Login realizado com sucesso',
+        data: result
+      });
+    } catch (_error) {
+      res.status(401).json({
+        success: false,
+        message: _error.message
+      });
+    }
+    */
+  }
+
+  // Direito ao esquecimento (LGPD)
+  async forgetMe(req, res) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+      }
+
+      const result = await this.userService.forgetMe(userId);
+
+      // Registrar log de auditoria de direito ao esquecimento (LGPD)
+      await logAudit(
+        req,
+        'user.forget_me',
+        'user',
+        userId,
+        { lgpd: true, anonymized: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result
       });
     } catch (_error) {
       res.status(400).json({

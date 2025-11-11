@@ -174,6 +174,38 @@ async function createTables() {
     `);
     console.log('✅ Tabela audit_logs criada/verificada');
 
+    // Criar tabela de consentimentos LGPD
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_consents (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        consent_type VARCHAR(50) NOT NULL,
+        consent_version VARCHAR(20) NOT NULL,
+        accepted BOOLEAN NOT NULL DEFAULT TRUE,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, consent_type, consent_version)
+      )
+    `);
+    console.log('✅ Tabela user_consents criada/verificada');
+
+    // Adicionar coluna de consentimento na tabela users (se não existir)
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'users' AND column_name = 'consent_accepted'
+        ) THEN
+          ALTER TABLE users ADD COLUMN consent_accepted BOOLEAN DEFAULT FALSE;
+          ALTER TABLE users ADD COLUMN consent_timestamp TIMESTAMP;
+        END IF;
+      END $$;
+    `);
+    console.log('✅ Colunas de consentimento adicionadas à tabela users');
+
     // Criar índices para melhor performance
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -187,9 +219,11 @@ async function createTables() {
       CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
       CREATE INDEX IF NOT EXISTS idx_messages_receiver_id ON messages(receiver_id);
       CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
-      CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+    CREATE INDEX IF NOT EXISTS idx_user_consents_user_id ON user_consents(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_consents_type ON user_consents(consent_type);
     `);
     console.log('✅ Índices criados/verificados');
 

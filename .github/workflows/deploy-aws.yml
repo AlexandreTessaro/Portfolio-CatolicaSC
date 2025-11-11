@@ -1,0 +1,126 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: startup-collab-backend
+  S3_BUCKET: startup-collab-frontend
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to AWS
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f backend/Dockerfile ./backend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      
+      - name: Deploy to App Runner
+        if: env.AWS_APP_RUNNER_SERVICE_ARN != ''
+        run: |
+          aws apprunner start-deployment \
+            --service-arn ${{ secrets.AWS_APP_RUNNER_SERVICE_ARN }} \
+            --region ${{ env.AWS_REGION }}
+        continue-on-error: true
+      
+      - name: Deploy to ECS (Alternative)
+        if: env.AWS_ECS_CLUSTER != '' && env.AWS_ECS_SERVICE != ''
+        run: |
+          # Atualizar task definition
+          aws ecs register-task-definition \
+            --cli-input-json file://ecs-task-definition.json \
+            --region ${{ env.AWS_REGION }} || true
+          
+          # Forçar novo deploy
+          aws ecs update-service \
+            --cluster ${{ secrets.AWS_ECS_CLUSTER }} \
+            --service ${{ secrets.AWS_ECS_SERVICE }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }} || true
+        continue-on-error: true
+
+  deploy-frontend:
+    name: Deploy Frontend to AWS
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+      
+      - name: Build frontend
+        working-directory: ./frontend
+        env:
+          VITE_API_URL: ${{ secrets.AWS_BACKEND_URL }}/api
+        run: npm run build
+      
+      - name: Deploy to S3
+        run: |
+          aws s3 sync frontend/dist/ s3://${{ env.S3_BUCKET }} --delete --region ${{ env.AWS_REGION }}
+      
+      - name: Invalidate CloudFront cache
+        if: env.AWS_CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*" \
+            --region ${{ env.AWS_REGION }}
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: always()
+    
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deploy concluído com sucesso!"
+          else
+            echo "❌ Deploy falhou"
+          fi
+
+

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { userService } from '../../services/apiService';
 import ProfilePhoto from '../ProfilePhoto';
+import NotificationBell from '../NotificationBell';
 import CollabraLogo from '../../assets/collabra-logo.svg';
 
 const Header = () => {
@@ -63,6 +64,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <>
+                <NotificationBell />
                 <Link
                   to="/profile"
                   className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-all duration-200"

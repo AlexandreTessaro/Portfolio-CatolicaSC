@@ -12,7 +12,10 @@ import projectRoutes from './src/routes/projectRoutes.js';
 import matchRoutes from './src/routes/matchRoutes.js';
 import recommendationRoutes from './src/routes/recommendationRoutes.js';
 import userConnectionRoutes from './src/routes/userConnectionRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
+import auditRoutes from './src/routes/auditRoutes.js';
 import createTables from './scripts/migrate.js';
+// import './src/config/firebase.js'; // Inicializar Firebase Admin (COMENTADO - OAuth deixado para depois)
 
 dotenv.config();
 
@@ -78,6 +81,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/user-connections', userConnectionRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin/audit-logs', auditRoutes);
 
 // Endpoint seguro para migrações (executar uma vez no ambiente)
 app.post('/api/admin/run-migrations', async (req, res) => {

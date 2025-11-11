@@ -55,13 +55,14 @@ O diferencial da plataforma é seu algoritmo de recomendação que calcula a com
 - **bcrypt** para hash de senhas
 - **express-validator** para validação de entrada
 - **Helmet** e **CORS** para segurança
-- **Deploy:** Koyeb (auto-scaling)
+- **Deploy:** AWS App Runner / ECS Fargate (auto-scaling)
 
 ### Infraestrutura
 - **Docker** e **Docker Compose** para desenvolvimento local
 - **CI/CD** com GitHub Actions
 - **Rate Limiting** para proteção contra abusos
 - **Logs estruturados** para monitoramento
+- **AWS** para produção (App Runner, ECS, S3, CloudFront, RDS)
 
 ## 📊 Principais Entidades
 
@@ -99,7 +100,7 @@ O diferencial da plataforma é seu algoritmo de recomendação que calcula a com
 **Frontend:** React, Vite, Tailwind CSS, Zustand, Axios  
 **Backend:** Node.js, Express.js, PostgreSQL, Redis  
 **Segurança:** JWT, bcrypt, Helmet, Rate Limiting  
-**Infraestrutura:** Docker, Docker Compose, Vercel, Koyeb  
+**Infraestrutura:** Docker, Docker Compose, AWS (App Runner, ECS, S3, CloudFront, RDS)  
 **Padrões:** Clean Architecture, SOLID Principles, REST API  
 
 ## 🎓 Contexto Acadêmico

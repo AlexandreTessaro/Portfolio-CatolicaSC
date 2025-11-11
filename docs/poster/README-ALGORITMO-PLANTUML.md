@@ -110,3 +110,7 @@ plantuml -tpdf algoritmo-recomendacao-infografico.puml
 **Projeto:** Startup Collab Platform - Católica SC
 
 
+
+
+
+

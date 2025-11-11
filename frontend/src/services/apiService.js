@@ -73,6 +73,11 @@ export const userService = {
     return response.data;
   },
 
+  async loginWithFirebase(idToken) {
+    const response = await apiClient.post(API_ENDPOINTS.USERS.FIREBASE_LOGIN, { idToken });
+    return response.data;
+  },
+
   async logout() {
     const response = await apiClient.post(API_ENDPOINTS.USERS.LOGOUT);
     const authStore = useAuthStore.getState();
@@ -92,6 +97,11 @@ export const userService = {
 
   async getPublicProfile(userId) {
     const response = await apiClient.get(API_ENDPOINTS.USERS.PUBLIC_PROFILE(userId));
+    return response.data;
+  },
+
+  async forgetMe() {
+    const response = await apiClient.delete('/users/forget-me');
     return response.data;
   },
 

@@ -1,0 +1,91 @@
+config:
+  target: 'http://localhost:5000'
+  http:
+    timeout: 10
+    pool: 50
+  phases:
+    # Fase 1: Aquecimento - 5 usuários por 10 segundos
+    - duration: 10
+      arrivalRate: 5
+      name: "Warmup"
+    # Fase 2: Carga normal - 20 usuários por 1 minuto
+    - duration: 60
+      arrivalRate: 20
+      name: "Normal Load"
+    # Fase 3: Carga alta - 50 usuários por 1 minuto
+    - duration: 60
+      arrivalRate: 50
+      name: "High Load"
+    # Fase 4: Pico - 100 usuários por 30 segundos
+    - duration: 30
+      arrivalRate: 100
+      name: "Peak Load"
+    # Fase 5: Recuperação - 20 usuários por 30 segundos
+    - duration: 30
+      arrivalRate: 20
+      name: "Recovery"
+
+scenarios:
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+
+  - name: "Browse Projects (Public)"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/projects?limit=20"
+          expect:
+            - statusCode: [200, 400, 500]
+      - think: 1
+      - get:
+          url: "/api/projects?limit=10&offset=0"
+          expect:
+            - statusCode: [200, 400, 500]
+
+  - name: "Search Projects"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/projects/search?q=test"
+          expect:
+            - statusCode: [200, 400, 404, 500]
+      - think: 1
+      - get:
+          url: "/api/users/search?search=dev"
+          expect:
+            - statusCode: [200, 400, 500]
+
+  - name: "Authenticated Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/users/login"
+          json:
+            email: "test@example.com"
+            password: "test123"
+          expect:
+            - statusCode: [200, 401, 400]
+          capture:
+            - json: "$.data.accessToken"
+              as: "token"
+              strict: false
+      - think: 1
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: [200, 401, 403]
+      - think: 1
+      - get:
+          url: "/api/projects"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode: [200, 401, 403, 500]
+

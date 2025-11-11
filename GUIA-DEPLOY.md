@@ -8,20 +8,42 @@ A aplicação **ESTÁ PRONTA PARA DEPLOY**, mas precisa de algumas configuraçõ
 
 - ✅ Dockerfiles (backend e frontend)
 - ✅ CI/CD pipeline (GitHub Actions)
-- ✅ Configurações para Railway (backend)
-- ✅ Configurações para Vercel (frontend)
+- ✅ Configurações para Railway (backend) - **Legado**
+- ✅ Configurações para Vercel (frontend) - **Legado**
+- ✅ **Configurações para AWS (App Runner + ECS)** - **NOVO** 🆕
 - ✅ Variáveis de ambiente documentadas
 - ✅ Backend adaptado para AWS Lambda (serverless-http)
+
+### 🆕 **Migração para AWS**
+
+A aplicação agora suporta deploy na AWS. Consulte **[aws-deploy-guide.md](./aws-deploy-guide.md)** para instruções completas de migração do Koyeb para AWS.
 
 ### ⚠️ **O que precisa verificar antes do deploy:**
 
 ---
 
+## 🎯 **OPÇÕES DE DEPLOY**
+
+### **Opção 1: AWS (Recomendado)** 🆕
+
+Para deploy na AWS, consulte o guia completo: **[aws-deploy-guide.md](./aws-deploy-guide.md)**
+
+**Arquitetura AWS:**
+- **Backend**: AWS App Runner ou ECS Fargate
+- **Frontend**: S3 + CloudFront
+- **Banco de Dados**: RDS PostgreSQL
+
+### **Opção 2: Railway + Vercel (Legado)**
+
+Configuração anterior mantida para referência.
+
+---
+
 ## 🔧 **PREPARAÇÃO PARA DEPLOY**
 
-### 1. **Variáveis de Ambiente - Backend (AWS Lambda)**
+### 1. **Variáveis de Ambiente - Backend (AWS App Runner/ECS)**
 
-No dashboard do Railway, configure as seguintes variáveis:
+No console AWS (App Runner ou ECS), configure as seguintes variáveis:
 
 ```env
 NODE_ENV=production

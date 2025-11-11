@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { userService } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
+import SocialLoginButtons from '../components/SocialLoginButtons';
 import CollabraLogo from '../assets/collabra-logo.svg';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, setError, clearError, getError, setLoading, getIsLoading } = useAuthStore();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [showPassword, setShowPassword] = useState(false);
+
+  // Verificar se há erro de OAuth (não mais necessário com Firebase, mas mantido para compatibilidade)
+  const oauthError = searchParams.get('error');
+  if (oauthError === 'oauth_failed') {
+    setError('Falha na autenticação social. Tente novamente.');
+  }
 
   const onSubmit = async (data) => {
     clearError();
@@ -131,6 +139,11 @@ const Login = () => {
               )}
             </button>
           </form>
+
+          {/* Social Login */}
+          <div className="mt-6">
+            <SocialLoginButtons />
+          </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-400">

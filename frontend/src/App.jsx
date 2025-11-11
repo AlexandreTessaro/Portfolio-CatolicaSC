@@ -17,6 +17,9 @@ import UsersList from './pages/UsersList';
 import PublicProfile from './pages/PublicProfile';
 import MyProjects from './pages/MyProjects';
 import MatchesPage from './pages/MatchesPage';
+import NotificationsPage from './pages/NotificationsPage';
+import TermsOfUse from './pages/TermsOfUse';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 function App() {
   console.log('🎨 App component renderizando...');
@@ -43,6 +46,8 @@ function App() {
               <Register />
             </LayoutLanding>
           } />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           
           {/* Páginas da aplicação com layout padrão */}
           <Route path="/dashboard" element={
@@ -104,6 +109,13 @@ function App() {
             <Layout>
               <ProtectedRoute>
                 <MatchesPage />
+              </ProtectedRoute>
+            </Layout>
+          } />
+          <Route path="/notifications" element={
+            <Layout>
+              <ProtectedRoute>
+                <NotificationsPage />
               </ProtectedRoute>
             </Layout>
           } />

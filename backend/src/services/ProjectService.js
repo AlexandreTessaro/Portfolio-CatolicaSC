@@ -1,11 +1,13 @@
 import { ProjectRepository } from '../repositories/ProjectRepository.js';
 import { UserRepository } from '../repositories/UserRepository.js';
 import { Project } from '../domain/Project.js';
+import CacheService from './CacheService.js';
 
 export class ProjectService {
   constructor() {
     this.projectRepository = new ProjectRepository();
     this.userRepository = new UserRepository();
+    this.cacheService = new CacheService();
   }
 
   async createProject(projectData, creatorId) {
@@ -38,6 +40,13 @@ export class ProjectService {
 
   async getProject(projectId, userId = null) {
     try {
+      // Tentar buscar do cache primeiro
+      const cachedProject = await this.cacheService.getProject(projectId);
+      if (cachedProject) {
+        return cachedProject;
+      }
+
+      // Se não estiver no cache, buscar do banco
       const project = await this.projectRepository.findById(projectId);
       if (!project) {
         throw new Error('Projeto não encontrado');
@@ -69,6 +78,9 @@ export class ProjectService {
         ...project.toPublicView(),
         teamMembers: populatedTeamMembers
       };
+
+      // Salvar no cache
+      await this.cacheService.setProject(projectId, projectWithMembers);
 
       return projectWithMembers;
     } catch (error) {
@@ -102,6 +114,9 @@ export class ProjectService {
         throw new Error('Erro ao atualizar projeto');
       }
 
+      // Invalidar cache do projeto
+      await this.cacheService.invalidateProject(projectId);
+
       return result.toPublicView();
     } catch (error) {
       throw new Error(`Erro ao atualizar projeto: ${error.message}`);
@@ -125,6 +140,9 @@ export class ProjectService {
       if (!deleted) {
         throw new Error('Erro ao deletar projeto');
       }
+
+      // Invalidar cache do projeto
+      await this.cacheService.invalidateProject(projectId);
 
       return { message: 'Projeto deletado com sucesso' };
     } catch (error) {

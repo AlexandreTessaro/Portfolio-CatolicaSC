@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
   USERS: {
     REGISTER: `${API_BASE_URL}/users/register`,
     LOGIN: `${API_BASE_URL}/users/login`,
+    FIREBASE_LOGIN: `${API_BASE_URL}/users/firebase-login`,
     REFRESH_TOKEN: `${API_BASE_URL}/users/refresh-token`,
     LOGOUT: `${API_BASE_URL}/users/logout`,
     PROFILE: `${API_BASE_URL}/users/profile`,

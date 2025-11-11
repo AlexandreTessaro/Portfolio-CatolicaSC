@@ -1,5 +1,6 @@
 import { ProjectService } from '../services/ProjectService.js';
 import { body, validationResult } from 'express-validator';
+import { logAudit } from '../utils/auditHelper.js';
 
 export class ProjectController {
   constructor() {
@@ -59,6 +60,15 @@ export class ProjectController {
       const creatorId = req.user.userId;
       const project = await this.projectService.createProject(req.body, creatorId);
       
+      // Registrar log de auditoria de criação de projeto
+      await logAudit(
+        req,
+        'project.create',
+        'project',
+        project.id,
+        { title: project.title, creatorId }
+      );
+      
       res.status(201).json({
         success: true,
         message: 'Projeto criado com sucesso',
@@ -109,6 +119,15 @@ export class ProjectController {
       
       const project = await this.projectService.updateProject(projectId, req.body, userId);
       
+      // Registrar log de auditoria de atualização de projeto
+      await logAudit(
+        req,
+        'project.update',
+        'project',
+        parseInt(projectId, 10),
+        { fieldsUpdated: Object.keys(req.body) }
+      );
+      
       res.status(200).json({
         success: true,
         message: 'Projeto atualizado com sucesso',
@@ -129,6 +148,15 @@ export class ProjectController {
       const userId = req.user.userId;
       
       const result = await this.projectService.deleteProject(projectId, userId);
+      
+      // Registrar log de auditoria de exclusão de projeto
+      await logAudit(
+        req,
+        'project.delete',
+        'project',
+        parseInt(projectId, 10),
+        { deletedBy: userId }
+      );
       
       res.status(200).json({
         success: true,

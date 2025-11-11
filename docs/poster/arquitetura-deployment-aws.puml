@@ -1,0 +1,207 @@
+@startuml Arquitetura_Deployment_AWS
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam cloud {
+    BackgroundColor #E3F2FD
+    BorderColor #0D47A1
+    BorderThickness 2
+}
+skinparam component {
+    BackgroundColor #E8F5E9
+    BorderColor #2E7D32
+    BorderThickness 2
+}
+
+title Arquitetura de Deployment AWS - Ambiente de Produção\n\nStartup Collab Platform
+
+cloud "Internet" {
+    actor "Usuários" as Users
+}
+
+cloud "AWS CloudFront" #FF9900 {
+    component [Frontend React App] as CloudFrontFrontend {
+        component [Static Assets] as Static
+        component [SPA Routes] as SPA
+        component [API Client] as APIClient
+    }
+    
+    note right of CloudFrontFrontend
+      **CloudFront CDN:**
+      - Distribuição global
+      - HTTPS automático
+      - Cache inteligente
+      - Edge locations
+      - Custom domain support
+    end note
+}
+
+cloud "AWS S3" #FF9900 {
+    component "S3 Bucket" as S3Bucket {
+        component [Static Files] as StaticFiles
+        component [index.html] as IndexHTML
+    }
+    
+    note right of S3Bucket
+      **S3 Storage:**
+      - Website hosting
+      - Versioning
+      - Lifecycle policies
+      - Cost-effective storage
+    end note
+}
+
+cloud "AWS App Runner / ECS" #FF9900 {
+    component [Backend API] as AWSBackend {
+        component [Node.js Runtime] as NodeJS
+        component [Express Server] as Express
+        component [API Routes] as Routes
+        component [Business Logic] as Logic
+    }
+    
+    note right of AWSBackend
+      **AWS App Runner / ECS:**
+      - Docker container
+      - Auto-scaling
+      - Health checks
+      - CloudWatch logs
+      - Environment variables
+      - Load balancing
+    end note
+}
+
+cloud "AWS RDS" #FF9900 {
+    database "PostgreSQL\n(Managed DB)" as RDSDB {
+        component [Users] as UsersTable
+        component [Projects] as ProjectsTable
+        component [Matches] as MatchesTable
+        component [Connections] as ConnectionsTable
+    }
+    
+    note right of RDSDB
+      **RDS PostgreSQL:**
+      - Managed service
+      - Automated backups
+      - Multi-AZ support
+      - Point-in-time recovery
+      - Read replicas
+    end note
+}
+
+cloud "AWS ElastiCache" #FF9900 {
+    component "Redis\n(Managed Cache)" as ElastiCache {
+        component [Rate Limit] as RateLimit
+        component [Session Cache] as Session
+        component [Query Cache] as Query
+    }
+    
+    note right of ElastiCache
+      **ElastiCache Redis:**
+      - Managed Redis
+      - High availability
+      - Automatic failover
+      - Sub-millisecond latency
+    end note
+}
+
+cloud "AWS Services" #FF9900 {
+    component "ECR\n(Container Registry)" as ECR
+    component "Secrets Manager" as Secrets
+    component "CloudWatch" as CloudWatch
+    component "IAM" as IAM
+}
+
+cloud "Development\n(Local)" #F5F5F5 {
+    component "Docker Compose" as Docker {
+        component [Frontend Container] as DevFrontend
+        component [Backend Container] as DevBackend
+        component [PostgreSQL Container] as DevDB
+        component [Redis Container] as DevRedis
+    }
+    
+    note right of Docker
+      **Local Development:**
+      - docker-compose up
+      - Hot reload
+      - Local database
+      - Development tools
+    end note
+}
+
+' Fluxo de Produção AWS
+Users --> CloudFrontFrontend : HTTPS Request
+CloudFrontFrontend --> S3Bucket : Fetch Static Files
+S3Bucket --> CloudFrontFrontend : Serve Files
+CloudFrontFrontend --> APIClient : API Call
+APIClient --> AWSBackend : HTTPS Request\n(API_URL env var)
+AWSBackend --> NodeJS : Process Request
+NodeJS --> Express : Route Handler
+Express --> Routes : Match Route
+Routes --> Logic : Business Logic
+Logic --> RDSDB : SQL Queries
+Logic --> ElastiCache : Cache Operations
+RDSDB --> Logic : Query Results
+ElastiCache --> Logic : Cached Data
+Logic --> Routes : Response Data
+Routes --> Express : HTTP Response
+Express --> NodeJS : Send Response
+NodeJS --> AWSBackend : Return Response
+AWSBackend --> APIClient : JSON Response
+APIClient --> CloudFrontFrontend : Update UI
+CloudFrontFrontend --> Users : Render Page
+
+' CI/CD Flow
+ECR --> AWSBackend : Container Image
+Secrets --> AWSBackend : Environment Secrets
+CloudWatch --> AWSBackend : Logs & Metrics
+IAM --> AWSBackend : Permissions
+
+' Environment Variables
+CloudFrontFrontend ..> CloudFrontFrontend : VITE_API_URL
+AWSBackend ..> Secrets : DATABASE_URL
+AWSBackend ..> Secrets : REDIS_URL
+AWSBackend ..> Secrets : JWT_SECRET
+AWSBackend ..> AWSBackend : NODE_ENV=production
+
+' Development Connection
+DevFrontend --> DevBackend : http://localhost:5000
+DevBackend --> DevDB : localhost:5432
+DevBackend --> DevRedis : localhost:6379
+
+note top of Users
+  **Acesso:**
+  - URL: https://d1234567890.cloudfront.net
+  - Custom domain support
+  - Responsive design
+  - PWA ready
+end note
+
+note bottom of RDSDB
+  **Backup & Recovery:**
+  - Automated daily backups
+  - Point-in-time recovery
+  - Multi-AZ deployment
+  - Read replicas (opcional)
+end note
+
+note bottom of ElastiCache
+  **Performance:**
+  - Sub-millisecond latency
+  - High availability
+  - Automatic failover
+  - Cluster mode support
+end note
+
+note bottom of AWSBackend
+  **Scaling:**
+  - Auto-scaling based on CPU/Memory
+  - Health checks
+  - Zero-downtime deployments
+  - Load balancing
+end note
+
+@enduml
+
+
+

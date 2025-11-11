@@ -1,9 +1,17 @@
 import MatchService from '../services/MatchService.js';
 import pool from '../config/database.js';
+import { createAndEmitNotification, getIO } from '../utils/notificationHelper.js';
+import { NotificationService } from '../services/NotificationService.js';
+import { ProjectRepository } from '../repositories/ProjectRepository.js';
+import { UserRepository } from '../repositories/UserRepository.js';
+import { logAudit } from '../utils/auditHelper.js';
 
 class MatchController {
   constructor() {
     this.matchService = new MatchService(pool);
+    this.projectRepository = new ProjectRepository(pool);
+    this.userRepository = new UserRepository(pool);
+    this.notificationService = new NotificationService();
   }
 
   // Criar uma nova solicitação de match
@@ -29,6 +37,32 @@ class MatchController {
 
       // Usar o serviço através do getter
       const match = await this.matchService.createMatch(userId, projectId, message);
+
+      // Buscar informações do projeto e usuário para notificação
+      const project = await this.projectRepository.findById(projectId);
+      const user = await this.userRepository.findById(userId);
+      
+      // Criar notificação para o criador do projeto
+      if (project && project.creatorId) {
+        const io = getIO(req);
+        await createAndEmitNotification(
+          io,
+          project.creatorId,
+          'match_request',
+          'Nova solicitação de colaboração',
+          `${user?.name || 'Um usuário'} quer colaborar no projeto "${project.title}"`,
+          { projectId, projectTitle: project.title, senderId: userId, senderName: user?.name, matchId: match.id }
+        );
+      }
+
+      // Registrar log de auditoria de criação de match
+      await logAudit(
+        req,
+        'match.create',
+        'match',
+        match.id,
+        { projectId, userId, projectTitle: project?.title }
+      );
 
       res.status(201).json({
         success: true,
@@ -90,9 +124,41 @@ class MatchController {
   async acceptMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.userId;
+      const userId = req.user?.userId;
 
-      const match = await this.matchService.acceptMatch(matchId, userId);
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+      }
+
+      const match = await this.matchService.acceptMatch(parseInt(matchId, 10), userId);
+
+      // Buscar informações do projeto para notificação
+      const project = await this.projectRepository.findById(match.projectId);
+      
+      // Criar notificação para o usuário que solicitou
+      if (match.userId) {
+        const io = getIO(req);
+        await createAndEmitNotification(
+          io,
+          match.userId,
+          'match_accepted',
+          'Solicitação aceita!',
+          `Sua solicitação para colaborar no projeto "${project?.title || 'projeto'}" foi aceita!`,
+          { projectId: match.projectId, projectTitle: project?.title, matchId: match.id }
+        );
+      }
+
+      // Registrar log de auditoria de aceitação de match
+      await logAudit(
+        req,
+        'match.accept',
+        'match',
+        parseInt(matchId, 10),
+        { projectId: match.projectId, acceptedBy: userId }
+      );
 
       res.json({
         success: true,
@@ -112,9 +178,41 @@ class MatchController {
   async rejectMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.userId;
+      const userId = req.user?.userId;
 
-      const match = await this.matchService.rejectMatch(matchId, userId);
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+      }
+
+      const match = await this.matchService.rejectMatch(parseInt(matchId, 10), userId);
+
+      // Buscar informações do projeto para notificação
+      const project = await this.projectRepository.findById(match.projectId);
+      
+      // Criar notificação para o usuário que solicitou
+      if (match.userId) {
+        const io = getIO(req);
+        await createAndEmitNotification(
+          io,
+          match.userId,
+          'match_rejected',
+          'Solicitação recusada',
+          `Sua solicitação para colaborar no projeto "${project?.title || 'projeto'}" foi recusada.`,
+          { projectId: match.projectId, projectTitle: project?.title, matchId: match.id }
+        );
+      }
+
+      // Registrar log de auditoria de rejeição de match
+      await logAudit(
+        req,
+        'match.reject',
+        'match',
+        parseInt(matchId, 10),
+        { projectId: match.projectId, rejectedBy: userId }
+      );
 
       res.json({
         success: true,
@@ -134,9 +232,25 @@ class MatchController {
   async blockMatch(req, res) {
     try {
       const { matchId } = req.params;
-      const userId = req.user.userId;
+      const userId = req.user?.userId;
 
-      const match = await this.matchService.blockMatch(matchId, userId);
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Usuário não autenticado'
+        });
+      }
+
+      const match = await this.matchService.blockMatch(parseInt(matchId, 10), userId);
+
+      // Registrar log de auditoria de bloqueio de match
+      await logAudit(
+        req,
+        'match.block',
+        'match',
+        parseInt(matchId, 10),
+        { projectId: match.projectId, blockedBy: userId }
+      );
 
       res.json({
         success: true,

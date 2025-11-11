@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import { userService } from '../services/apiService';
 import { useAuthStore } from '../stores/authStore';
+import SocialLoginButtons from '../components/SocialLoginButtons';
 import CollabraLogo from '../assets/collabra-logo.svg';
 
 const Register = () => {
@@ -45,6 +46,8 @@ const Register = () => {
         email: data.email,
         password: data.password,
         name: data.name,
+        consentAccepted: true, // Consentimento LGPD
+        consentTimestamp: new Date().toISOString()
       });
       const { user, accessToken, refreshToken } = resp.data;
       localStorage.setItem('accessToken', accessToken);
@@ -241,6 +244,34 @@ const Register = () => {
               )}
             </div>
 
+            {/* Consentimento LGPD */}
+            <div className="space-y-2">
+              <div className="flex items-start">
+                <input
+                  type="checkbox"
+                  id="consent"
+                  className="mt-1 mr-3 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                  {...register('consent', {
+                    required: 'Você deve aceitar os termos e a política de privacidade para criar uma conta'
+                  })}
+                />
+                <label htmlFor="consent" className="text-sm text-gray-300">
+                  Eu concordo com os{' '}
+                  <Link to="/terms" className="text-blue-400 hover:text-blue-300 underline" target="_blank">
+                    Termos de Uso
+                  </Link>
+                  {' '}e{' '}
+                  <Link to="/privacy" className="text-blue-400 hover:text-blue-300 underline" target="_blank">
+                    Política de Privacidade
+                  </Link>
+                  {' '}e consinto com o tratamento dos meus dados pessoais conforme a LGPD.
+                </label>
+              </div>
+              {errors.consent && (
+                <p className="text-red-400 text-xs ml-7">{errors.consent.message}</p>
+              )}
+            </div>
+
             <button 
               type="submit" 
               className={`w-full font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
@@ -248,7 +279,7 @@ const Register = () => {
                 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-blue-500/25' : 
                 'bg-gray-600 text-gray-300 cursor-not-allowed'
               }`}
-              disabled={getIsLoading() || !isPasswordValid || !passwordsMatch}
+              disabled={getIsLoading() || !isPasswordValid || !passwordsMatch || !watch('consent')}
             >
               {getIsLoading() ? (
                 <div className="flex items-center justify-center">
@@ -263,6 +294,11 @@ const Register = () => {
               )}
             </button>
           </form>
+
+          {/* Social Login */}
+          <div className="mt-6">
+            <SocialLoginButtons />
+          </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-400">

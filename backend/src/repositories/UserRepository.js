@@ -8,11 +8,11 @@ export class UserRepository {
   async create(userData) {
     const client = await this.db.connect();
     try {
-      const { email, password, name, bio, skills, socialLinks, profileImage } = userData;
+      const { email, password, name, bio, skills, socialLinks, profileImage, consentAccepted, consentTimestamp } = userData;
       
       const query = `
-        INSERT INTO users (email, password, name, bio, skills, social_links, profile_image, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO users (email, password, name, bio, skills, social_links, profile_image, consent_accepted, consent_timestamp, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *
       `;
       
@@ -24,6 +24,8 @@ export class UserRepository {
         JSON.stringify(skills || []),
         JSON.stringify(socialLinks || {}),
         profileImage,
+        consentAccepted || false,
+        consentTimestamp || new Date(),
         new Date(),
         new Date()
       ];

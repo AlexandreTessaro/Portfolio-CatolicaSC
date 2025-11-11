@@ -111,3 +111,8 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# SonarQube
+.sonar/
+.scannerwork/
+sonar-project.properties.local
