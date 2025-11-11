@@ -12,7 +12,12 @@ Consulte o **[GUIA-DEPLOY.md](./GUIA-DEPLOY.md)** para instruções completas e 
 ✅ **Mais fácil** de usar  
 ✅ **Azure App Service** - Similar ao Koyeb  
 
-Consulte **[azure-deploy-guide.md](./azure-deploy-guide.md)** para instruções completas.
+**🚀 Comece AGORA:**
+- **[AZURE-DEPLOY-AGORA.md](./AZURE-DEPLOY-AGORA.md)** - Guia passo a passo detalhado
+- **[AZURE-QUICK-START.md](./AZURE-QUICK-START.md)** - Resumo rápido (5 passos)
+
+**📚 Documentação completa:**
+- **[azure-deploy-guide.md](./azure-deploy-guide.md)** - Guia completo com todas as opções
 
 **Arquitetura Azure:**
 - **Backend**: Azure App Service

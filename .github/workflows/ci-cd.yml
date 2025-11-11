@@ -156,10 +156,9 @@ jobs:
 
   # Build e Deploy (apenas na main)
   deploy:
-    # Executar deploy mesmo se testes/lint falharem
-    # (ajuste temporário para priorizar publicação)
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    needs: [backend-tests, frontend-tests]
     
     steps:
     - uses: actions/checkout@v4
@@ -173,10 +172,6 @@ jobs:
           backend/package-lock.json
           frontend/package-lock.json
     
-    - name: Install Backend Dependencies
-      working-directory: ./backend
-      run: npm install
-    
     - name: Install Frontend Dependencies
       working-directory: ./frontend
       run: npm install
@@ -184,23 +179,22 @@ jobs:
     - name: Build Frontend
       working-directory: ./frontend
       run: npm run build
+      env:
+        VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://startup-collab-backend.azurewebsites.net/api' }}
     
     - name: Deploy Frontend to Vercel
+      if: ${{ secrets.VERCEL_TOKEN != '' }}
       run: |
         echo "🚀 Deploying frontend to Vercel..."
         npm install -g vercel
         cd frontend
         vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
       env:
-        VITE_API_URL: "https://portfolio-backend-production-a492.up.railway.app/api"
-      
-    - name: Deploy Backend to Render
-      run: |
-        echo "🚀 Deploying backend to Render..."
-        echo "ℹ️ Render will auto-deploy from GitHub push"
-        echo "✅ Backend deployment will be triggered automatically"
+        VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://startup-collab-backend.azurewebsites.net/api' }}
     
     - name: Notify Deployment
       run: |
         echo "✅ Deployment completed successfully!"
+        echo "📦 Frontend: Vercel (se configurado)"
+        echo "📦 Backend: Azure (via workflow separado)"
         # Aqui você pode adicionar notificações (Slack, Discord, etc.)
