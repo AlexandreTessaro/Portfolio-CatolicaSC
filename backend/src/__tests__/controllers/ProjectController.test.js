@@ -125,9 +125,9 @@ describe('ProjectController', () => {
         .send(invalidData);
 
       // Assert
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('success', true);
-      expect(mockProjectService.createProject).toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('success', false);
+      expect(mockProjectService.createProject).not.toHaveBeenCalled();
     });
 
     it('should return 401 if not authenticated', async () => {

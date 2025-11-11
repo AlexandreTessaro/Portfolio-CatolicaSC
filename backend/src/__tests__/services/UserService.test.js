@@ -44,7 +44,8 @@ describe('UserService', () => {
         name: 'Test User',
         bio: 'Test bio',
         skills: ['JavaScript', 'React'],
-        socialLinks: { github: 'https://github.com/test' }
+        socialLinks: { github: 'https://github.com/test' },
+        consentAccepted: true
       };
 
       const hashedPassword = 'hashedPassword123';
@@ -87,7 +88,9 @@ describe('UserService', () => {
       expect(vi.mocked(bcrypt.hash)).toHaveBeenCalledWith(userData.password, 12);
       expect(mockUserRepository.create).toHaveBeenCalledWith({
         ...userData,
-        password: hashedPassword
+        password: hashedPassword,
+        consentAccepted: true,
+        consentTimestamp: expect.any(Date)
       });
       expect(result).toHaveProperty('user');
       expect(result).toHaveProperty('accessToken');
@@ -99,7 +102,8 @@ describe('UserService', () => {
       const userData = {
         email: 'existing@example.com',
         password: 'password123',
-        name: 'Test User'
+        name: 'Test User',
+        consentAccepted: true
       };
 
       // Mock do repository para simular usuário existente

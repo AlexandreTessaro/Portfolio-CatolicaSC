@@ -97,7 +97,11 @@ describe('UserController', () => {
       expect(response.body.data).toHaveProperty('id', 1);
       expect(response.body.data).toHaveProperty('name', userData.name);
       expect(response.body.data).toHaveProperty('email', userData.email);
-      expect(mockUserService.register).toHaveBeenCalledWith(userData);
+      expect(mockUserService.register).toHaveBeenCalledWith({
+        ...userData,
+        ipAddress: expect.any(String),
+        userAgent: expect.any(String)
+      });
     });
 
     it('should return 400 for invalid registration data', async () => {

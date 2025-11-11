@@ -1,14 +1,15 @@
 name: Build and deploy Node.js app to Azure Web App - startup-collab-backend
 
 # DESABILITADO - Usar deploy-azure.yml ao invés deste
-# on:
-#   push:
-#     branches:
-#       - main
-#   workflow_dispatch:
+# Este workflow foi desabilitado para evitar conflitos (erro 409)
 
 on:
   workflow_dispatch:  # Apenas execução manual se necessário
+
+# Mesmo grupo de concorrência para evitar conflitos
+concurrency:
+  group: deploy-azure-startup-collab-backend
+  cancel-in-progress: true
 
 env:
   AZURE_WEBAPP_NAME: startup-collab-backend

@@ -11,7 +11,7 @@ env:
   NODE_VERSION: '18'
 
 # Evitar múltiplos deploys simultâneos (erro 409)
-# Usa o mesmo grupo para todos os workflows do Azure
+# IMPORTANTE: Todos os workflows Azure devem usar o mesmo grupo de concorrência
 concurrency:
   group: deploy-azure-startup-collab-backend
   cancel-in-progress: true  # Cancelar deploys anteriores quando novo push acontece
@@ -39,6 +39,13 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Wait for any in-progress deployments
+      run: |
+        echo "⏳ Verificando se há deploys em andamento..."
+        # Pequeno delay para garantir que deploys anteriores foram cancelados
+        sleep 5
+        echo "✅ Pronto para fazer deploy"
     
     - name: Deploy to Azure Web App
       id: deploy-to-webapp

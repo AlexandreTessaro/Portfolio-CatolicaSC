@@ -25,27 +25,40 @@ const mockAuth = vi.fn((req, res, next) => {
 
 describe('MatchController', () => {
   let app;
+  let matchController;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Usar a instância singleton e substituir o serviço
-    MatchController._matchService = mockMatchService;
+    // Criar instância do MatchController e substituir o serviço
+    matchController = new MatchController();
+    matchController.matchService = mockMatchService;
+    
+    // Mock dos repositórios necessários
+    matchController.projectRepository = {
+      findById: vi.fn().mockResolvedValue({ id: 1, title: 'Test Project', creatorId: 1 })
+    };
+    matchController.userRepository = {
+      findById: vi.fn().mockResolvedValue({ id: 1, name: 'Test User' })
+    };
+    matchController.notificationService = {
+      createNotification: vi.fn().mockResolvedValue({})
+    };
     
     app = express();
     app.use(express.json());
     
-    // Rotas básicas
-    app.post('/', mockAuth, MatchController.createMatch);
-    app.get('/received', mockAuth, MatchController.getReceivedMatches);
-    app.get('/sent', mockAuth, MatchController.getSentMatches);
-    app.get('/stats', mockAuth, MatchController.getMatchStats);
-    app.get('/:matchId', mockAuth, MatchController.getMatchById);
-    app.put('/:matchId/accept', mockAuth, MatchController.acceptMatch);
-    app.put('/:matchId/reject', mockAuth, MatchController.rejectMatch);
-    app.put('/:matchId/block', mockAuth, MatchController.blockMatch);
-    app.delete('/:matchId', mockAuth, MatchController.cancelMatch);
-    app.get('/can-request/:projectId', mockAuth, MatchController.canRequestParticipation);
+    // Rotas básicas usando a instância do controller
+    app.post('/', mockAuth, (req, res) => matchController.createMatch(req, res));
+    app.get('/received', mockAuth, (req, res) => matchController.getReceivedMatches(req, res));
+    app.get('/sent', mockAuth, (req, res) => matchController.getSentMatches(req, res));
+    app.get('/stats', mockAuth, (req, res) => matchController.getMatchStats(req, res));
+    app.get('/:matchId', mockAuth, (req, res) => matchController.getMatchById(req, res));
+    app.put('/:matchId/accept', mockAuth, (req, res) => matchController.acceptMatch(req, res));
+    app.put('/:matchId/reject', mockAuth, (req, res) => matchController.rejectMatch(req, res));
+    app.put('/:matchId/block', mockAuth, (req, res) => matchController.blockMatch(req, res));
+    app.delete('/:matchId', mockAuth, (req, res) => matchController.cancelMatch(req, res));
+    app.get('/can-request/:projectId', mockAuth, (req, res) => matchController.canRequestParticipation(req, res));
   });
 
   describe('POST /', () => {
@@ -79,8 +92,9 @@ describe('MatchController', () => {
         .send(matchData);
 
       // Assert
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('success', false);
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('success', true);
+      expect(mockMatchService.createMatch).toHaveBeenCalledWith(1, matchData.projectId, matchData.message);
     });
 
     it('should return 400 for missing data', async () => {
@@ -157,8 +171,10 @@ describe('MatchController', () => {
         .get('/can-request/1');
 
       // Assert
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('success', false);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.data).toEqual(mockResult);
+      expect(mockMatchService.canRequestParticipation).toHaveBeenCalledWith(1, '1');
     });
   });
 });
