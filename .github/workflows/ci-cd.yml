@@ -183,7 +183,7 @@ jobs:
         VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://startup-collab-backend.azurewebsites.net/api' }}
     
     - name: Deploy Frontend to Vercel
-      if: ${{ secrets.VERCEL_TOKEN != '' }}
+      if: secrets.VERCEL_TOKEN != ''
       run: |
         echo "🚀 Deploying frontend to Vercel..."
         npm install -g vercel

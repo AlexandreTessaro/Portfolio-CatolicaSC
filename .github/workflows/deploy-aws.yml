@@ -1,9 +1,14 @@
 name: Deploy to AWS
 
+# DESABILITADO - Migrado para Azure
+# on:
+#   push:
+#     branches: [main]
+#   workflow_dispatch:
+
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    # Mantido apenas para execução manual se necessário
 
 env:
   AWS_REGION: us-east-1
@@ -14,6 +19,7 @@ jobs:
   deploy-backend:
     name: Deploy Backend to AWS
     runs-on: ubuntu-latest
+    if: false  # Desabilitado - migrado para Azure
     
     steps:
       - name: Checkout code
