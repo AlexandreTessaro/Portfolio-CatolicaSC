@@ -81,6 +81,7 @@ jobs:
     - name: Run Backend Tests
       working-directory: ./backend
       run: npm test
+      # Não precisa --coverage porque já está no script
     
     - name: Upload Coverage Reports
       uses: codecov/codecov-action@v3
@@ -174,21 +175,26 @@ jobs:
     
     - name: Install Frontend Dependencies
       working-directory: ./frontend
-      run: npm install
+      run: npm ci
     
     - name: Build Frontend
       working-directory: ./frontend
       run: npm run build
       env:
         VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://startup-collab-backend.azurewebsites.net/api' }}
+      continue-on-error: true  # Opcional - frontend está no Vercel
     
     - name: Deploy Frontend to Vercel
-      if: ${{ secrets.VERCEL_TOKEN }}
+      continue-on-error: true
       run: |
-        echo "🚀 Deploying frontend to Vercel..."
-        npm install -g vercel
-        cd frontend
-        vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+        if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+          echo "🚀 Deploying frontend to Vercel..."
+          npm install -g vercel
+          cd frontend
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+        else
+          echo "⚠️ VERCEL_TOKEN não configurado. Pulando deploy do frontend."
+        fi
       env:
         VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://startup-collab-backend.azurewebsites.net/api' }}
     

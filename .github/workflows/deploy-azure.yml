@@ -10,6 +10,11 @@ env:
   AZURE_WEBAPP_NAME: startup-collab-backend
   NODE_VERSION: '18'
 
+# Evitar múltiplos deploys simultâneos (erro 409)
+concurrency:
+  group: deploy-azure-${{ env.AZURE_WEBAPP_NAME }}
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
