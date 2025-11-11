@@ -11,9 +11,10 @@ env:
   NODE_VERSION: '18'
 
 # Evitar múltiplos deploys simultâneos (erro 409)
+# Usa o mesmo grupo para todos os workflows do Azure
 concurrency:
   group: deploy-azure-startup-collab-backend
-  cancel-in-progress: false
+  cancel-in-progress: true  # Cancelar deploys anteriores quando novo push acontece
 
 jobs:
   build-and-deploy:
