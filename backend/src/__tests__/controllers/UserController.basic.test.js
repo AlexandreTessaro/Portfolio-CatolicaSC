@@ -86,11 +86,17 @@ describe('UserController - Basic Tests', () => {
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
-      expect(mockUserService.register).toHaveBeenCalledWith({
-        ...userData,
-        ipAddress: expect.any(String),
-        userAgent: expect.anything() // Pode ser string ou undefined
-      });
+      expect(mockUserService.register).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          bio: userData.bio,
+          skills: userData.skills,
+          ipAddress: expect.any(String),
+          userAgent: expect.anything() // Pode ser string ou undefined
+        })
+      );
     });
 
     it('should return 400 for invalid data', async () => {

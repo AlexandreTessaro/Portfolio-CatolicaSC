@@ -54,10 +54,16 @@ vi.mock('../../services/MatchService.js', () => ({
     }),
     acceptMatch: vi.fn().mockResolvedValue({ 
       id: 1,
+      projectId: 1,
+      userId: 1,
+      status: 'accepted',
       toJSON: () => ({ id: 1, status: 'accepted' })
     }),
     rejectMatch: vi.fn().mockResolvedValue({ 
       id: 1,
+      projectId: 1,
+      userId: 1,
+      status: 'rejected',
       toJSON: () => ({ id: 1, status: 'rejected' })
     }),
     blockMatch: vi.fn().mockResolvedValue({ 
@@ -71,11 +77,15 @@ vi.mock('../../services/MatchService.js', () => ({
 }));
 
 vi.mock('../../repositories/UserRepository.js', () => ({
-  UserRepository: vi.fn().mockImplementation(() => ({}))
+  UserRepository: vi.fn().mockImplementation(() => ({
+    findById: vi.fn().mockResolvedValue({ id: 1, name: 'Test User', email: 'test@example.com' })
+  }))
 }));
 
 vi.mock('../../repositories/ProjectRepository.js', () => ({
-  ProjectRepository: vi.fn().mockImplementation(() => ({}))
+  ProjectRepository: vi.fn().mockImplementation(() => ({
+    findById: vi.fn().mockResolvedValue({ id: 1, title: 'Test Project', creatorId: 1 })
+  }))
 }));
 
 vi.mock('../../repositories/MatchRepository.js', () => ({
@@ -95,6 +105,25 @@ vi.mock('../../middleware/auth.js', () => ({
     req.user = { userId: 1, email: 'admin@example.com', role: 'admin' };
     next();
   })
+}));
+
+vi.mock('../../utils/notificationHelper.js', () => ({
+  getIO: vi.fn(() => ({ emit: vi.fn() })),
+  createAndEmitNotification: vi.fn().mockResolvedValue(true)
+}));
+
+vi.mock('../../utils/auditHelper.js', () => ({
+  logAudit: vi.fn().mockResolvedValue(true)
+}));
+
+vi.mock('../../services/NotificationService.js', () => ({
+  NotificationService: vi.fn().mockImplementation(() => ({}))
+}));
+
+vi.mock('../../config/database.js', () => ({
+  default: {
+    query: vi.fn().mockResolvedValue({ rows: [] })
+  }
 }));
 
 describe('Routes Integration Tests', () => {

@@ -78,7 +78,7 @@ describe('ProjectController', () => {
       const projectData = {
         title: 'Test Project',
         description: 'A test project description',
-        objectives: 'Test objectives',
+        objectives: ['Test objectives'], // Deve ser array conforme validação
         technologies: ['JavaScript', 'React'],
         category: 'Web Development',
         status: 'planning'
