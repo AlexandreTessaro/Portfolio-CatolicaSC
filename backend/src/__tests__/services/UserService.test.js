@@ -1,17 +1,20 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UserService } from '../../services/UserService.js';
 import { UserRepository } from '../../repositories/UserRepository.js';
+import { ConsentRepository } from '../../repositories/ConsentRepository.js';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../config/jwt.js';
 
 // Mock das dependências
 vi.mock('../../repositories/UserRepository.js');
+vi.mock('../../repositories/ConsentRepository.js');
 vi.mock('bcryptjs');
 vi.mock('../../config/jwt.js');
 
 describe('UserService', () => {
   let userService;
   let mockUserRepository;
+  let mockConsentRepository;
 
   beforeEach(() => {
     // Limpar todos os mocks
@@ -27,9 +30,16 @@ describe('UserService', () => {
       searchUsers: vi.fn(),
       findRecommendedUsers: vi.fn(),
     };
+
+    // Criar instância mock do ConsentRepository
+    mockConsentRepository = {
+      createConsent: vi.fn(),
+      revokeConsent: vi.fn(),
+    };
     
     // Mock do UserRepository
     vi.mocked(UserRepository).mockImplementation(() => mockUserRepository);
+    vi.mocked(ConsentRepository).mockImplementation(() => mockConsentRepository);
     
     // Criar instância do UserService
     userService = new UserService();
@@ -506,6 +516,12 @@ describe('UserService', () => {
       expect(mockUserRepository.searchUsers).toHaveBeenCalledWith(filters, limit, offset);
       expect(result).toHaveLength(1);
     });
+
+    it('should handle errors when searching users fails', async () => {
+      mockUserRepository.searchUsers.mockRejectedValue(new Error('Database error'));
+
+      await expect(userService.searchUsers({}, 10, 0)).rejects.toThrow('Erro ao buscar usuários');
+    });
   });
 
   describe('getRecommendedUsers', () => {
@@ -568,6 +584,12 @@ describe('UserService', () => {
       expect(mockUserRepository.findRecommendedUsers).toHaveBeenCalledWith(limit, null);
       expect(result).toHaveLength(1);
     });
+
+    it('should handle errors when getting recommended users fails', async () => {
+      mockUserRepository.findRecommendedUsers.mockRejectedValue(new Error('Database error'));
+
+      await expect(userService.getRecommendedUsers(5)).rejects.toThrow('Erro ao buscar usuários recomendados');
+    });
   });
 
   describe('deleteUser', () => {
@@ -595,6 +617,75 @@ describe('UserService', () => {
 
       // Act & Assert
       await expect(userService.deleteUser(userId)).rejects.toThrow('Usuário não encontrado');
+    });
+  });
+
+  describe('forgetMe', () => {
+    it('should anonymize user data successfully', async () => {
+      // Arrange
+      const userId = 1;
+      const mockUser = {
+        id: userId,
+        name: 'Test User',
+        email: 'test@example.com'
+      };
+
+      const mockUpdatedUser = {
+        id: userId,
+        email: `deleted_${userId}_${Date.now()}@deleted.local`,
+        name: 'Usuário Excluído',
+        bio: null,
+        profileImage: null,
+        socialLinks: {}
+      };
+
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockUserRepository.update.mockResolvedValue(mockUpdatedUser);
+      mockConsentRepository.revokeConsent.mockResolvedValue(true);
+
+      // Act
+      const result = await userService.forgetMe(userId);
+
+      // Assert
+      expect(mockUserRepository.findById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({
+          name: 'Usuário Excluído',
+          bio: null,
+          profileImage: null,
+          socialLinks: {}
+        })
+      );
+      expect(mockConsentRepository.revokeConsent).toHaveBeenCalledWith(userId, 'privacy_policy');
+      expect(result).toHaveProperty('anonymized', true);
+      expect(result).toHaveProperty('message');
+    });
+
+    it('should throw error if user not found', async () => {
+      // Arrange
+      const userId = 999;
+
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(userService.forgetMe(userId)).rejects.toThrow('Usuário não encontrado');
+    });
+
+    it('should throw error if anonymization fails', async () => {
+      // Arrange
+      const userId = 1;
+      const mockUser = {
+        id: userId,
+        name: 'Test User',
+        email: 'test@example.com'
+      };
+
+      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockUserRepository.update.mockRejectedValue(new Error('Database error'));
+
+      // Act & Assert
+      await expect(userService.forgetMe(userId)).rejects.toThrow('Erro ao processar direito ao esquecimento');
     });
   });
 });

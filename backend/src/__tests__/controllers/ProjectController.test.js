@@ -65,7 +65,7 @@ describe('ProjectController', () => {
     app.get('/:projectId', optionalAuth, projectController.getProject);
     app.get('/user/:userId', optionalAuth, projectController.getUserProjects);
     app.post('/', authenticateToken, projectController.validateCreateProject(), projectController.createProject);
-    app.put('/:projectId', authenticateToken, projectController.updateProject);
+    app.put('/:projectId', authenticateToken, projectController.validateUpdateProject(), projectController.updateProject);
     app.delete('/:projectId', authenticateToken, projectController.deleteProject);
     app.post('/:projectId/team', authenticateToken, projectController.addTeamMember);
     app.delete('/:projectId/team/:memberId', authenticateToken, projectController.removeTeamMember);
@@ -275,9 +275,10 @@ describe('ProjectController', () => {
         .send(invalidData);
 
       // Assert
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('success', true);
-      expect(mockProjectService.updateProject).toHaveBeenCalled();
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('errors');
+      expect(mockProjectService.updateProject).not.toHaveBeenCalled();
     });
   });
 
@@ -368,6 +369,17 @@ describe('ProjectController', () => {
       );
     });
 
+    it('should handle errors when searching projects fails', async () => {
+      mockProjectService.searchProjects.mockRejectedValue(new Error('Erro ao buscar projetos'));
+
+      const response = await request(app)
+        .get('/')
+        .query({ status: 'active' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('success', false);
+    });
+
     it('should return empty array when no projects found', async () => {
       // Arrange
       const searchParams = {
@@ -427,6 +439,29 @@ describe('ProjectController', () => {
       expect(response.body.data).toEqual(mockProjects);
       expect(mockProjectService.searchProjectsByText).toHaveBeenCalledWith('react app', 10);
     });
+
+    it('should return 400 when search term is missing', async () => {
+      // Act
+      const response = await request(app)
+        .get('/search');
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message', 'Termo de busca é obrigatório');
+      expect(mockProjectService.searchProjectsByText).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors when searching projects fails', async () => {
+      mockProjectService.searchProjectsByText.mockRejectedValue(new Error('Erro ao buscar'));
+
+      const response = await request(app)
+        .get('/search')
+        .query({ q: 'test' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('success', false);
+    });
   });
 
   describe('GET /user/:userId', () => {
@@ -481,6 +516,16 @@ describe('ProjectController', () => {
       expect(response.body.data).toEqual(mockProjects);
       expect(mockProjectService.getUserProjects).toHaveBeenCalledWith('1', limit, offset);
     });
+
+    it('should handle errors when getting user projects fails', async () => {
+      mockProjectService.getUserProjects.mockRejectedValue(new Error('Erro ao buscar projetos'));
+
+      const response = await request(app)
+        .get('/user/1');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('success', false);
+    });
   });
 
   describe('POST /:projectId/team', () => {
@@ -488,16 +533,16 @@ describe('ProjectController', () => {
       // Arrange
       const projectId = 1;
       const memberData = {
-        userId: 2,
-        role: 'developer'
+        memberId: 2
       };
 
-      const mockResult = {
-        success: true,
-        message: 'Membro adicionado com sucesso'
+      const mockProject = {
+        id: 1,
+        title: 'Test Project',
+        teamMembers: [2]
       };
 
-      mockProjectService.addTeamMember.mockResolvedValue(mockResult);
+      mockProjectService.addTeamMember.mockResolvedValue(mockProject);
 
       // Act
       const response = await request(app)
@@ -506,8 +551,28 @@ describe('ProjectController', () => {
         .send(memberData);
 
       // Assert
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', 'Membro adicionado à equipe com sucesso');
+      expect(mockProjectService.addTeamMember).toHaveBeenCalledWith(projectId.toString(), 1, 2);
+    });
+
+    it('should return 400 when memberId is missing', async () => {
+      // Arrange
+      const projectId = 1;
+      const invalidData = {};
+
+      // Act
+      const response = await request(app)
+        .post(`/${projectId}/team`)
+        .set('Authorization', 'Bearer valid-token')
+        .send(invalidData);
+
+      // Assert
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message', 'ID do membro é obrigatório');
+      expect(mockProjectService.addTeamMember).not.toHaveBeenCalled();
     });
 
     it('should return 400 for invalid member data', async () => {
@@ -591,10 +656,9 @@ describe('ProjectController', () => {
         }
       ];
 
-      mockProjectService.getRecommendedProjects.mockResolvedValue({
-        success: true,
-        data: mockProjects
-      });
+      // Limpar qualquer mock anterior e configurar novo
+      mockProjectService.getRecommendedProjects.mockReset();
+      mockProjectService.getRecommendedProjects.mockResolvedValue(mockProjects);
 
       // Act
       const response = await request(app)

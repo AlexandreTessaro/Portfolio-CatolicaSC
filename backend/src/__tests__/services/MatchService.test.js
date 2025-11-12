@@ -218,6 +218,26 @@ describe('MatchService', () => {
       // Assert
       expect(result).toEqual([]);
     });
+
+    it('should handle errors when getting received matches fails', async () => {
+      mockProjectRepository.findByCreatorId.mockRejectedValue(new Error('Database error'));
+
+      await expect(matchService.getReceivedMatches(1)).rejects.toThrow('Erro ao buscar matches recebidos');
+    });
+
+    it('should filter by status when provided', async () => {
+      const userId = 1;
+      const status = 'accepted';
+      const userProjects = [{ id: 1 }];
+      const mockMatches = [{ id: 1, status: 'accepted' }];
+
+      mockProjectRepository.findByCreatorId.mockResolvedValue(userProjects);
+      mockMatchRepository.findByProjectId.mockResolvedValue(mockMatches);
+
+      await matchService.getReceivedMatches(userId, status);
+
+      expect(mockMatchRepository.findByProjectId).toHaveBeenCalledWith(1, status);
+    });
   });
 
   describe('getSentMatches', () => {
@@ -250,6 +270,25 @@ describe('MatchService', () => {
       // Assert
       expect(mockMatchRepository.findByUserId).toHaveBeenCalledWith(userId, null);
       expect(result).toEqual(mockMatches);
+    });
+
+    it('should filter by status when provided', async () => {
+      const userId = 1;
+      const status = 'pending';
+      const mockMatches = [{ id: 1, status: 'pending' }];
+
+      mockMatchRepository.findByUserId.mockResolvedValue(mockMatches);
+
+      const result = await matchService.getSentMatches(userId, status);
+
+      expect(mockMatchRepository.findByUserId).toHaveBeenCalledWith(userId, status);
+      expect(result).toEqual(mockMatches);
+    });
+
+    it('should handle errors when getting sent matches fails', async () => {
+      mockMatchRepository.findByUserId.mockRejectedValue(new Error('Database error'));
+
+      await expect(matchService.getSentMatches(1)).rejects.toThrow('Erro ao buscar matches enviados');
     });
   });
 

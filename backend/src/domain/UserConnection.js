@@ -30,11 +30,11 @@ export class UserConnection {
 
   // Métodos de validação
   isValid() {
-    return this.requesterId && 
+    return !!(this.requesterId && 
            this.receiverId && 
            this.requesterId !== this.receiverId &&
            UserConnection.validateStatus(this.status) &&
-           UserConnection.validateMessage(this.message);
+           UserConnection.validateMessage(this.message));
   }
 
   canBeAccepted() {

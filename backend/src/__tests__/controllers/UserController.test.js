@@ -32,6 +32,8 @@ describe('UserController', () => {
       searchUsers: vi.fn(),
       getRecommendedUsers: vi.fn(),
       getPublicProfile: vi.fn(),
+      forgetMe: vi.fn(),
+      deleteUser: vi.fn(),
     };
     
     // Mock do middleware de autenticação
@@ -55,11 +57,13 @@ describe('UserController', () => {
     app.post('/login', userController.validateLogin(), userController.login);
     app.post('/refresh-token', userController.refreshToken);
     app.post('/logout', authenticateToken, userController.logout);
+    app.delete('/forget-me', authenticateToken, userController.forgetMe);
     app.get('/profile', authenticateToken, userController.getProfile);
     app.put('/profile', authenticateToken, userController.validateUpdateProfile(), userController.updateProfile);
     app.get('/search', userController.searchUsers);
     app.get('/recommended', authenticateToken, userController.getRecommendedUsers);
     app.get('/public/:userId', userController.getPublicProfile);
+    app.delete('/:userId', authenticateToken, userController.deleteUser);
   });
 
   describe('POST /register', () => {
@@ -272,6 +276,32 @@ describe('UserController', () => {
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message', 'Token inválido');
     });
+
+    it('should return 401 when refresh token is not provided', async () => {
+      const response = await request(app)
+        .post('/refresh-token');
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body.message).toBe('Refresh token não fornecido');
+      expect(mockUserService.refreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should use refresh token from body when provided', async () => {
+      const mockResult = {
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token'
+      };
+
+      mockUserService.refreshToken.mockResolvedValue(mockResult);
+
+      const response = await request(app)
+        .post('/refresh-token')
+        .send({ refreshToken: 'body-refresh-token' });
+
+      expect(response.status).toBe(200);
+      expect(mockUserService.refreshToken).toHaveBeenCalledWith('body-refresh-token');
+    });
   });
 
   describe('GET /profile', () => {
@@ -480,6 +510,114 @@ describe('UserController', () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message', 'Usuário não encontrado');
+    });
+  });
+
+  describe('POST /logout', () => {
+    it('should logout user successfully', async () => {
+      const response = await request(app)
+        .post('/logout')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', 'Logout realizado com sucesso');
+    });
+
+    it('should clear refresh token cookie', async () => {
+      const response = await request(app)
+        .post('/logout')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.headers['set-cookie']).toBeDefined();
+      const cookies = response.headers['set-cookie'];
+      const refreshTokenCookie = cookies.find(cookie => cookie.includes('refreshToken'));
+      expect(refreshTokenCookie).toBeDefined();
+    });
+  });
+
+  describe('DELETE /forget-me', () => {
+    it('should forget user data successfully', async () => {
+      const mockResult = {
+        message: 'Seus dados foram anonimizados com sucesso',
+        anonymized: true
+      };
+
+      mockUserService.forgetMe.mockResolvedValue(mockResult);
+
+      const response = await request(app)
+        .delete('/forget-me')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', mockResult.message);
+      expect(mockUserService.forgetMe).toHaveBeenCalledWith(1);
+    });
+
+    it('should return 401 if user not authenticated', async () => {
+      // Criar um middleware mockado que não autentica quando não há token
+      const mockAuthWithoutToken = vi.fn((req, res, next) => {
+        // Não definir req.user quando não há token - simular middleware que retorna 401
+        return res.status(401).json({
+          success: false,
+          message: 'Token de acesso não fornecido'
+        });
+      });
+      
+      // Criar app temporário sem autenticação para este teste
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.use(cookieParser());
+      testApp.delete('/forget-me', mockAuthWithoutToken, userController.forgetMe);
+
+      const response = await request(testApp)
+        .delete('/forget-me');
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message', 'Token de acesso não fornecido');
+    });
+
+    it('should return 400 if forgetMe fails', async () => {
+      mockUserService.forgetMe.mockRejectedValue(new Error('Erro ao anonimizar dados'));
+
+      const response = await request(app)
+        .delete('/forget-me')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('success', false);
+    });
+  });
+
+  describe('DELETE /:userId', () => {
+    it('should delete user successfully (admin)', async () => {
+      const mockResult = {
+        message: 'Usuário deletado com sucesso'
+      };
+
+      mockUserService.deleteUser.mockResolvedValue(mockResult);
+
+      const response = await request(app)
+        .delete('/999')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', mockResult.message);
+      expect(mockUserService.deleteUser).toHaveBeenCalledWith('999');
+    });
+
+    it('should return 400 if delete fails', async () => {
+      mockUserService.deleteUser.mockRejectedValue(new Error('Erro ao deletar usuário'));
+
+      const response = await request(app)
+        .delete('/999')
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('success', false);
     });
   });
 });

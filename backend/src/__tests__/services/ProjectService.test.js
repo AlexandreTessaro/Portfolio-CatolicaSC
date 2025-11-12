@@ -2,15 +2,18 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ProjectService } from '../../services/ProjectService.js';
 import { ProjectRepository } from '../../repositories/ProjectRepository.js';
 import { UserRepository } from '../../repositories/UserRepository.js';
+import CacheService from '../../services/CacheService.js';
 
 // Mock das dependências
 vi.mock('../../repositories/ProjectRepository.js');
 vi.mock('../../repositories/UserRepository.js');
+vi.mock('../../services/CacheService.js');
 
 describe('ProjectService', () => {
   let projectService;
   let mockProjectRepository;
   let mockUserRepository;
+  let mockCacheService;
 
   beforeEach(() => {
     // Limpar todos os mocks
@@ -30,10 +33,17 @@ describe('ProjectService', () => {
     mockUserRepository = {
       findById: vi.fn(),
     };
+
+    mockCacheService = {
+      getProject: vi.fn(),
+      setProject: vi.fn(),
+      invalidateProject: vi.fn(),
+    };
     
     // Mock dos repositories
     vi.mocked(ProjectRepository).mockImplementation(() => mockProjectRepository);
     vi.mocked(UserRepository).mockImplementation(() => mockUserRepository);
+    vi.mocked(CacheService).mockImplementation(() => mockCacheService);
     
     // Criar instância do ProjectService
     projectService = new ProjectService();
@@ -126,10 +136,12 @@ describe('ProjectService', () => {
       ];
 
       // Mock do repository
+      mockCacheService.getProject.mockResolvedValue(null); // Não há cache
       mockProjectRepository.findById.mockResolvedValue(mockProject);
       mockUserRepository.findById
         .mockResolvedValueOnce(mockTeamMembers[0])
         .mockResolvedValueOnce(mockTeamMembers[1]);
+      mockCacheService.setProject.mockResolvedValue();
 
       // Act
       const result = await projectService.getProject(projectId);
@@ -166,7 +178,9 @@ describe('ProjectService', () => {
       };
 
       // Mock do repository
+      mockCacheService.getProject.mockResolvedValue(null); // Não há cache
       mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockCacheService.setProject.mockResolvedValue();
 
       // Act
       const result = await projectService.getProject(projectId);
@@ -186,6 +200,58 @@ describe('ProjectService', () => {
 
       // Act & Assert
       await expect(projectService.getProject(projectId)).rejects.toThrow('Projeto não encontrado');
+    });
+
+    it('should handle errors when loading team member fails gracefully', async () => {
+      const projectId = 1;
+      const mockProject = {
+        id: projectId,
+        title: 'Test Project',
+        creatorId: 1,
+        teamMembers: [2, 999], // 999 não existe
+        toPublicView: vi.fn().mockReturnValue({
+          id: projectId,
+          title: 'Test Project',
+          teamMembers: []
+        })
+      };
+
+      mockCacheService.getProject.mockResolvedValue(null); // Não há cache
+      mockProjectRepository.findById.mockResolvedValue(mockProject);
+      mockUserRepository.findById.mockImplementation((id) => {
+        if (id === 2) {
+          return Promise.resolve({
+            id: 2,
+            name: 'Member 1',
+            profileImage: 'img1.jpg',
+            bio: 'Bio 1',
+            skills: ['React']
+          });
+        }
+        return Promise.reject(new Error('User not found'));
+      });
+      mockCacheService.setProject.mockResolvedValue();
+
+      const result = await projectService.getProject(projectId);
+
+      expect(result.teamMembers).toHaveLength(1); // Apenas o membro válido
+      expect(result.teamMembers[0].id).toBe(2);
+    });
+
+    it('should use cached project when available', async () => {
+      const projectId = 1;
+      const cachedProject = {
+        id: projectId,
+        title: 'Cached Project',
+        teamMembers: []
+      };
+
+      mockCacheService.getProject.mockResolvedValue(cachedProject);
+
+      const result = await projectService.getProject(projectId);
+
+      expect(result).toEqual(cachedProject);
+      expect(mockProjectRepository.findById).not.toHaveBeenCalled();
     });
   });
 
