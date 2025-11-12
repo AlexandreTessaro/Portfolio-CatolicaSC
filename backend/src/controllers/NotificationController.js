@@ -122,4 +122,5 @@ export class NotificationController {
 }
 
 export default new NotificationController();
+export { NotificationController };
 

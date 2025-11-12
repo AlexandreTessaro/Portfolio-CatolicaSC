@@ -2,94 +2,72 @@
 
 ## ✅ **STATUS ATUAL**
 
-A aplicação **ESTÁ PRONTA PARA DEPLOY**, mas precisa de algumas configurações finais.
+A aplicação **ESTÁ EM PRODUÇÃO** e funcionando!
 
-### 📊 **O que já está configurado:**
+### 📊 **Arquitetura Atual:**
 
-- ✅ Dockerfiles (backend e frontend)
-- ✅ CI/CD pipeline (GitHub Actions)
-- ✅ Configurações para Railway (backend) - **Legado**
-- ✅ Configurações para Vercel (frontend) - **Legado**
-- ✅ **Configurações para AWS (App Runner + ECS)** - **NOVO** 🆕
-- ✅ Variáveis de ambiente documentadas
-- ✅ Backend adaptado para AWS Lambda (serverless-http)
+- ✅ **Backend**: Azure App Service (deploy automático via GitHub Actions)
+- ✅ **Frontend**: Vercel (deploy automático)
+- ✅ **Banco de Dados**: Azure Database for PostgreSQL
+- ✅ **CI/CD**: GitHub Actions configurado
+- ✅ **Análise de Código**: SonarCloud
 
-### 🆕 **Migração para AWS**
+### 📚 **Documentação de Referência:**
 
-A aplicação agora suporta deploy na AWS. Consulte **[aws-deploy-guide.md](./aws-deploy-guide.md)** para instruções completas de migração do Koyeb para AWS.
-
-### ⚠️ **O que precisa verificar antes do deploy:**
+- **[azure-deploy-guide.md](./azure-deploy-guide.md)** - Guia completo de deploy no Azure
+- **[AZURE-VARIAVEIS-AMBIENTE.md](./AZURE-VARIAVEIS-AMBIENTE.md)** - Variáveis de ambiente necessárias
+- **[AZURE-CONFIGURAR-CREDENTIALS.md](./AZURE-CONFIGURAR-CREDENTIALS.md)** - Configuração de credenciais Azure
 
 ---
 
-## 🎯 **OPÇÕES DE DEPLOY**
+## 🎯 **ARQUITETURA ATUAL**
 
-### **Opção 1: AWS (Recomendado)** 🆕
+### **Backend - Azure App Service**
+- URL: `https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net`
+- Deploy automático via GitHub Actions
+- Configuração: Ver **[azure-deploy-guide.md](./azure-deploy-guide.md)**
 
-Para deploy na AWS, consulte o guia completo: **[aws-deploy-guide.md](./aws-deploy-guide.md)**
+### **Frontend - Vercel**
+- URL: `https://portfolio-catolica-sc.vercel.app`
+- Deploy automático via GitHub Actions
+- Variável de ambiente: `VITE_API_URL` apontando para o backend Azure
 
-**Arquitetura AWS:**
-- **Backend**: AWS App Runner ou ECS Fargate
-- **Frontend**: S3 + CloudFront
-- **Banco de Dados**: RDS PostgreSQL
-
-### **Opção 2: Railway + Vercel (Legado)**
-
-Configuração anterior mantida para referência.
+### **Banco de Dados - Azure Database for PostgreSQL**
+- Gerenciado pelo Azure
+- Migrações executadas via endpoint `/api/admin/run-migrations`
 
 ---
 
-## 🔧 **PREPARAÇÃO PARA DEPLOY**
+## 🔧 **CONFIGURAÇÃO**
 
-### 1. **Variáveis de Ambiente - Backend (AWS App Runner/ECS)**
+### 1. **Variáveis de Ambiente - Backend (Azure App Service)**
 
-No console AWS (App Runner ou ECS), configure as seguintes variáveis:
+Consulte **[AZURE-VARIAVEIS-AMBIENTE.md](./AZURE-VARIAVEIS-AMBIENTE.md)** para a lista completa de variáveis.
 
-```env
-NODE_ENV=production
-FRONTEND_URL=https://SEU_CLOUDFRONT_URL
-DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=require
-JWT_SECRET=...forte...
-JWT_REFRESH_SECRET=...forte...
-REDIS_ENABLED=false
-MIGRATION_TOKEN=...token_unico_para_execucao_de_migracoes...
-BCRYPT_SALT_ROUNDS=12
-SMTP_HOST=smtp.gmail.com   # opcional
-SMTP_PORT=587              # opcional
-SMTP_USER=...              # opcional
-SMTP_PASS=...              # opcional
-```
+Principais variáveis:
+- `DATABASE_URL` - String de conexão do PostgreSQL
+- `JWT_SECRET` e `JWT_REFRESH_SECRET` - Secrets para autenticação
+- `FRONTEND_URL` - URL do frontend (Vercel)
+- `MIGRATION_TOKEN` - Token para executar migrações
 
 ### 2. **Variáveis de Ambiente - Frontend (Vercel)**
 
-No dashboard do Vercel:
+No dashboard do Vercel, configure:
 
 ```env
-VITE_API_URL=https://portfolio-backend-production-a492.up.railway.app/api
+VITE_API_URL=https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/api
 ```
 
-### 3. **Banco de Dados (RDS Free Tier)**
+### 3. **Executar Migrações do Banco de Dados**
 
-#### Opção A: Usar PostgreSQL do Railway
-1. Crie um serviço PostgreSQL no Railway
-2. Copie a `DATABASE_URL` gerada
-3. Configure no backend
-
-#### Opção B: Usar Supabase (já configurado no render.yaml)
-- Credenciais já estão no `render.yaml` (mas remova-as do código!)
-- Configure via variáveis de ambiente, nunca commit credentials
-
-#### Opção C: Outro provedor
-- AWS RDS
-- Google Cloud SQL
-- DigitalOcean Managed Database
-
-**⚠️ IMPORTANTE:** Execute as migrações após configurar o banco:
+Após configurar o banco, execute as migrações:
 
 ```bash
-# Endpoint seguro (uma vez):
-curl -X POST https://SEU_API_GATEWAY_URL/api/admin/run-migrations \
-  -H "x-migration-token: $MIGRATION_TOKEN"
+# Via navegador (mais fácil):
+https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/api/admin/run-migrations?token=SEU_MIGRATION_TOKEN
+
+# Ou via PowerShell:
+Invoke-RestMethod -Uri "https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/api/admin/run-migrations" -Method POST -Headers @{"x-migration-token"="SEU_MIGRATION_TOKEN"}
 ```
 
 ### 4. **CORS - Configuração**
@@ -103,23 +81,15 @@ O backend já está configurado para aceitar requisições do frontend. Verifiqu
 
 ## 🚀 **PROCESSO DE DEPLOY**
 
-### **Backend - AWS Lambda + API Gateway**
+O deploy é **automático** via GitHub Actions. Ao fazer push para a branch `main`:
 
-1. Empacote e publique o Lambda (ZIP ou Container) com `backend/` como código.
-2. Configure variáveis de ambiente listadas acima no Lambda.
-3. Crie API HTTP no API Gateway e integre o Lambda (rota proxy `/api/{proxy+}` e `/health`).
-4. Teste `GET /health` e `POST /api/admin/run-migrations` (com token).
+1. **Backend**: GitHub Actions faz deploy automático para Azure App Service
+2. **Frontend**: GitHub Actions faz deploy automático para Vercel
+3. **Testes**: Testes são executados antes do deploy
 
-### **Frontend - S3 + CloudFront**
+### **Deploy Manual (se necessário)**
 
-1. Build local do frontend:
-   ```bash
-   cd frontend
-   VITE_API_URL=https://SEU_API_GATEWAY_URL/api npm run build
-   ```
-2. Faça upload do conteúdo de `frontend/dist` para um bucket S3 (static website).
-3. Crie uma distribuição CloudFront apontando para o bucket.
-4. Configure redirecionamento de SPA (404 → /index.html).
+Consulte **[azure-deploy-guide.md](./azure-deploy-guide.md)** para instruções detalhadas de deploy manual.
 
 ---
 
@@ -128,7 +98,7 @@ O backend já está configurado para aceitar requisições do frontend. Verifiqu
 ### 1. **Health Check**
 ```bash
 # Backend
-curl https://portfolio-backend-production-a492.up.railway.app/health
+curl https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/health
 
 # Deve retornar:
 # { "status": "ok", "timestamp": "..." }
@@ -137,14 +107,14 @@ curl https://portfolio-backend-production-a492.up.railway.app/health
 ### 2. **Testar Endpoints**
 ```bash
 # Testar registro
-curl -X POST https://portfolio-backend-production-a492.up.railway.app/api/users/register \
+curl -X POST https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/api/users/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"test123","name":"Test"}'
+  -d '{"email":"test@test.com","password":"Test123!@#","name":"Test User","consentAccepted":true}'
 
 # Testar login
-curl -X POST https://portfolio-backend-production-a492.up.railway.app/api/users/login \
+curl -X POST https://startup-collab-backend-atdbbrdyhvgednge.canadacentral-01.azurewebsites.net/api/users/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"test123"}'
+  -d '{"email":"test@test.com","password":"Test123!@#"}'
 ```
 
 ### 3. **Verificar CORS**
@@ -205,12 +175,14 @@ Antes de fazer deploy, confirme:
 ## 📊 **MONITORAMENTO**
 
 ### **Logs**
-- **Railway**: Dashboard → View Logs
+- **Azure**: App Service → Monitoring → Log stream
 - **Vercel**: Dashboard → Deployments → View Logs
+- **GitHub Actions**: Actions tab → Ver logs dos workflows
 
 ### **Métricas**
-- Railway mostra CPU, memória, requisições
+- Azure App Service mostra CPU, memória, requisições
 - Vercel mostra visitas, bandwidth
+- SonarCloud mostra qualidade de código e cobertura de testes
 
 ### **Alertas**
 Configure alertas para:
@@ -223,18 +195,18 @@ Configure alertas para:
 ## 🐛 **TROUBLESHOOTING COMUM**
 
 ### **Backend não inicia**
-- Verifique variáveis de ambiente
+- Verifique variáveis de ambiente no Azure App Service
 - Verifique conexão com banco de dados
-- Veja logs no Railway
+- Veja logs no Azure App Service → Log stream
 
 ### **CORS Error**
-- Verifique `FRONTEND_URL` no backend
-- Verifique se frontend está na whitelist do CORS
+- Verifique `FRONTEND_URL` no Azure App Service (deve ser `https://portfolio-catolica-sc.vercel.app`)
+- Verifique `VITE_API_URL` no Vercel (deve apontar para o backend Azure)
 
 ### **500 Error no backend**
-- Verifique logs
+- Verifique logs no Azure App Service
 - Verifique se banco está acessível
-- Verifique se migrações foram executadas
+- Verifique se migrações foram executadas (`/api/admin/run-migrations`)
 
 ### **404 no frontend**
 - Verifique se `vercel.json` está correto
@@ -243,18 +215,20 @@ Configure alertas para:
 ### **Build falha**
 - Verifique dependências (`npm install`)
 - Verifique Node.js version (deve ser 18+)
+- Verifique logs do GitHub Actions
 
 ---
 
 ## 🔄 **DEPLOY CONTÍNUO**
 
-O CI/CD já está configurado no GitHub Actions. Ele:
+O CI/CD está configurado no GitHub Actions. Ele:
 
-1. **Roda testes** antes de deployar
-2. **Faz deploy do frontend** para Vercel
-3. **Backend** deploya automaticamente no Railway quando há push na main
+1. **Roda testes** antes de deployar (backend e frontend)
+2. **Faz deploy do backend** para Azure App Service
+3. **Faz deploy do frontend** para Vercel
+4. **Executa análise SonarCloud** para qualidade de código
 
-Para fazer deploy manual:
+Para fazer deploy:
 
 ```bash
 # 1. Commit e push para main
@@ -263,13 +237,13 @@ git commit -m "Deploy: descrição das mudanças"
 git push origin main
 
 # 2. GitHub Actions rodará automaticamente
-# 3. Railway detectará mudanças e redeployará backend
-# 4. Vercel detectará mudanças e redeployará frontend
+# 3. Azure App Service receberá o deploy do backend
+# 4. Vercel receberá o deploy do frontend
 ```
 
 ---
 
-## 📝 **PRÓXIMOS PASSOS APÓS DEPLOY**
+## 📝 **PRÓXIMOS PASSOS**
 
 1. **Testar funcionalidades principais**
    - Cadastro/Login
@@ -278,11 +252,11 @@ git push origin main
    - Perfis públicos
 
 2. **Configurar domínio customizado** (opcional)
-   - Railway permite domínio customizado
+   - Azure App Service permite domínio customizado
    - Vercel permite domínio customizado grátis
 
 3. **Melhorias** (veja CHECKLIST-RFC.md)
-   - Notificações em tempo real
+   - Notificações em tempo real (já implementado com Socket.io)
    - Sistema de comentários
    - Painel admin
    - Conformidade LGPD
@@ -293,16 +267,15 @@ git push origin main
 
 Se encontrar problemas:
 
-1. Verifique os logs (Railway/Vercel)
+1. Verifique os logs (Azure App Service / Vercel)
 2. Verifique variáveis de ambiente
 3. Teste localmente primeiro
-4. Verifique documentação dos serviços (Railway/Vercel)
+4. Verifique documentação dos serviços (Azure / Vercel)
+5. Consulte **[azure-deploy-guide.md](./azure-deploy-guide.md)** para mais detalhes
 
 ---
 
-**✅ A aplicação ESTÁ PRONTA para deploy!**
-
-Siga este guia passo a passo e sua aplicação estará no ar em minutos. 🚀
+**✅ A aplicação ESTÁ EM PRODUÇÃO e funcionando!** 🚀
 
 
 

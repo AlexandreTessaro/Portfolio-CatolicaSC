@@ -301,3 +301,6 @@ Todos os QR Codes devem ter:
 
 
 
+
+
+
