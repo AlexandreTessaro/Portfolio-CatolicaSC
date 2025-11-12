@@ -106,10 +106,8 @@ describe('Register Page', () => {
     const mockResponse = {
       data: {
         user: { id: 1, name: 'John Doe' },
-        tokens: {
-          accessToken: 'access-token',
-          refreshToken: 'refresh-token'
-        }
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token'
       }
     };
 
