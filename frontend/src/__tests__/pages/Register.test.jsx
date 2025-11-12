@@ -128,6 +128,11 @@ describe('Register Page', () => {
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    
+    // Marcar checkbox de consentimento
+    const consentCheckbox = screen.getByLabelText(/eu concordo com os termos/i);
+    fireEvent.click(consentCheckbox);
+    
     fireEvent.click(submitButton);
 
     // Assert
@@ -203,6 +208,11 @@ describe('Register Page', () => {
     fireEvent.change(emailInput, { target: { value: 'existing@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    
+    // Marcar checkbox de consentimento
+    const consentCheckbox = screen.getByLabelText(/eu concordo com os termos/i);
+    fireEvent.click(consentCheckbox);
+    
     fireEvent.click(submitButton);
 
     // Assert - Check if service was called and login was not called
@@ -234,6 +244,11 @@ describe('Register Page', () => {
     fireEvent.change(emailInput, { target: { value: 'john@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } });
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } });
+    
+    // Marcar checkbox de consentimento
+    const consentCheckbox = screen.getByLabelText(/eu concordo com os termos/i);
+    fireEvent.click(consentCheckbox);
+    
     fireEvent.click(submitButton);
 
     // Assert - Check if service was called
