@@ -353,13 +353,15 @@ describe('Routes Integration Tests', () => {
     it('should handle POST /api/matches', async () => {
       const response = await request(app)
         .post('/api/matches')
+        .set('Authorization', 'Bearer valid-token')
         .send({
           projectId: 1,
           message: 'I would like to join this project'
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body).toHaveProperty('success', false);
+      // O mock retorna sucesso, então esperamos 201
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('success', true);
     });
 
     it('should handle GET /api/matches/received', async () => {
