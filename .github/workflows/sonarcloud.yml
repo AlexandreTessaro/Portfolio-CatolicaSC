@@ -71,26 +71,55 @@ jobs:
         working-directory: ./backend
         run: npm test  # Já inclui --coverage no script
       
+      - name: Debug - Check Coverage File
+        working-directory: ./backend
+        run: |
+          echo "=== Verificando arquivo de coverage ==="
+          if [ -f coverage/lcov.info ]; then
+            echo "✅ Arquivo coverage/lcov.info existe"
+            echo "Tamanho do arquivo: $(wc -l < coverage/lcov.info) linhas"
+            echo "Primeiras 20 linhas:"
+            head -20 coverage/lcov.info
+          else
+            echo "❌ Arquivo coverage/lcov.info NÃO existe!"
+            echo "Arquivos em coverage/:"
+            ls -la coverage/ || echo "Diretório coverage não existe"
+          fi
+      
       - name: Fix Coverage Paths for SonarCloud
         working-directory: ./backend
         run: |
           # Normalizar caminhos no lcov.info para serem relativos ao diretório src
           if [ -f coverage/lcov.info ]; then
+            echo "=== Processando arquivo de coverage ==="
             # Criar backup
             cp coverage/lcov.info coverage/lcov.info.backup
+            echo "Backup criado. Tamanho original: $(wc -l < coverage/lcov.info.backup) linhas"
             
             # Processar arquivo LCOV mantendo apenas arquivos em src/
             # O formato LCOV tem blocos: SF: (source file), seguido de dados de coverage, terminando com end_of_record
             python3 << 'EOF'
           import re
+          import os
           
-          with open('coverage/lcov.info.backup', 'r') as f:
+          backup_file = 'coverage/lcov.info.backup'
+          output_file = 'coverage/lcov.info'
+          
+          if not os.path.exists(backup_file):
+              print(f"❌ Arquivo {backup_file} não existe!")
+              exit(1)
+          
+          with open(backup_file, 'r') as f:
               content = f.read()
+          
+          print(f"Conteúdo original: {len(content)} caracteres")
           
           # Dividir em blocos completos (cada bloco termina com end_of_record)
           # Padrão: SF: ... (dados) ... end_of_record
           pattern = r'(SF:.*?end_of_record)'
           blocks = re.findall(pattern, content, re.DOTALL | re.MULTILINE)
+          
+          print(f"Total de blocos encontrados: {len(blocks)}")
           
           filtered_blocks = []
           for block in blocks:
@@ -100,23 +129,91 @@ jobs:
                   if line.startswith('SF:'):
                       file_path = line[3:].strip()
                       
-                      # Verificar se está em src/ e normalizar
+                      # Normalizar caminho para ser relativo a src/
+                      # Aceitar diferentes formatos de caminho
+                      normalized = None
+                      
+                      # Caso 1: Caminho absoluto contendo /src/
                       if '/src/' in file_path:
-                          # Extrair parte após src/
                           normalized = 'src/' + file_path.split('/src/')[-1]
+                      # Caso 2: Já começa com src/
+                      elif file_path.startswith('src/'):
+                          normalized = file_path
+                      # Caso 3: Caminho relativo que pode estar em src/
+                      elif not file_path.startswith('/') and not 'node_modules' in file_path:
+                          # Tentar normalizar assumindo que está em src/
+                          if file_path.startswith('../'):
+                              # Remover ../ se necessário
+                              normalized = file_path.replace('../', '')
+                          else:
+                              normalized = 'src/' + file_path if not file_path.startswith('src/') else file_path
+                      
+                      # Se conseguiu normalizar, adicionar ao resultado
+                      if normalized and 'node_modules' not in normalized and 'coverage' not in normalized:
                           # Atualizar linha SF:
                           lines[i] = 'SF:' + normalized
                           filtered_blocks.append('\n'.join(lines))
+                          print(f"  ✅ Mantido: {file_path} -> {normalized}")
+                      else:
+                          print(f"  ⏭️  Ignorado: {file_path}")
                       break
           
-          # Escrever arquivo filtrado mantendo formato LCOV
-          with open('coverage/lcov.info', 'w') as f:
-              f.write('\n'.join(filtered_blocks))
-              if filtered_blocks:
-                  f.write('\n')  # Nova linha final
+          print(f"Blocos mantidos após filtro: {len(filtered_blocks)}")
           
-          print(f"Coverage paths fixed. Kept {len(filtered_blocks)} files from src/")
+          # Escrever arquivo filtrado mantendo formato LCOV
+          if filtered_blocks:
+              with open(output_file, 'w') as f:
+                  f.write('\n'.join(filtered_blocks))
+                  f.write('\n')  # Nova linha final
+              print(f"✅ Arquivo processado com {len(filtered_blocks)} blocos")
+          else:
+              print("⚠️ Nenhum bloco foi mantido após filtro!")
+              print("⚠️ Isso pode indicar que os caminhos estão em formato diferente do esperado.")
+              print("⚠️ Usando arquivo original sem modificações.")
+              # Se não encontrou nada, usar o original sem modificações
+              import shutil
+              shutil.copy(backup_file, output_file)
+              print("✅ Arquivo original copiado (sem filtros)")
+          
+          print(f"✅ Arquivo processado. Tamanho final: {os.path.getsize(output_file)} bytes")
           EOF
+          
+            echo "=== Verificando arquivo processado ==="
+            if [ -f coverage/lcov.info ]; then
+              echo "✅ Arquivo coverage/lcov.info processado"
+              echo "Tamanho: $(wc -l < coverage/lcov.info) linhas"
+              echo "Primeiras 10 linhas:"
+              head -10 coverage/lcov.info
+            else
+              echo "❌ Erro ao processar arquivo!"
+            fi
+          else
+            echo "❌ Arquivo coverage/lcov.info não existe! Pulando processamento."
+          fi
+      
+      - name: Verify Coverage File Before Scan
+        working-directory: ./backend
+        run: |
+          echo "=== Verificação final antes do scan ==="
+          if [ -f coverage/lcov.info ]; then
+            echo "✅ Arquivo coverage/lcov.info existe"
+            echo "Caminho absoluto: $(pwd)/coverage/lcov.info"
+            echo "Tamanho: $(wc -l < coverage/lcov.info) linhas"
+            echo "Tamanho em bytes: $(stat -f%z coverage/lcov.info 2>/dev/null || stat -c%s coverage/lcov.info 2>/dev/null || echo 'N/A') bytes"
+            echo ""
+            echo "Primeiras 5 linhas do arquivo:"
+            head -5 coverage/lcov.info
+            echo ""
+            echo "Últimas 5 linhas do arquivo:"
+            tail -5 coverage/lcov.info
+          else
+            echo "❌ ERRO: Arquivo coverage/lcov.info NÃO existe antes do scan!"
+            echo "Conteúdo do diretório backend/:"
+            ls -la
+            echo ""
+            echo "Conteúdo do diretório backend/coverage/ (se existir):"
+            ls -la coverage/ 2>/dev/null || echo "Diretório coverage não existe"
+            exit 1
           fi
       
       - name: SonarCloud Scan - Backend
