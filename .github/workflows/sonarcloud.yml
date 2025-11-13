@@ -76,13 +76,47 @@ jobs:
         run: |
           # Normalizar caminhos no lcov.info para serem relativos ao diretório src
           if [ -f coverage/lcov.info ]; then
-            # Substituir caminhos absolutos e relativos incorretos
-            sed -i 's|^SF:\./src/|SF:src/|g' coverage/lcov.info
-            sed -i 's|^SF:src/|SF:src/|g' coverage/lcov.info
-            # Remover linhas com arquivos excluídos (app.js, index.js, etc)
-            sed -i '/^SF:.*\/app\.js$/d' coverage/lcov.info
-            sed -i '/^SF:.*\/index\.js$/d' coverage/lcov.info
-            sed -i '/^SF:.*\/scripts\//d' coverage/lcov.info
+            # Criar backup
+            cp coverage/lcov.info coverage/lcov.info.backup
+            
+            # Processar arquivo LCOV mantendo apenas arquivos em src/
+            # O formato LCOV tem blocos: SF: (source file), seguido de dados de coverage, terminando com end_of_record
+            python3 << 'EOF'
+          import re
+          
+          with open('coverage/lcov.info.backup', 'r') as f:
+              content = f.read()
+          
+          # Dividir em blocos completos (cada bloco termina com end_of_record)
+          # Padrão: SF: ... (dados) ... end_of_record
+          pattern = r'(SF:.*?end_of_record)'
+          blocks = re.findall(pattern, content, re.DOTALL | re.MULTILINE)
+          
+          filtered_blocks = []
+          for block in blocks:
+              lines = block.split('\n')
+              # Encontrar linha SF:
+              for i, line in enumerate(lines):
+                  if line.startswith('SF:'):
+                      file_path = line[3:].strip()
+                      
+                      # Verificar se está em src/ e normalizar
+                      if '/src/' in file_path:
+                          # Extrair parte após src/
+                          normalized = 'src/' + file_path.split('/src/')[-1]
+                          # Atualizar linha SF:
+                          lines[i] = 'SF:' + normalized
+                          filtered_blocks.append('\n'.join(lines))
+                      break
+          
+          # Escrever arquivo filtrado mantendo formato LCOV
+          with open('coverage/lcov.info', 'w') as f:
+              f.write('\n'.join(filtered_blocks))
+              if filtered_blocks:
+                  f.write('\n')  # Nova linha final
+          
+          print(f"Coverage paths fixed. Kept {len(filtered_blocks)} files from src/")
+          EOF
           fi
       
       - name: SonarCloud Scan - Backend
