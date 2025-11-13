@@ -7,6 +7,7 @@ describe('MonitoringService', () => {
     // Reset do serviço
     monitoringService.initialized = false;
     monitoringService.client = null;
+    monitoringService.provider = 'none';
   });
 
   afterEach(() => {
@@ -43,6 +44,7 @@ describe('MonitoringService', () => {
 
     it('should track metric when initialized', () => {
       monitoringService.initialized = true;
+      monitoringService.provider = 'applicationinsights';
       monitoringService.client = {
         trackMetric: vi.fn()
       };
@@ -64,6 +66,7 @@ describe('MonitoringService', () => {
 
     it('should track event when initialized', () => {
       monitoringService.initialized = true;
+      monitoringService.provider = 'applicationinsights';
       monitoringService.client = {
         trackEvent: vi.fn()
       };
@@ -86,6 +89,7 @@ describe('MonitoringService', () => {
 
     it('should track exception when initialized', () => {
       monitoringService.initialized = true;
+      monitoringService.provider = 'applicationinsights';
       monitoringService.client = {
         trackException: vi.fn()
       };

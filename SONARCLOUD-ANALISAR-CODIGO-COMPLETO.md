@@ -16,7 +16,7 @@ O SonarCloud por padrão analisa apenas o **"New Code"** (código novo desde a �
    - Nome: `Startup Collab - Overall Code`
    - Descrição: `Quality Gate para código completo do projeto`
 
-3. **Adicionar Condições para "https://sonarcloud.io/quality_gates" (não "New Code"):**
+3. **Adicionar Condições para "Overall Code" (não "New Code"):**
 
    Clique em **"Add Condition"** e configure:
 
