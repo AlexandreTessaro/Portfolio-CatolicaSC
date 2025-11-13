@@ -3,8 +3,14 @@ import app from './app.js';
 import pool from './src/config/database.js';
 import redisClient from './src/config/redis.js';
 import { setupSocketIO } from './src/config/socket.js';
+import monitoringService from './src/config/monitoring.js';
 
 dotenv.config();
+
+// Inicializar monitoramento (deve ser feito antes de iniciar o servidor)
+monitoringService.initialize().catch(err => {
+  console.error('Erro ao inicializar monitoramento:', err);
+});
 // Azure App Service usa porta 8080 por padrão
 // Koyeb e outros podem usar 5000
 const PORT = Number(process.env.PORT) || 5000;

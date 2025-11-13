@@ -15,6 +15,8 @@ import userConnectionRoutes from './src/routes/userConnectionRoutes.js';
 import notificationRoutes from './src/routes/notificationRoutes.js';
 import auditRoutes from './src/routes/auditRoutes.js';
 import createTables from './scripts/migrate.js';
+// Monitoramento
+import { monitoringMiddleware, errorTrackingMiddleware } from './src/middleware/monitoring.js';
 // import './src/config/firebase.js'; // Inicializar Firebase Admin (COMENTADO - OAuth deixado para depois)
 
 dotenv.config();
@@ -68,6 +70,9 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Monitoramento (deve vir antes das rotas)
+app.use(monitoringMiddleware);
 
 // Logging
 app.use((req, _res, next) => {
@@ -139,7 +144,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// Errors
+// Errors (com rastreamento de monitoramento)
+app.use(errorTrackingMiddleware);
 app.use((err, _req, res, _next) => {
   console.error('Erro não tratado:', err);
   res.status(err.status || 500).json({
