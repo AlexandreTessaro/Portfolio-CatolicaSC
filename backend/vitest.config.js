@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
 
 export default defineConfig({
   test: {
@@ -13,7 +14,20 @@ export default defineConfig({
         'src/__tests__/',
         '**/*.config.js',
         '**/*.config.ts',
+        'app.js',
+        'index.js',
+        'scripts/**',
+        'migrations/**',
       ],
+      // Garantir que os caminhos sejam relativos ao diretório raiz do projeto
+      reportsDirectory: './coverage',
+      // Usar caminhos relativos corretos
+      all: true,
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
     },
   },
 });

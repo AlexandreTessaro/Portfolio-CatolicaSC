@@ -71,6 +71,20 @@ jobs:
         working-directory: ./backend
         run: npm test  # Já inclui --coverage no script
       
+      - name: Fix Coverage Paths for SonarCloud
+        working-directory: ./backend
+        run: |
+          # Normalizar caminhos no lcov.info para serem relativos ao diretório src
+          if [ -f coverage/lcov.info ]; then
+            # Substituir caminhos absolutos e relativos incorretos
+            sed -i 's|^SF:\./src/|SF:src/|g' coverage/lcov.info
+            sed -i 's|^SF:src/|SF:src/|g' coverage/lcov.info
+            # Remover linhas com arquivos excluídos (app.js, index.js, etc)
+            sed -i '/^SF:.*\/app\.js$/d' coverage/lcov.info
+            sed -i '/^SF:.*\/index\.js$/d' coverage/lcov.info
+            sed -i '/^SF:.*\/scripts\//d' coverage/lcov.info
+          fi
+      
       - name: SonarCloud Scan - Backend
         uses: SonarSource/sonarcloud-github-action@master
         env:
