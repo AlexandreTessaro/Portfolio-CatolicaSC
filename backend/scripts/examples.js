@@ -1,7 +1,7 @@
 // Exemplos de uso dos scripts de geração de dados sintéticos
 
-import generateSyntheticData from './generate-synthetic-data.js';
-import generateRealisticData from './generate-realistic-data.js';
+import generateSyntheticData from './seeds/generate-synthetic-data.js';
+import generateRealisticData from './seeds/generate-realistic-data.js';
 import { showStats, clearAllData } from './data-manager.js';
 
 // Exemplo 1: Gerar dados realistas para desenvolvimento
