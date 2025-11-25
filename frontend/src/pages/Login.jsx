@@ -31,7 +31,12 @@ const Login = () => {
       
       navigate('/dashboard');
     } catch (e) {
-      setError(e?.response?.data?.message || 'Falha no login');
+      // Mensagem de erro mais amigável para cold start
+      const errorMessage = e?.response?.data?.message || 
+        (e?.code === 'ECONNABORTED' || e?.message?.includes('timeout') 
+          ? 'Servidor demorou para responder. Tente novamente.' 
+          : 'Falha no login');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

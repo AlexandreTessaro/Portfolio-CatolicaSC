@@ -70,7 +70,7 @@ export const API_ENDPOINTS = {
 
 export const API_CONFIG = {
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000, // 30 segundos (aumentado para cold start do Azure)
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

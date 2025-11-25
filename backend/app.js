@@ -119,6 +119,64 @@ app.get('/api/admin/run-migrations', async (req, res) => {
   }
 });
 
+// Endpoint seguro para executar seeds em produção
+app.post('/api/admin/run-seeds', async (req, res) => {
+  try {
+    const token = req.headers['x-migration-token'] || req.query.token;
+    if (!process.env.MIGRATION_TOKEN || token !== process.env.MIGRATION_TOKEN) {
+      return res.status(403).json({ success: false, message: 'Acesso negado' });
+    }
+    
+    // Importar e executar seed
+    const { default: seedAll } = await import('./scripts/seeds/seed-all.js');
+    
+    // Executar em background para não travar a resposta
+    seedAll()
+      .then(() => {
+        console.log('✅ Seeds executados com sucesso via endpoint admin');
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao executar seeds:', error);
+      });
+    
+    res.json({ 
+      success: true, 
+      message: 'Seeds iniciados em background. Verifique os logs do Azure para acompanhar o progresso.' 
+    });
+  } catch (error) {
+    console.error('Erro ao executar seeds:', error);
+    res.status(500).json({ success: false, message: 'Falha ao executar seeds', error: error.message });
+  }
+});
+
+// Alternativa GET para seeds
+app.get('/api/admin/run-seeds', async (req, res) => {
+  try {
+    const token = req.headers['x-migration-token'] || req.query.token;
+    if (!process.env.MIGRATION_TOKEN || token !== process.env.MIGRATION_TOKEN) {
+      return res.status(403).json({ success: false, message: 'Acesso negado' });
+    }
+    
+    const { default: seedAll } = await import('./scripts/seeds/seed-all.js');
+    
+    seedAll()
+      .then(() => {
+        console.log('✅ Seeds executados com sucesso via endpoint admin');
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao executar seeds:', error);
+      });
+    
+    res.json({ 
+      success: true, 
+      message: 'Seeds iniciados em background. Verifique os logs do Azure para acompanhar o progresso.' 
+    });
+  } catch (error) {
+    console.error('Erro ao executar seeds (GET):', error);
+    res.status(500).json({ success: false, message: 'Falha ao executar seeds', error: error.message });
+  }
+});
+
 // Health
 app.get('/health', (req, res) => {
   res.status(200).json({

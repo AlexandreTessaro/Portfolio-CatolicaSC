@@ -77,8 +77,24 @@ pool.on('connect', (_client) => {
   console.log('✅ Conectado ao banco de dados PostgreSQL');
 });
 
-pool.on('error', (err, _client) => {
+pool.on('error', async (err, _client) => {
   console.error('❌ Erro na conexão com o banco:', err);
+  
+  // Tentar reconectar após erros de conexão (cold start do Azure)
+  if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEDOUT' || err.code === '57P01' || err.code === 'ENOTFOUND') {
+    console.log('🔄 Tentando reconectar ao banco após erro de conexão...');
+    setTimeout(async () => {
+      try {
+        const testClient = await pool.connect();
+        await testClient.query('SELECT NOW()');
+        testClient.release();
+        console.log('✅ Reconectado ao banco de dados com sucesso');
+      } catch (reconnectError) {
+        console.error('❌ Falha na reconexão:', reconnectError.message);
+        // Não tentar novamente para evitar loop infinito
+      }
+    }, 1000);
+  }
 });
 
 // Teste de conexão na inicialização

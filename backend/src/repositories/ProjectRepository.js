@@ -1,6 +1,21 @@
 import pool from '../config/database.js';
 import Project from '../domain/Project.js';
 
+// Função helper para fazer parse seguro de JSON
+function safeJsonParse(value, defaultValue = null) {
+  if (value === null || value === undefined) return defaultValue;
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'object') return value;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      return defaultValue !== null ? defaultValue : [];
+    }
+  }
+  return defaultValue;
+}
+
 export class ProjectRepository {
   constructor(database = null) {
     this.db = database || pool;
@@ -36,14 +51,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       });
@@ -67,14 +82,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       });
@@ -99,14 +114,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       }));
@@ -163,14 +178,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       });
@@ -229,14 +244,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       }));
@@ -261,14 +276,14 @@ export class ProjectRepository {
         id: project.id,
         title: project.title,
         description: project.description,
-        objectives: typeof project.objectives === 'string' ? JSON.parse(project.objectives) : project.objectives,
-        technologies: typeof project.technologies === 'string' ? JSON.parse(project.technologies) : project.technologies,
+        objectives: safeJsonParse(project.objectives, []),
+        technologies: safeJsonParse(project.technologies, []),
         status: project.status,
         category: project.category,
         creatorId: project.creator_id,
-        teamMembers: typeof project.team_members === 'string' ? JSON.parse(project.team_members) : (project.team_members || []),
+        teamMembers: safeJsonParse(project.team_members, []),
         collaborators: project.collaborators || [],
-        images: typeof project.images === 'string' ? JSON.parse(project.images) : project.images,
+        images: safeJsonParse(project.images, []),
         createdAt: project.created_at,
         updatedAt: project.updated_at
       }));
@@ -315,14 +330,14 @@ export class ProjectRepository {
         id: updatedProject.id,
         title: updatedProject.title,
         description: updatedProject.description,
-        objectives: typeof updatedProject.objectives === 'string' ? JSON.parse(updatedProject.objectives) : updatedProject.objectives,
-        technologies: typeof updatedProject.technologies === 'string' ? JSON.parse(updatedProject.technologies) : updatedProject.technologies,
+        objectives: safeJsonParse(updatedProject.objectives, []),
+        technologies: safeJsonParse(updatedProject.technologies, []),
         status: updatedProject.status,
         category: updatedProject.category,
         creatorId: updatedProject.creator_id,
         teamMembers: updatedTeamMembers,
-        collaborators: typeof updatedProject.collaborators === 'string' ? JSON.parse(updatedProject.collaborators) : updatedProject.collaborators,
-        images: typeof updatedProject.images === 'string' ? JSON.parse(updatedProject.images) : updatedProject.images,
+        collaborators: safeJsonParse(updatedProject.collaborators, []),
+        images: safeJsonParse(updatedProject.images, []),
         createdAt: updatedProject.created_at,
         updatedAt: updatedProject.updated_at
       });
@@ -364,14 +379,14 @@ export class ProjectRepository {
         id: updatedProject.id,
         title: updatedProject.title,
         description: updatedProject.description,
-        objectives: typeof updatedProject.objectives === 'string' ? JSON.parse(updatedProject.objectives) : updatedProject.objectives,
-        technologies: typeof updatedProject.technologies === 'string' ? JSON.parse(updatedProject.technologies) : updatedProject.technologies,
+        objectives: safeJsonParse(updatedProject.objectives, []),
+        technologies: safeJsonParse(updatedProject.technologies, []),
         status: updatedProject.status,
         category: updatedProject.category,
         creatorId: updatedProject.creator_id,
         teamMembers: updatedTeamMembers,
-        collaborators: typeof updatedProject.collaborators === 'string' ? JSON.parse(updatedProject.collaborators) : updatedProject.collaborators,
-        images: typeof updatedProject.images === 'string' ? JSON.parse(updatedProject.images) : updatedProject.images,
+        collaborators: safeJsonParse(updatedProject.collaborators, []),
+        images: safeJsonParse(updatedProject.images, []),
         createdAt: updatedProject.created_at,
         updatedAt: updatedProject.updated_at
       });

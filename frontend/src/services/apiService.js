@@ -61,6 +61,31 @@ apiClient.interceptors.response.use(
   }
 );
 
+// Função auxiliar para retry automático (útil para cold start do Azure)
+async function retryRequest(requestFn, maxRetries = 2, delay = 2000) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      // Se for erro de conexão/timeout e não for a última tentativa, tenta novamente
+      const isConnectionError = 
+        !error.response || 
+        error.code === 'ECONNABORTED' || 
+        error.code === 'ETIMEDOUT' ||
+        error.message?.includes('timeout') ||
+        error.message?.includes('Network Error');
+      
+      if (isConnectionError && attempt < maxRetries) {
+        console.log(`🔄 Tentativa ${attempt + 1} falhou, tentando novamente em ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      
+      throw error;
+    }
+  }
+}
+
 // Serviços de usuário
 export const userService = {
   async register(userData) {
@@ -69,8 +94,12 @@ export const userService = {
   },
 
   async login(credentials) {
-    const response = await apiClient.post(API_ENDPOINTS.USERS.LOGIN, credentials);
-    return response.data;
+    // Usar retry para lidar com cold start do Azure
+    return await retryRequest(
+      () => apiClient.post(API_ENDPOINTS.USERS.LOGIN, credentials),
+      2, // 2 tentativas adicionais (total de 3)
+      2000 // Esperar 2 segundos entre tentativas
+    ).then(response => response.data);
   },
 
   async loginWithFirebase(idToken) {

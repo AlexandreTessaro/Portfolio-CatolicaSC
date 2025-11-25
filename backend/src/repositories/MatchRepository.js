@@ -1,5 +1,21 @@
 import Match from '../domain/Match.js';
 
+// Função helper para fazer parse seguro de JSON
+function safeJsonParse(value, defaultValue = null) {
+  if (value === null || value === undefined) return defaultValue;
+  if (Array.isArray(value)) return value; // Já é um array
+  if (typeof value === 'object') return value; // Já é um objeto
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      // Se falhar o parse, retornar array com a string ou defaultValue
+      return defaultValue !== null ? defaultValue : [value];
+    }
+  }
+  return defaultValue;
+}
+
 class MatchRepository {
   constructor(database) {
     this.db = database;
@@ -74,7 +90,7 @@ class MatchRepository {
           title: row.project_title,
           description: row.project_description,
           status: row.project_status,
-          technologies: row.project_technologies,
+          technologies: safeJsonParse(row.project_technologies, []),
           creatorId: row.project_creator_id
         } : null,
         user: row.user_id ? {
@@ -82,7 +98,7 @@ class MatchRepository {
           name: row.user_name,
           email: row.user_email,
           bio: row.user_bio,
-          skills: row.user_skills,
+          skills: safeJsonParse(row.user_skills, []),
           avatar: row.user_avatar
         } : null
       });
@@ -130,7 +146,7 @@ class MatchRepository {
           title: row.project_title,
           description: row.project_description,
           status: row.project_status,
-          technologies: row.project_technologies,
+          technologies: safeJsonParse(row.project_technologies, []),
           creatorId: row.project_creator_id
         } : null,
         user: row.user_id ? {
@@ -138,7 +154,7 @@ class MatchRepository {
           name: row.user_name,
           email: row.user_email,
           bio: row.user_bio,
-          skills: row.user_skills,
+          skills: safeJsonParse(row.user_skills, []),
           avatar: row.user_avatar
         } : null
       }));
@@ -186,7 +202,7 @@ class MatchRepository {
           title: row.project_title,
           description: row.project_description,
           status: row.project_status,
-          technologies: row.project_technologies,
+          technologies: safeJsonParse(row.project_technologies, []),
           creatorId: row.project_creator_id
         } : null,
         user: row.user_id ? {
@@ -194,7 +210,7 @@ class MatchRepository {
           name: row.user_name,
           email: row.user_email,
           bio: row.user_bio,
-          skills: row.user_skills,
+          skills: safeJsonParse(row.user_skills, []),
           avatar: row.user_avatar
         } : null
       }));

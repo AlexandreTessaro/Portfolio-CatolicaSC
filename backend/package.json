@@ -22,6 +22,8 @@
     "db:seed-working": "node scripts/seeds/generate-working-data.js",
     "db:insert-data": "node scripts/seeds/insert-data.js",
     "db:seed-scalable": "node scripts/seeds/generate-scalable-data.js",
+    "db:seed-production": "node scripts/seeds/seed-production.js",
+    "db:seed-all": "node scripts/seeds/seed-all.js",
     "db:test-accuracy": "node tests/scripts/test-recommendation-accuracy.js",
     "db:clear": "node scripts/data-manager.js clear",
     "db:stats": "node scripts/data-manager.js stats",

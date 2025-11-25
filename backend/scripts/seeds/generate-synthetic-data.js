@@ -242,6 +242,21 @@ function generateProject(creatorId, index) {
   };
 }
 
+// Função para fazer parse seguro de JSON
+function safeJsonParse(value, defaultValue = []) {
+  if (!value) return defaultValue;
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'object') return value;
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+  return defaultValue;
+}
+
 // Função para gerar mensagem de match
 function generateMatchMessage(userSkills) {
   const message = MATCH_MESSAGES[Math.floor(Math.random() * MATCH_MESSAGES.length)];
@@ -399,7 +414,7 @@ async function generateSyntheticData(options = {}) {
       
       // Buscar skills do usuário para a mensagem
       const userResult = await client.query('SELECT skills FROM users WHERE id = $1', [userId]);
-      const userSkills = userResult.rows[0]?.skills ? JSON.parse(userResult.rows[0].skills) : ['desenvolvimento'];
+      const userSkills = safeJsonParse(userResult.rows[0]?.skills, ['desenvolvimento']);
       
       const message = generateMatchMessage(userSkills);
       const statuses = ['pending', 'accepted', 'rejected'];
